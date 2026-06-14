@@ -1,0 +1,1133 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>AI引论期末复习(三):多智能体 | Square的小站</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 8.1.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">AI引论期末复习(三):多智能体</h1><a id="logo" href="/.">Square的小站</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">AI引论期末复习(三):多智能体</h1><div class="post-meta">2026-06-13</div><div class="post-content"><h2 id="囚徒困境中的几个重要概念"><a href="#囚徒困境中的几个重要概念" class="headerlink" title="囚徒困境中的几个重要概念"></a>囚徒困境中的几个重要概念</h2><h3 id="1-囚徒困境的基本设定"><a href="#1-囚徒困境的基本设定" class="headerlink" title="1. 囚徒困境的基本设定"></a>1. 囚徒困境的基本设定</h3><p>两个嫌犯 A 和 B 被单独审问，二人不能交流。每个人都有两个选择：</p>
+<ul>
+<li><strong>检举</strong>：背叛对方；</li>
+<li><strong>沉默</strong>：不背叛对方。</li>
+</ul>
+<p>规则如下：</p>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>双方都沉默</td>
+<td>各判 1 年</td>
+</tr>
+<tr>
+<td>双方都检举</td>
+<td>各判 5 年</td>
+</tr>
+<tr>
+<td>一方检举，一方沉默</td>
+<td>检举者释放，沉默者判 10 年</td>
+</tr>
+</tbody></table>
+<p>如果把“刑期越少越好”转化为收益，可以写成：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>A：检举</th>
+<th>A：沉默</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B：检举</td>
+<td>A&#x3D;-5, B&#x3D;-5</td>
+<td>A&#x3D;-10, B&#x3D;0</td>
+</tr>
+<tr>
+<td>B：沉默</td>
+<td>A&#x3D;0, B&#x3D;-10</td>
+<td>A&#x3D;-1, B&#x3D;-1</td>
+</tr>
+</tbody></table>
+<p>其中收益越大越好：</p>
+<script type="math/tex; mode=display">0>-1>-5>-10</script>
+<p>也就是：</p>
+<script type="math/tex; mode=display">释放 > 判1年 > 判5年 > 判10年</script>
+<hr>
+<h3 id="2-占优策略"><a href="#2-占优策略" class="headerlink" title="2. 占优策略"></a>2. 占优策略</h3><p><strong>占优策略</strong>指的是：</p>
+<blockquote>
+<p>不管对方怎么选，自己选择某个策略都比选择另一个策略更好。</p>
+</blockquote>
+<p>以 A 为例：</p>
+<p>如果 B 检举：</p>
+<script type="math/tex; mode=display">A\text{检举}=-5,\quad A\text{沉默}=-10</script>
+<p>所以 A 更应该检举。</p>
+<p>如果 B 沉默：</p>
+<script type="math/tex; mode=display">A\text{检举}=0,\quad A\text{沉默}=-1</script>
+<p>所以 A 仍然更应该检举。</p>
+<p>因此，对 A 来说：</p>
+<script type="math/tex; mode=display">\text{检举强占优于沉默}</script>
+<p>B 的情况完全对称，所以对 B 来说，检举也是占优策略。</p>
+<p>所以囚徒困境中：</p>
+<script type="math/tex; mode=display">\boxed{\text{A 和 B 的占优策略都是检举}}</script>
+<hr>
+<h3 id="3-占优策略均衡"><a href="#3-占优策略均衡" class="headerlink" title="3. 占优策略均衡"></a>3. 占优策略均衡</h3><p><strong>占优策略均衡</strong>指的是：</p>
+<blockquote>
+<p>所有参与者都选择了自己的占优策略。</p>
+</blockquote>
+<p>在囚徒困境中，A 和 B 的占优策略都是检举，因此占优策略均衡是：</p>
+<script type="math/tex; mode=display">(\text{检举},\text{检举})</script>
+<p>对应收益为：</p>
+<script type="math/tex; mode=display">(-5,-5)</script>
+<p>这个结果是稳定的，因为每个人从自己的角度看，检举都是更理性的选择。</p>
+<hr>
+<h3 id="4-纳什均衡"><a href="#4-纳什均衡" class="headerlink" title="4. 纳什均衡"></a>4. 纳什均衡</h3><p><strong>纳什均衡</strong>指的是：</p>
+<blockquote>
+<p>在某个策略组合下，如果其他人策略不变，任何一个参与者都不能通过单方面改变策略获得更高收益，那么这个策略组合就是纳什均衡。</p>
+</blockquote>
+<p>在囚徒困境中，考虑：</p>
+<script type="math/tex; mode=display">(\text{检举},\text{检举})</script>
+<p>如果 B 保持检举，A 当前收益为：</p>
+<script type="math/tex; mode=display">-5</script>
+<p>如果 A 单方面改成沉默，收益变为：</p>
+<script type="math/tex; mode=display">-10</script>
+<p>A 会变差，所以 A 不愿意改变。</p>
+<p>同理，如果 A 保持检举，B 单方面改成沉默，也会从：</p>
+<script type="math/tex; mode=display">-5</script>
+<p>变成：</p>
+<script type="math/tex; mode=display">-10</script>
+<p>B 也不愿意改变。</p>
+<p>因此：</p>
+<script type="math/tex; mode=display">\boxed{(\text{检举},\text{检举})\text{ 是纳什均衡}}</script>
+<p>注意：</p>
+<blockquote>
+<p>纳什均衡只表示“没有人愿意单方面改变”，不表示这个结果对所有人来说最好。</p>
+</blockquote>
+<hr>
+<h3 id="5-占优策略均衡与纳什均衡的关系"><a href="#5-占优策略均衡与纳什均衡的关系" class="headerlink" title="5. 占优策略均衡与纳什均衡的关系"></a>5. 占优策略均衡与纳什均衡的关系</h3><p>二者关系是：</p>
+<script type="math/tex; mode=display">\boxed{\text{占优策略均衡一定是纳什均衡}}</script>
+<p>但反过来不一定成立：</p>
+<script type="math/tex; mode=display">\boxed{\text{纳什均衡不一定是占优策略均衡}}</script>
+<p>原因是：</p>
+<ul>
+<li>占优策略要求：无论别人怎么选，这个策略都最好；</li>
+<li>纳什均衡只要求：在当前策略组合下，没人愿意单方面改变。</li>
+</ul>
+<p>所以占优策略均衡是比纳什均衡更强的条件。</p>
+<hr>
+<h3 id="6-帕累托改善"><a href="#6-帕累托改善" class="headerlink" title="6. 帕累托改善"></a>6. 帕累托改善</h3><p><strong>帕累托改善</strong>指的是：</p>
+<blockquote>
+<p>在不损害任何人的情况下，使至少一个参与者变得更好。</p>
+</blockquote>
+<p>在囚徒困境中，从：</p>
+<script type="math/tex; mode=display">(\text{检举},\text{检举})=(-5,-5)</script>
+<p>变成：</p>
+<script type="math/tex; mode=display">(\text{沉默},\text{沉默})=(-1,-1)</script>
+<p>A 从 <script type="math/tex">-5</script> 变成 <script type="math/tex">-1</script>，变好了；</p>
+<p>B 也从 <script type="math/tex">-5</script> 变成 <script type="math/tex">-1</script>，也变好了。</p>
+<p>没有人变差，且两个人都变好，所以这是一个帕累托改善。</p>
+<hr>
+<h3 id="7-帕累托最优"><a href="#7-帕累托最优" class="headerlink" title="7. 帕累托最优"></a>7. 帕累托最优</h3><p><strong>帕累托最优</strong>指的是：</p>
+<blockquote>
+<p>如果一个结果已经无法在“不损害任何人”的前提下继续让某个人变好，那么这个结果就是帕累托最优。</p>
+</blockquote>
+<p>在囚徒困境中：</p>
+<script type="math/tex; mode=display">(\text{沉默},\text{沉默})=(-1,-1)</script>
+<p>是帕累托最优。</p>
+<p>因为如果想让 A 更好，就需要让 A 检举、B 沉默：</p>
+<script type="math/tex; mode=display">(\text{A检举},\text{B沉默})=(0,-10)</script>
+<p>此时 A 变好，但 B 变差。</p>
+<p>同理，如果想让 B 更好，就会损害 A。</p>
+<p>所以：</p>
+<script type="math/tex; mode=display">\boxed{(\text{沉默},\text{沉默})\text{ 是帕累托最优}}</script>
+<p>而：</p>
+<script type="math/tex; mode=display">(\text{检举},\text{检举})=(-5,-5)</script>
+<p>不是帕累托最优，因为双方都沉默可以让两个人都变好。</p>
+<hr>
+<h3 id="8-囚徒困境中的核心矛盾"><a href="#8-囚徒困境中的核心矛盾" class="headerlink" title="8. 囚徒困境中的核心矛盾"></a>8. 囚徒困境中的核心矛盾</h3><p>囚徒困境最重要的结论是：</p>
+<script type="math/tex; mode=display">\boxed{\text{纳什均衡不一定是帕累托最优}}</script>
+<p>具体来说：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>对应结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>占优策略</td>
+<td>检举</td>
+</tr>
+<tr>
+<td>占优策略均衡</td>
+<td>双方检举</td>
+</tr>
+<tr>
+<td>纳什均衡</td>
+<td>双方检举</td>
+</tr>
+<tr>
+<td>帕累托最优</td>
+<td>双方沉默</td>
+</tr>
+</tbody></table>
+<p>也就是说：</p>
+<script type="math/tex; mode=display">\text{个体理性选择}
+\Rightarrow
+(\text{检举},\text{检举})</script>
+<p>但：</p>
+<script type="math/tex; mode=display">\text{整体更优结果}
+=
+(\text{沉默},\text{沉默})</script>
+<p>所以囚徒困境说明：</p>
+<blockquote>
+<p>个体理性不一定导致整体最优。</p>
+</blockquote>
+<hr>
+<h3 id="9-现实意义"><a href="#9-现实意义" class="headerlink" title="9. 现实意义"></a>9. 现实意义</h3><p>囚徒困境可以解释许多现实问题：</p>
+<ul>
+<li><strong>军备竞赛</strong>：每个国家都想增强军备保护自己，结果所有国家都更不安全；</li>
+<li><strong>气候问题</strong>：每个国家都想少承担减排成本，结果全球环境共同恶化；</li>
+<li><strong>公地悲剧</strong>：每个人都想多占用公共资源，结果公共资源被过度消耗；</li>
+<li><strong>内卷</strong>：每个人都想通过更多投入避免落后，结果大家都更累，但整体收益没有明显提升。</li>
+</ul>
+<p>这些问题的共同点是：</p>
+<blockquote>
+<p>每个个体从自身角度出发都做出了理性选择，但所有人的理性选择叠加后，反而导致了较差的整体结果。</p>
+</blockquote>
+<hr>
+<h3 id="10-小结"><a href="#10-小结" class="headerlink" title="10. 小结"></a>10. 小结</h3><p>囚徒困境中最重要的概念关系如下：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+<th>囚徒困境中的体现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>占优策略</td>
+<td>不管别人怎么选，自己选它都更好</td>
+<td>检举</td>
+</tr>
+<tr>
+<td>占优策略均衡</td>
+<td>所有人都选择自己的占优策略</td>
+<td>双方检举</td>
+</tr>
+<tr>
+<td>纳什均衡</td>
+<td>没有人愿意单方面改变策略</td>
+<td>双方检举</td>
+</tr>
+<tr>
+<td>帕累托改善</td>
+<td>不损害任何人，并让至少一人变好</td>
+<td>双方检举 <script type="math/tex">\rightarrow</script> 双方沉默</td>
+</tr>
+<tr>
+<td>帕累托最优</td>
+<td>无法再进行帕累托改善</td>
+<td>双方沉默</td>
+</tr>
+</tbody></table>
+<p>一句话总结：</p>
+<blockquote>
+<p>囚徒困境说明，非合作博弈中稳定的结果不一定是整体最优的结果；个体理性可能导致集体非理性。</p>
+</blockquote>
+<h2 id="纳什均衡、混合策略与均衡计算"><a href="#纳什均衡、混合策略与均衡计算" class="headerlink" title="纳什均衡、混合策略与均衡计算"></a>纳什均衡、混合策略与均衡计算</h2><h3 id="1-从囚徒困境推广到一般博弈"><a href="#1-从囚徒困境推广到一般博弈" class="headerlink" title="1. 从囚徒困境推广到一般博弈"></a>1. 从囚徒困境推广到一般博弈</h3><p>囚徒困境是一个比较特殊的博弈，因为它存在<strong>占优策略</strong>。</p>
+<p>在囚徒困境中，无论对方选择检举还是沉默，自己选择检举都更好。因此双方都会选择检举，最后得到占优策略均衡，同时也是纳什均衡。</p>
+<p>但是一般博弈不一定这么简单。很多时候，一个人的最优选择取决于对方的选择：</p>
+<ul>
+<li>如果对方选择 <script type="math/tex">u</script>，我选择 <script type="math/tex">x</script> 更好；</li>
+<li>如果对方选择 <script type="math/tex">v</script>，我选择 <script type="math/tex">y</script> 更好。</li>
+</ul>
+<p>这时就不存在一个“无论对方怎么选都最好”的策略，也就是没有占优策略。</p>
+<p>因此，接下来需要研究更一般的稳定性概念：<strong>纳什均衡</strong>。</p>
+<hr>
+<h3 id="2-收益矩阵的基本看法"><a href="#2-收益矩阵的基本看法" class="headerlink" title="2. 收益矩阵的基本看法"></a>2. 收益矩阵的基本看法</h3><p>一个双人静态博弈常常可以写成收益矩阵：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>A：<script type="math/tex">x</script></th>
+<th>A：<script type="math/tex">y</script></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B：<script type="math/tex">u</script></td>
+<td>A收益, B收益</td>
+<td>A收益, B收益</td>
+</tr>
+<tr>
+<td>B：<script type="math/tex">v</script></td>
+<td>A收益, B收益</td>
+<td>A收益, B收益</td>
+</tr>
+</tbody></table>
+<p>其中：</p>
+<ul>
+<li>列表示 A 的动作；</li>
+<li>行表示 B 的动作；</li>
+<li>每个格子表示在该策略组合下，A 和 B 各自获得的收益。</li>
+</ul>
+<p>判断纳什均衡时，不是看这个格子的总收益是不是最大，而是看：</p>
+<blockquote>
+<p>在对方策略不变的情况下，自己有没有动力单方面改变策略。</p>
+</blockquote>
+<hr>
+<h3 id="3-纳什均衡的判断方法"><a href="#3-纳什均衡的判断方法" class="headerlink" title="3. 纳什均衡的判断方法"></a>3. 纳什均衡的判断方法</h3><p>纳什均衡的定义是：</p>
+<blockquote>
+<p>在某个策略组合下，如果其他参与者的策略保持不变，任何一个参与者都不能通过单方面改变策略获得更高收益，那么这个策略组合就是纳什均衡。</p>
+</blockquote>
+<p>对于二维收益矩阵，最实用的方法是找<strong>最佳响应</strong>。</p>
+<p>对 A 来说：</p>
+<ul>
+<li>如果 B 选择 <script type="math/tex">u</script>，比较 A 选择 <script type="math/tex">x</script> 和 <script type="math/tex">y</script> 的收益；</li>
+<li>如果 B 选择 <script type="math/tex">v</script>，再比较 A 选择 <script type="math/tex">x</script> 和 <script type="math/tex">y</script> 的收益。</li>
+</ul>
+<p>对 B 来说：</p>
+<ul>
+<li>如果 A 选择 <script type="math/tex">x</script>，比较 B 选择 <script type="math/tex">u</script> 和 <script type="math/tex">v</script> 的收益；</li>
+<li>如果 A 选择 <script type="math/tex">y</script>，再比较 B 选择 <script type="math/tex">u</script> 和 <script type="math/tex">v</script> 的收益。</li>
+</ul>
+<p>如果某个格子同时满足：</p>
+<ul>
+<li>A 对 B 的选择已经是最佳响应；</li>
+<li>B 对 A 的选择也已经是最佳响应；</li>
+</ul>
+<p>那么这个格子就是纳什均衡。</p>
+<p>也可以简单理解为：</p>
+<blockquote>
+<p>A 看着 B 的选择，觉得自己不用改；<br>B 看着 A 的选择，也觉得自己不用改。</p>
+</blockquote>
+<hr>
+<h3 id="4-纳什均衡不等于整体最优"><a href="#4-纳什均衡不等于整体最优" class="headerlink" title="4. 纳什均衡不等于整体最优"></a>4. 纳什均衡不等于整体最优</h3><p>纳什均衡强调的是“稳定”，而不是“最好”。</p>
+<p>它只要求：</p>
+<blockquote>
+<p>没有人能通过单方面改变策略让自己变得更好。</p>
+</blockquote>
+<p>这和下面几个概念不同：</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>关注点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>纳什均衡</td>
+<td>没有人愿意单方面改变</td>
+</tr>
+<tr>
+<td>帕累托最优</td>
+<td>不能在不损害他人的情况下改善某人</td>
+</tr>
+<tr>
+<td>总体最优</td>
+<td>所有人收益总和最大</td>
+</tr>
+</tbody></table>
+<p>因此，一个策略组合可能是纳什均衡，但不是帕累托最优；也可能总体收益不高，但由于没有人愿意单方面改变，所以仍然稳定。</p>
+<p>囚徒困境就是典型例子：</p>
+<ul>
+<li>双方检举是纳什均衡；</li>
+<li>双方沉默是帕累托更优的结果。</li>
+</ul>
+<p>这说明：</p>
+<blockquote>
+<p>稳定的结果，不一定是整体最好的结果。</p>
+</blockquote>
+<hr>
+<h3 id="5-没有占优策略时也可能有纳什均衡"><a href="#5-没有占优策略时也可能有纳什均衡" class="headerlink" title="5. 没有占优策略时也可能有纳什均衡"></a>5. 没有占优策略时也可能有纳什均衡</h3><p>占优策略是很强的条件。它要求某个策略无论对方怎么选都更好。</p>
+<p>但纳什均衡的要求弱得多。它只要求在当前策略组合下，大家都不愿意单方面改变。</p>
+<p>因此：</p>
+<blockquote>
+<p>没有占优策略，不代表没有纳什均衡。</p>
+</blockquote>
+<p>有些博弈不存在占优策略，但仍然存在一个或多个纳什均衡。</p>
+<p>例如，在某些协调类博弈中，双方更希望和对方保持一致，而不是各自选择不同动作。那么可能出现两个稳定结果：</p>
+<ul>
+<li>双方都选择第一个动作；</li>
+<li>双方都选择第二个动作。</li>
+</ul>
+<p>这两个结果都可能是纳什均衡，因为只要双方已经协调到同一个选择上，任何一方单独改变都会让自己变差。</p>
+<p>所以，一个博弈可能有多个纳什均衡。</p>
+<hr>
+<h3 id="6-纯策略纳什均衡可能不存在"><a href="#6-纯策略纳什均衡可能不存在" class="headerlink" title="6. 纯策略纳什均衡可能不存在"></a>6. 纯策略纳什均衡可能不存在</h3><p>纯策略指的是确定性地选择某个动作。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">A \text{ 一定选择 } x</script>
+<script type="math/tex; mode=display">B \text{ 一定选择 } u</script>
+<p>但是有些博弈在纯策略下没有纳什均衡。典型例子是猜拳一类的对抗博弈。</p>
+<p>如果一个人固定选择某个动作，对方就可以针对它选择更优动作；而当对方改变后，自己又会想继续改变。</p>
+<p>于是可能出现循环：</p>
+<script type="math/tex; mode=display">A 改变 \rightarrow B 改变 \rightarrow A 再改变 \rightarrow B 再改变</script>
+<p>没有任何一个确定性的策略组合能够稳定下来。</p>
+<p>因此：</p>
+<blockquote>
+<p>纯策略纳什均衡不一定存在。</p>
+</blockquote>
+<hr>
+<h3 id="7-混合策略"><a href="#7-混合策略" class="headerlink" title="7. 混合策略"></a>7. 混合策略</h3><p>为了处理纯策略下没有均衡的情况，需要引入<strong>混合策略</strong>。</p>
+<p>纯策略是确定性选择动作；混合策略是按照概率随机选择动作。</p>
+<p>例如，A 可以：</p>
+<script type="math/tex; mode=display">p \text{ 的概率选择 } x</script>
+<script type="math/tex; mode=display">1-p \text{ 的概率选择 } y</script>
+<p>B 可以：</p>
+<script type="math/tex; mode=display">q \text{ 的概率选择 } u</script>
+<script type="math/tex; mode=display">1-q \text{ 的概率选择 } v</script>
+<p>混合策略的意义是：</p>
+<blockquote>
+<p>当固定选择某个动作会被对方针对时，可以通过随机化让对方无法稳定占便宜。</p>
+</blockquote>
+<p>比如在猜拳中，如果总是出石头，对方就会一直出布；但如果随机出石头、剪刀、布，对方就很难利用你的固定模式。</p>
+<hr>
+<h3 id="8-混合策略纳什均衡的直觉"><a href="#8-混合策略纳什均衡的直觉" class="headerlink" title="8. 混合策略纳什均衡的直觉"></a>8. 混合策略纳什均衡的直觉</h3><p>在混合策略均衡中，一个重要原则是：</p>
+<blockquote>
+<p>如果一个玩家真的在多个动作之间随机，那么这些动作给他的期望收益必须相等。</p>
+</blockquote>
+<p>例如，A 在 <script type="math/tex">x</script> 和 <script type="math/tex">y</script> 之间随机选择，说明在 B 当前的混合策略下：</p>
+<script type="math/tex; mode=display">A\text{选择}x\text{的期望收益}
+=======================
+
+A\text{选择}y\text{的期望收益}</script>
+<p>否则，如果：</p>
+<script type="math/tex; mode=display">A\text{选择}x\text{的期望收益}
+
+>
+
+A\text{选择}y\text{的期望收益}</script>
+<p>那么 A 就没有理由继续随机，而应该直接选择 <script type="math/tex">x</script>。</p>
+<p>所以，混合策略均衡可以理解为：</p>
+<blockquote>
+<p>对方的随机概率刚好让自己在几个可选动作之间无差异，因此自己没有动力改变混合概率。</p>
+</blockquote>
+<p>这个思想也叫做“无差异原则”。</p>
+<hr>
+<h3 id="9-纳什均衡的存在性"><a href="#9-纳什均衡的存在性" class="headerlink" title="9. 纳什均衡的存在性"></a>9. 纳什均衡的存在性</h3><p>纳什均衡存在性定理说明：</p>
+<blockquote>
+<p>在任何有限博弈中，如果允许混合策略，则至少存在一个纳什均衡。</p>
+</blockquote>
+<p>这里的有限博弈指：</p>
+<ul>
+<li>参与者数量有限；</li>
+<li>每个参与者的策略集合有限。</li>
+</ul>
+<p>这个结论的意义是：</p>
+<ul>
+<li>纯策略纳什均衡可能不存在；</li>
+<li>但只要允许混合策略，有限博弈至少存在一个纳什均衡。</li>
+</ul>
+<p>因此，混合策略不是一个边缘概念，而是保证博弈均衡存在的重要工具。</p>
+<hr>
+<h3 id="10-如何计算纳什均衡"><a href="#10-如何计算纳什均衡" class="headerlink" title="10. 如何计算纳什均衡"></a>10. 如何计算纳什均衡</h3><p>最直接的方法是枚举所有策略组合，然后逐一检查：</p>
+<blockquote>
+<p>是否每个参与者都没有动力单方面改变策略。</p>
+</blockquote>
+<p>对于小型 <script type="math/tex">2 \times 2</script> 收益矩阵，这种方法比较可行。</p>
+<p>具体步骤是：</p>
+<ol>
+<li>固定 B 的每个动作，找 A 的最佳响应；</li>
+<li>固定 A 的每个动作，找 B 的最佳响应；</li>
+<li>找双方最佳响应重合的格子；</li>
+<li>重合的格子就是纯策略纳什均衡。</li>
+</ol>
+<p>但对于大型博弈，参与者和策略数量很多，直接穷举通常不可行。</p>
+<hr>
+<h3 id="11-短视最优响应"><a href="#11-短视最优响应" class="headerlink" title="11. 短视最优响应"></a>11. 短视最优响应</h3><p>一种直观的求解思路是<strong>短视最优响应</strong>。</p>
+<p>它的基本过程是：</p>
+<ol>
+<li>从一个随机策略组合出发；</li>
+<li>检查某个参与者当前是否处于最佳响应；</li>
+<li>如果不是，就让他改成当前情况下的最佳响应；</li>
+<li>然后换下一个参与者；</li>
+<li>不断重复。</li>
+</ol>
+<p>直观地说，就是：</p>
+<blockquote>
+<p>我看你现在怎么选，然后我改成对我最好的；<br>你再看我现在怎么选，然后你改成对你最好的。</p>
+</blockquote>
+<p>这类似于优化中的循环坐标下降：每次只更新一个参与者的策略。</p>
+<hr>
+<h3 id="12-短视最优响应不一定收敛"><a href="#12-短视最优响应不一定收敛" class="headerlink" title="12. 短视最优响应不一定收敛"></a>12. 短视最优响应不一定收敛</h3><p>虽然短视最优响应很自然，但它不一定能收敛到纳什均衡。</p>
+<p>原因是：每个人都只根据当前情况做局部最优反应，可能导致循环。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">A 改成 x
+\rightarrow
+B 改成 v
+\rightarrow
+A 改成 y
+\rightarrow
+B 改成 u
+\rightarrow
+A 又改回 x</script>
+<p>这样策略组合会不断变化，而不是停在某个稳定点。</p>
+<p>因此：</p>
+<blockquote>
+<p>最佳响应动态是一种直观方法，但不是保证收敛的通用算法。</p>
+</blockquote>
+<hr>
+<h3 id="13-这一部分的核心总结"><a href="#13-这一部分的核心总结" class="headerlink" title="13. 这一部分的核心总结"></a>13. 这一部分的核心总结</h3><p>这一部分的主线是从囚徒困境推广到一般博弈。</p>
+<p>囚徒困境有占优策略，所以很容易找到纳什均衡。但一般博弈中：</p>
+<ul>
+<li>不一定存在占优策略；</li>
+<li>可能有多个纳什均衡；</li>
+<li>纯策略下可能没有纳什均衡；</li>
+<li>允许混合策略后，有限博弈至少存在一个纳什均衡；</li>
+<li>纳什均衡的计算不一定简单；</li>
+<li>短视最优响应可能陷入循环，不保证收敛。</li>
+</ul>
+<p>最关键的一句话是：</p>
+<blockquote>
+<p>纳什均衡描述的是“没有人愿意单方面改变”的稳定状态，而不是整体最优状态；当纯策略无法形成稳定结果时，混合策略提供了一种随机化的均衡方式。</p>
+</blockquote>
+<h2 id="双人零和博弈与-Minimax-定理"><a href="#双人零和博弈与-Minimax-定理" class="headerlink" title="双人零和博弈与 Minimax 定理"></a>双人零和博弈与 Minimax 定理</h2><h3 id="1-什么是双人零和博弈"><a href="#1-什么是双人零和博弈" class="headerlink" title="1. 什么是双人零和博弈"></a>1. 什么是双人零和博弈</h3><p>双人零和博弈指的是：</p>
+<script type="math/tex; mode=display">\text{玩家1收益}+\text{玩家2收益}=0</script>
+<p>也就是说，一方获得多少，另一方就损失多少。</p>
+<p>例如猜拳、围棋、双人对抗游戏等，都可以近似理解为零和博弈。</p>
+<p>在零和博弈中，因为双方收益互为相反数，所以通常只需要写出其中一方的收益。假设玩家 O 的收益为 <script type="math/tex">u</script>，那么玩家 E 的收益就是 <script type="math/tex">-u</script>。</p>
+<p>因此，零和博弈的核心特征是：</p>
+<blockquote>
+<p>一方想让自己的收益最大化，另一方就想让对方的收益最小化。</p>
+</blockquote>
+<hr>
+<h3 id="2-例子：双指猜拳"><a href="#2-例子：双指猜拳" class="headerlink" title="2. 例子：双指猜拳"></a>2. 例子：双指猜拳</h3><p>PPT 中给出的例子是“双指猜拳”。</p>
+<p>规则如下：</p>
+<ul>
+<li>两个玩家分别记为 O 和 E；</li>
+<li>两人同时出 <script type="math/tex">1</script> 或 <script type="math/tex">2</script> 根手指；</li>
+<li>如果总数是奇数，则 O 获胜；</li>
+<li>如果总数是偶数，则 E 获胜；</li>
+<li>胜者获得等于手指数总和的奖励，败者损失相同数量。</li>
+</ul>
+<p>其中：</p>
+<ul>
+<li>O 可以理解为 Odd，即希望总数为奇数；</li>
+<li>E 可以理解为 Even，即希望总数为偶数。</li>
+</ul>
+<p>从 O 的收益角度，可以写出收益矩阵：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right">O 出 1</th>
+<th align="right">O 出 2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>E 出 1</td>
+<td align="right"><script type="math/tex">-2</script></td>
+<td align="right"><script type="math/tex">3</script></td>
+</tr>
+<tr>
+<td>E 出 2</td>
+<td align="right"><script type="math/tex">3</script></td>
+<td align="right"><script type="math/tex">-4</script></td>
+</tr>
+</tbody></table>
+<p>解释如下：</p>
+<ul>
+<li>E 出 1，O 出 1，总数为 2，是偶数，E 赢，O 收益为 <script type="math/tex">-2</script>；</li>
+<li>E 出 1，O 出 2，总数为 3，是奇数，O 赢，O 收益为 <script type="math/tex">3</script>；</li>
+<li>E 出 2，O 出 1，总数为 3，是奇数，O 赢，O 收益为 <script type="math/tex">3</script>；</li>
+<li>E 出 2，O 出 2，总数为 4，是偶数，E 赢，O 收益为 <script type="math/tex">-4</script>。</li>
+</ul>
+<hr>
+<h3 id="3-为什么纯策略下没有纳什均衡"><a href="#3-为什么纯策略下没有纳什均衡" class="headerlink" title="3. 为什么纯策略下没有纳什均衡"></a>3. 为什么纯策略下没有纳什均衡</h3><p>纯策略指的是确定性地选择某个动作。</p>
+<p>在这个例子中，纯策略就是：</p>
+<script type="math/tex; mode=display">O\text{ 固定出 }1\text{ 或 }2</script>
+<script type="math/tex; mode=display">E\text{ 固定出 }1\text{ 或 }2</script>
+<p>但这个博弈在纯策略下没有纳什均衡。</p>
+<p>逐个分析四种情况：</p>
+<table>
+<thead>
+<tr>
+<th>策略组合</th>
+<th align="right">O 的收益</th>
+<th>谁想改变</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>E 出 1，O 出 1</td>
+<td align="right"><script type="math/tex">-2</script></td>
+<td>O 改成出 2 后收益变为 <script type="math/tex">3</script></td>
+</tr>
+<tr>
+<td>E 出 1，O 出 2</td>
+<td align="right"><script type="math/tex">3</script></td>
+<td>E 改成出 2 后可让 O 变为 <script type="math/tex">-4</script></td>
+</tr>
+<tr>
+<td>E 出 2，O 出 1</td>
+<td align="right"><script type="math/tex">3</script></td>
+<td>E 改成出 1 后可让 O 变为 <script type="math/tex">-2</script></td>
+</tr>
+<tr>
+<td>E 出 2，O 出 2</td>
+<td align="right"><script type="math/tex">-4</script></td>
+<td>O 改成出 1 后收益变为 <script type="math/tex">3</script></td>
+</tr>
+</tbody></table>
+<p>可以看到，在每个纯策略组合下，都至少有一方想单方面改变策略。</p>
+<p>所以：</p>
+<script type="math/tex; mode=display">\boxed{\text{该博弈没有纯策略纳什均衡}}</script>
+<p>这类博弈的特点是：</p>
+<blockquote>
+<p>如果我固定选择某个动作，对手就能针对我；对手一变，我又想继续变。</p>
+</blockquote>
+<p>因此，策略组合会不断循环，无法在纯策略下稳定下来。</p>
+<hr>
+<h3 id="4-引入混合策略"><a href="#4-引入混合策略" class="headerlink" title="4. 引入混合策略"></a>4. 引入混合策略</h3><p>既然固定动作容易被对手针对，就需要引入随机化，也就是<strong>混合策略</strong>。</p>
+<p>设：</p>
+<script type="math/tex; mode=display">p=\Pr(O\text{ 出 }1)</script>
+<p>则：</p>
+<script type="math/tex; mode=display">1-p=\Pr(O\text{ 出 }2)</script>
+<p>设：</p>
+<script type="math/tex; mode=display">q=\Pr(E\text{ 出 }1)</script>
+<p>则：</p>
+<script type="math/tex; mode=display">1-q=\Pr(E\text{ 出 }2)</script>
+<p>混合策略的直觉是：</p>
+<blockquote>
+<p>如果我总是固定选择一个动作，对手可以针对我；<br>如果我按照一定概率随机选择，对手就很难稳定占便宜。</p>
+</blockquote>
+<p>例如，如果 O 永远出 1，E 就可以永远出 1，使总数为偶数，从而获胜。</p>
+<p>如果 O 永远出 2，E 就可以永远出 2，同样使总数为偶数。</p>
+<p>所以 O 不能固定出某一个动作，而需要随机化。</p>
+<p>E 同理。</p>
+<hr>
+<h3 id="5-混合策略均衡的核心：无差异原则"><a href="#5-混合策略均衡的核心：无差异原则" class="headerlink" title="5. 混合策略均衡的核心：无差异原则"></a>5. 混合策略均衡的核心：无差异原则</h3><p>混合策略纳什均衡的关键思想是：</p>
+<blockquote>
+<p>如果一个玩家真的在多个动作之间随机，那么这些动作给他的期望收益必须相等。</p>
+</blockquote>
+<p>否则，如果某个动作的期望收益更高，玩家就没有理由继续随机，而应该固定选择那个更好的动作。</p>
+<p>例如，如果 O 在“出 1”和“出 2”之间随机，那么在 E 的混合策略下，必须有：</p>
+<script type="math/tex; mode=display">O\text{ 出 }1\text{ 的期望收益}
+=========================
+
+O\text{ 出 }2\text{ 的期望收益}</script>
+<p>同理，如果 E 在“出 1”和“出 2”之间随机，那么在 O 的混合策略下，E 的两个动作也必须让自己无差异。</p>
+<p>由于这是零和博弈，我们可以统一从 O 的收益角度来计算：</p>
+<ul>
+<li>O 想让自己的期望收益尽可能大；</li>
+<li>E 想让 O 的期望收益尽可能小。</li>
+</ul>
+<hr>
+<h3 id="6-求-O-的均衡混合策略"><a href="#6-求-O-的均衡混合策略" class="headerlink" title="6. 求 O 的均衡混合策略"></a>6. 求 O 的均衡混合策略</h3><p>设 O 出 1 的概率为 <script type="math/tex">p</script>，出 2 的概率为 <script type="math/tex">1-p</script>。</p>
+<p>现在看 E 的两种纯策略会让 O 得到多少期望收益。</p>
+<h4 id="E-出-1"><a href="#E-出-1" class="headerlink" title="E 出 1"></a>E 出 1</h4><p>如果 E 出 1：</p>
+<ul>
+<li>O 出 1，O 收益为 <script type="math/tex">-2</script>；</li>
+<li>O 出 2，O 收益为 <script type="math/tex">3</script>。</li>
+</ul>
+<p>所以 O 的期望收益是：</p>
+<script type="math/tex; mode=display">-2p+3(1-p)</script>
+<p>化简得：</p>
+<script type="math/tex; mode=display">3-5p</script>
+<h4 id="E-出-2"><a href="#E-出-2" class="headerlink" title="E 出 2"></a>E 出 2</h4><p>如果 E 出 2：</p>
+<ul>
+<li>O 出 1，O 收益为 <script type="math/tex">3</script>；</li>
+<li>O 出 2，O 收益为 <script type="math/tex">-4</script>。</li>
+</ul>
+<p>所以 O 的期望收益是：</p>
+<script type="math/tex; mode=display">3p-4(1-p)</script>
+<p>化简得：</p>
+<script type="math/tex; mode=display">7p-4</script>
+<p>O 选择混合策略时，希望让 E 无法通过选择某一行来更好地压低 O 的收益。因此令两种情况下 O 的收益相等：</p>
+<script type="math/tex; mode=display">3-5p=7p-4</script>
+<p>解得：</p>
+<script type="math/tex; mode=display">7=12p</script>
+<script type="math/tex; mode=display">p=\frac{7}{12}</script>
+<p>所以 O 的均衡混合策略是：</p>
+<script type="math/tex; mode=display">\boxed{
+O:\left(\frac{7}{12},\frac{5}{12}\right)
+}</script>
+<p>也就是：</p>
+<ul>
+<li>O 以 <script type="math/tex">\frac{7}{12}</script> 的概率出 1；</li>
+<li>O 以 <script type="math/tex">\frac{5}{12}</script> 的概率出 2。</li>
+</ul>
+<p>此时 O 的期望收益为：</p>
+<script type="math/tex; mode=display">3-5\times\frac{7}{12}
+
+=3-\frac{35}{12}
+=
+\frac{1}{12}</script>
+<p>因此均衡下 O 的期望收益是：</p>
+<script type="math/tex; mode=display">\boxed{\frac{1}{12}}</script>
+<hr>
+<h3 id="7-求-E-的均衡混合策略"><a href="#7-求-E-的均衡混合策略" class="headerlink" title="7. 求 E 的均衡混合策略"></a>7. 求 E 的均衡混合策略</h3><p>设 E 出 1 的概率为 <script type="math/tex">q</script>，出 2 的概率为 <script type="math/tex">1-q</script>。</p>
+<p>现在看 O 的两种纯策略。</p>
+<h4 id="O-出-1"><a href="#O-出-1" class="headerlink" title="O 出 1"></a>O 出 1</h4><p>如果 O 出 1：</p>
+<ul>
+<li>E 出 1，O 收益为 <script type="math/tex">-2</script>；</li>
+<li>E 出 2，O 收益为 <script type="math/tex">3</script>。</li>
+</ul>
+<p>所以 O 的期望收益是：</p>
+<script type="math/tex; mode=display">-2q+3(1-q)</script>
+<p>化简得：</p>
+<script type="math/tex; mode=display">3-5q</script>
+<h4 id="O-出-2"><a href="#O-出-2" class="headerlink" title="O 出 2"></a>O 出 2</h4><p>如果 O 出 2：</p>
+<ul>
+<li>E 出 1，O 收益为 <script type="math/tex">3</script>；</li>
+<li>E 出 2，O 收益为 <script type="math/tex">-4</script>。</li>
+</ul>
+<p>所以 O 的期望收益是：</p>
+<script type="math/tex; mode=display">3q-4(1-q)</script>
+<p>化简得：</p>
+<script type="math/tex; mode=display">7q-4</script>
+<p>为了让 O 在“出 1”和“出 2”之间没有偏好，E 应该令二者相等：</p>
+<script type="math/tex; mode=display">3-5q=7q-4</script>
+<p>解得：</p>
+<script type="math/tex; mode=display">q=\frac{7}{12}</script>
+<p>所以 E 的均衡混合策略是：</p>
+<script type="math/tex; mode=display">\boxed{
+E:\left(\frac{7}{12},\frac{5}{12}\right)
+}</script>
+<p>也就是：</p>
+<ul>
+<li>E 以 <script type="math/tex">\frac{7}{12}</script> 的概率出 1；</li>
+<li>E 以 <script type="math/tex">\frac{5}{12}</script> 的概率出 2。</li>
+</ul>
+<p>因此，该双人零和博弈的混合策略纳什均衡是：</p>
+<script type="math/tex; mode=display">\boxed{
+O:\left(\frac{7}{12},\frac{5}{12}\right),
+\quad
+E:\left(\frac{7}{12},\frac{5}{12}\right)
+}</script>
+<p>均衡时：</p>
+<script type="math/tex; mode=display">\boxed{
+O\text{ 的期望收益}=\frac{1}{12}
+}</script>
+<script type="math/tex; mode=display">\boxed{
+E\text{ 的期望收益}=-\frac{1}{12}
+}</script>
+<hr>
+<h3 id="8-Maximin-和-Minimax"><a href="#8-Maximin-和-Minimax" class="headerlink" title="8. Maximin 和 Minimax"></a>8. Maximin 和 Minimax</h3><p>在双人零和博弈中，一方想最大化自己的收益，另一方想最小化对方的收益。</p>
+<p>从 O 的角度看，他需要考虑：</p>
+<blockquote>
+<p>不管 E 怎么针对我，我能保证的最低收益是多少？</p>
+</blockquote>
+<p>这叫 <strong>maximin</strong>：</p>
+<script type="math/tex; mode=display">\max_{\pi_O}\min_{\pi_E}U_O(\pi_O,\pi_E)</script>
+<p>含义是：</p>
+<blockquote>
+<p>O 选择一个策略，使得自己在最坏情况下的收益尽可能大。</p>
+</blockquote>
+<p>从 E 的角度看，她希望让 O 的收益尽可能低：</p>
+<script type="math/tex; mode=display">\min_{\pi_E}\max_{\pi_O}U_O(\pi_O,\pi_E)</script>
+<p>含义是：</p>
+<blockquote>
+<p>E 选择一个策略，使得 O 即使做出最优反应，也得不到太高收益。</p>
+</blockquote>
+<p>可以这样理解：</p>
+<ul>
+<li><strong>maximin</strong>：我先考虑最坏情况，然后让最坏情况尽可能好；</li>
+<li><strong>minimax</strong>：对手考虑我的最好情况，然后让我的最好情况尽可能差。</li>
+</ul>
+<hr>
+<h3 id="9-冯诺依曼极小化极大定理"><a href="#9-冯诺依曼极小化极大定理" class="headerlink" title="9. 冯诺依曼极小化极大定理"></a>9. 冯诺依曼极小化极大定理</h3><p>冯诺依曼的极小化极大定理说明：</p>
+<blockquote>
+<p>对任意双人零和博弈，maximin 的值等于 minimax 的值。</p>
+</blockquote>
+<p>也就是：</p>
+<script type="math/tex; mode=display">\max_{\pi_1}\min_{\pi_2}U(\pi_1,\pi_2)
+======================================
+
+\min_{\pi_2}\max_{\pi_1}U(\pi_1,\pi_2)</script>
+<p>这个相等的值称为<strong>博弈的值</strong>。</p>
+<p>达到这个值的双方混合策略构成纳什均衡。</p>
+<p>直观来说：</p>
+<blockquote>
+<p>一方保证自己在最坏情况下能获得的最大收益，<br>正好等于另一方能把对方最好情况压低到的最小收益。</p>
+</blockquote>
+<p>在双人零和博弈中，纳什均衡可以理解为双方都采用自己的 minimax 策略：</p>
+<ul>
+<li>我已经让自己的最坏情况尽可能好；</li>
+<li>对手也已经让我的最好情况尽可能差；</li>
+<li>双方都没有动力单方面改变策略。</li>
+</ul>
+<hr>
+<h3 id="10-与-Minimax-Q-Learning-的关系"><a href="#10-与-Minimax-Q-Learning-的关系" class="headerlink" title="10. 与 Minimax-Q Learning 的关系"></a>10. 与 Minimax-Q Learning 的关系</h3><p>这一部分后面会连接到多智能体强化学习中的 <strong>Minimax-Q learning</strong>。</p>
+<p>在单智能体 Q-learning 中，更新目标是：</p>
+<script type="math/tex; mode=display">r+\gamma\max_{a'}Q(s',a')</script>
+<p>这里的：</p>
+<script type="math/tex; mode=display">\max_{a'}Q(s',a')</script>
+<p>表示：</p>
+<blockquote>
+<p>到达下一状态后，智能体自己选择最好的动作。</p>
+</blockquote>
+<p>但在双人零和多智能体强化学习中，下一状态下不是只有自己一个智能体在行动，对手也会行动。</p>
+<p>因此不能只写：</p>
+<script type="math/tex; mode=display">\max_a Q(s',a)</script>
+<p>而要考虑：</p>
+<blockquote>
+<p>我选择对自己最有利的策略，对手也会选择对我最不利的策略。</p>
+</blockquote>
+<p>所以会变成：</p>
+<script type="math/tex; mode=display">\max_{\text{我的策略}}
+\min_{\text{对手策略}}
+Q(s',\text{我的策略},\text{对手策略})</script>
+<p>这就是 Minimax-Q learning 的核心来源。</p>
+<hr>
+<h3 id="11-核心总结"><a href="#11-核心总结" class="headerlink" title="11. 核心总结"></a>11. 核心总结</h3><p>这一部分的逻辑可以概括为：</p>
+<ol>
+<li>双人零和博弈中，一方收益就是另一方损失；</li>
+<li>在双指猜拳这样的博弈中，纯策略下没有纳什均衡；</li>
+<li>为避免被对手针对，需要引入混合策略；</li>
+<li>混合策略均衡的核心是让对方在不同动作之间无差异；</li>
+<li>在双指猜拳例子中，双方均衡策略都是：</li>
+</ol>
+<script type="math/tex; mode=display">\left(\frac{7}{12},\frac{5}{12}\right)</script>
+<ol start="6">
+<li>均衡时 O 的期望收益为：</li>
+</ol>
+<script type="math/tex; mode=display">\frac{1}{12}</script>
+<ol start="7">
+<li>双人零和博弈的核心思想是：</li>
+</ol>
+<script type="math/tex; mode=display">\max\min = \min\max</script>
+<ol start="8">
+<li>Minimax 定理说明，双人零和博弈中的 minimax 解构成纳什均衡；</li>
+<li>后面的 Minimax-Q learning 就是把单智能体 Q-learning 中的 <script type="math/tex">\max</script> 替换为双人零和博弈中的 minimax。</li>
+</ol>
+<p>一句话总结：</p>
+<blockquote>
+<p>双人零和博弈的核心是“我想最大化自己的收益，而对手想最小化我的收益”；因此最合理的策略往往不是固定动作，而是在混合策略中达到 minimax 均衡。</p>
+</blockquote>
+<h2 id="例题：非合作博弈中的占优策略、纳什均衡与混合策略"><a href="#例题：非合作博弈中的占优策略、纳什均衡与混合策略" class="headerlink" title="例题：非合作博弈中的占优策略、纳什均衡与混合策略"></a>例题：非合作博弈中的占优策略、纳什均衡与混合策略</h2><h3 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h3><h4 id="（1）收益矩阵如下："><a href="#（1）收益矩阵如下：" class="headerlink" title="（1）收益矩阵如下："></a>（1）收益矩阵如下：</h4><table>
+<thead>
+<tr>
+<th></th>
+<th><script type="math/tex">B:x</script></th>
+<th><script type="math/tex">B:y</script></th>
+<th><script type="math/tex">B:z</script></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">A:u</script></td>
+<td><script type="math/tex">A=5,\ B=-5</script></td>
+<td><script type="math/tex">A=-4,\ B=4</script></td>
+<td><script type="math/tex">A=7,\ B=-7</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">A:v</script></td>
+<td><script type="math/tex">A=-8,\ B=8</script></td>
+<td><script type="math/tex">A=-7,\ B=7</script></td>
+<td><script type="math/tex">A=-1,\ B=1</script></td>
+</tr>
+</tbody></table>
+<p>判断是否存在：</p>
+<ol>
+<li>占优策略；</li>
+<li>占优策略均衡；</li>
+<li>帕累托最优；</li>
+<li>纯策略纳什均衡。</li>
+</ol>
+<p>如果存在，写出所有对应策略或策略组合。</p>
+<hr>
+<h4 id="（2）收益矩阵如下："><a href="#（2）收益矩阵如下：" class="headerlink" title="（2）收益矩阵如下："></a>（2）收益矩阵如下：</h4><table>
+<thead>
+<tr>
+<th></th>
+<th><script type="math/tex">B:x</script></th>
+<th><script type="math/tex">B:y</script></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">A:u</script></td>
+<td><script type="math/tex">A=2,\ B=-2</script></td>
+<td><script type="math/tex">A=1,\ B=-1</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">A:v</script></td>
+<td><script type="math/tex">A=0,\ B=0</script></td>
+<td><script type="math/tex">A=3,\ B=-3</script></td>
+</tr>
+</tbody></table>
+<p>判断是否存在纯策略纳什均衡。若存在，写出所有纳什均衡点。</p>
+<p>进一步求混合策略纳什均衡，并给出 <script type="math/tex">A</script> 的期望收益。</p>
+<hr>
+<h2 id="解答"><a href="#解答" class="headerlink" title="解答"></a>解答</h2><h3 id="（1）占优策略、帕累托最优与纯策略纳什均衡"><a href="#（1）占优策略、帕累托最优与纯策略纳什均衡" class="headerlink" title="（1）占优策略、帕累托最优与纯策略纳什均衡"></a>（1）占优策略、帕累托最优与纯策略纳什均衡</h3><h4 id="1-占优策略"><a href="#1-占优策略" class="headerlink" title="1. 占优策略"></a>1. 占优策略</h4><p>先看玩家 <script type="math/tex">A</script>。</p>
+<p>当 <script type="math/tex">B</script> 分别选择 <script type="math/tex">x,y,z</script> 时，<script type="math/tex">A</script> 选择 <script type="math/tex">u</script> 与 <script type="math/tex">v</script> 的收益比较为：</p>
+<table>
+<thead>
+<tr>
+<th><script type="math/tex">B</script> 的策略</th>
+<th align="right"><script type="math/tex">A:u</script></th>
+<th align="right"><script type="math/tex">A:v</script></th>
+<th><script type="math/tex">A</script> 的更优选择</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">x</script></td>
+<td align="right"><script type="math/tex">5</script></td>
+<td align="right"><script type="math/tex">-8</script></td>
+<td><script type="math/tex">u</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">y</script></td>
+<td align="right"><script type="math/tex">-4</script></td>
+<td align="right"><script type="math/tex">-7</script></td>
+<td><script type="math/tex">u</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">z</script></td>
+<td align="right"><script type="math/tex">7</script></td>
+<td align="right"><script type="math/tex">-1</script></td>
+<td><script type="math/tex">u</script></td>
+</tr>
+</tbody></table>
+<p>所以对 <script type="math/tex">A</script> 来说：</p>
+<script type="math/tex; mode=display">u \text{ 强占优于 } v</script>
+<p>即 <script type="math/tex">A</script> 的占优策略是：</p>
+<script type="math/tex; mode=display">\boxed{u}</script>
+<p>再看玩家 <script type="math/tex">B</script>。</p>
+<p><script type="math/tex">B</script> 的收益为：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right"><script type="math/tex">B:x</script></th>
+<th align="right"><script type="math/tex">B:y</script></th>
+<th align="right"><script type="math/tex">B:z</script></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">A:u</script></td>
+<td align="right"><script type="math/tex">-5</script></td>
+<td align="right"><script type="math/tex">4</script></td>
+<td align="right"><script type="math/tex">-7</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">A:v</script></td>
+<td align="right"><script type="math/tex">8</script></td>
+<td align="right"><script type="math/tex">7</script></td>
+<td align="right"><script type="math/tex">1</script></td>
+</tr>
+</tbody></table>
+<p>比较可知：</p>
+<ul>
+<li><script type="math/tex">x</script> 强占优于 <script type="math/tex">z</script>；</li>
+<li><script type="math/tex">y</script> 强占优于 <script type="math/tex">z</script>；</li>
+<li>但 <script type="math/tex">x</script> 和 <script type="math/tex">y</script> 之间互不占优。</li>
+</ul>
+<p>因此，若要求“对玩家而言优于所有其他策略的占优策略”，则 <script type="math/tex">B</script> 没有占优策略。</p>
+<hr>
+<h4 id="2-占优策略均衡"><a href="#2-占优策略均衡" class="headerlink" title="2. 占优策略均衡"></a>2. 占优策略均衡</h4><p>占优策略均衡要求所有玩家都选择自己的占优策略。</p>
+<p>由于 <script type="math/tex">A</script> 有占优策略 <script type="math/tex">u</script>，但 <script type="math/tex">B</script> 没有一个优于所有其他策略的占优策略，所以不存在占优策略均衡。</p>
+<p>因此：</p>
+<script type="math/tex; mode=display">\boxed{\text{不存在占优策略均衡}}</script>
+<hr>
+<h4 id="3-帕累托最优"><a href="#3-帕累托最优" class="headerlink" title="3. 帕累托最优"></a>3. 帕累托最优</h4><p>注意该收益矩阵满足：</p>
+<script type="math/tex; mode=display">A+B=0</script>
+<p>所以这是一个零和博弈。</p>
+<p>在零和博弈中，如果一方收益增加，另一方收益必然减少，因此不存在“在不损害任何人的情况下让某人变好”的帕累托改善。</p>
+<p>所以所有策略组合都是帕累托最优。</p>
+<p>即：</p>
+<script type="math/tex; mode=display">\boxed{
+(u,x),(u,y),(u,z),(v,x),(v,y),(v,z)
+}</script>
+<p>都是帕累托最优。</p>
+<hr>
+<h4 id="4-纯策略纳什均衡"><a href="#4-纯策略纳什均衡" class="headerlink" title="4. 纯策略纳什均衡"></a>4. 纯策略纳什均衡</h4><p>找双方的最佳响应。</p>
+<p>对 <script type="math/tex">A</script>：</p>
+<ul>
+<li>若 <script type="math/tex">B=x</script>，<script type="math/tex">A</script> 选 <script type="math/tex">u</script>；</li>
+<li>若 <script type="math/tex">B=y</script>，<script type="math/tex">A</script> 选 <script type="math/tex">u</script>；</li>
+<li>若 <script type="math/tex">B=z</script>，<script type="math/tex">A</script> 选 <script type="math/tex">u</script>。</li>
+</ul>
+<p>对 <script type="math/tex">B</script>：</p>
+<ul>
+<li>若 <script type="math/tex">A=u</script>，<script type="math/tex">B</script> 的收益分别为 <script type="math/tex">-5,4,-7</script>，所以选 <script type="math/tex">y</script>；</li>
+<li>若 <script type="math/tex">A=v</script>，<script type="math/tex">B</script> 的收益分别为 <script type="math/tex">8,7,1</script>，所以选 <script type="math/tex">x</script>。</li>
+</ul>
+<p>双方最佳响应的交点是：</p>
+<script type="math/tex; mode=display">(u,y)</script>
+<p>因此唯一的纯策略纳什均衡为：</p>
+<script type="math/tex; mode=display">\boxed{(u,y)}</script>
+<hr>
+<h3 id="（1）答案汇总"><a href="#（1）答案汇总" class="headerlink" title="（1）答案汇总"></a>（1）答案汇总</h3><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>占优策略</td>
+<td><script type="math/tex">A</script> 有占优策略 <script type="math/tex">u</script>；<script type="math/tex">B</script> 中 <script type="math/tex">x,y</script> 均强占优于 <script type="math/tex">z</script>，但 <script type="math/tex">B</script> 没有优于所有其他策略的占优策略</td>
+</tr>
+<tr>
+<td>占优策略均衡</td>
+<td>不存在</td>
+</tr>
+<tr>
+<td>帕累托最优</td>
+<td>所有策略组合都是帕累托最优</td>
+</tr>
+<tr>
+<td>纯策略纳什均衡</td>
+<td>唯一纯策略纳什均衡为 <script type="math/tex">(u,y)</script></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="（2）纯策略纳什均衡与混合策略纳什均衡"><a href="#（2）纯策略纳什均衡与混合策略纳什均衡" class="headerlink" title="（2）纯策略纳什均衡与混合策略纳什均衡"></a>（2）纯策略纳什均衡与混合策略纳什均衡</h2><h3 id="1-判断纯策略纳什均衡"><a href="#1-判断纯策略纳什均衡" class="headerlink" title="1. 判断纯策略纳什均衡"></a>1. 判断纯策略纳什均衡</h3><p>收益矩阵为：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><script type="math/tex">B:x</script></th>
+<th><script type="math/tex">B:y</script></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">A:u</script></td>
+<td><script type="math/tex">A=2,\ B=-2</script></td>
+<td><script type="math/tex">A=1,\ B=-1</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">A:v</script></td>
+<td><script type="math/tex">A=0,\ B=0</script></td>
+<td><script type="math/tex">A=3,\ B=-3</script></td>
+</tr>
+</tbody></table>
+<p>对 <script type="math/tex">A</script>：</p>
+<ul>
+<li>若 <script type="math/tex">B=x</script>，<script type="math/tex">A</script> 选 <script type="math/tex">u</script>，因为 <script type="math/tex">2>0</script>；</li>
+<li>若 <script type="math/tex">B=y</script>，<script type="math/tex">A</script> 选 <script type="math/tex">v</script>，因为 <script type="math/tex">3>1</script>。</li>
+</ul>
+<p>对 <script type="math/tex">B</script>：</p>
+<ul>
+<li>若 <script type="math/tex">A=u</script>，<script type="math/tex">B</script> 选 <script type="math/tex">y</script>，因为 <script type="math/tex">-1>-2</script>；</li>
+<li>若 <script type="math/tex">A=v</script>，<script type="math/tex">B</script> 选 <script type="math/tex">x</script>，因为 <script type="math/tex">0>-3</script>。</li>
+</ul>
+<p>检查四个格子：</p>
+<table>
+<thead>
+<tr>
+<th>策略组合</th>
+<th>是否为纳什均衡</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">(u,x)</script></td>
+<td>不是，<script type="math/tex">B</script> 想改成 <script type="math/tex">y</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(u,y)</script></td>
+<td>不是，<script type="math/tex">A</script> 想改成 <script type="math/tex">v</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(v,x)</script></td>
+<td>不是，<script type="math/tex">A</script> 想改成 <script type="math/tex">u</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(v,y)</script></td>
+<td>不是，<script type="math/tex">B</script> 想改成 <script type="math/tex">x</script></td>
+</tr>
+</tbody></table>
+<p>所以不存在纯策略纳什均衡：</p>
+<script type="math/tex; mode=display">\boxed{\text{不存在纯策略纳什均衡}}</script>
+<hr>
+<h3 id="2-求混合策略纳什均衡"><a href="#2-求混合策略纳什均衡" class="headerlink" title="2. 求混合策略纳什均衡"></a>2. 求混合策略纳什均衡</h3><p>设 <script type="math/tex">A</script> 选择 <script type="math/tex">u</script> 的概率为：</p>
+<script type="math/tex; mode=display">p</script>
+<p>选择 <script type="math/tex">v</script> 的概率为：</p>
+<script type="math/tex; mode=display">1-p</script>
+<p>设 <script type="math/tex">B</script> 选择 <script type="math/tex">x</script> 的概率为：</p>
+<script type="math/tex; mode=display">q</script>
+<p>选择 <script type="math/tex">y</script> 的概率为：</p>
+<script type="math/tex; mode=display">1-q</script>
+<p>由于该博弈也是零和博弈，只需看 <script type="math/tex">A</script> 的收益矩阵：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right"><script type="math/tex">B:x</script></th>
+<th align="right"><script type="math/tex">B:y</script></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">A:u</script></td>
+<td align="right"><script type="math/tex">2</script></td>
+<td align="right"><script type="math/tex">1</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">A:v</script></td>
+<td align="right"><script type="math/tex">0</script></td>
+<td align="right"><script type="math/tex">3</script></td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="3-求-MATH-INLINE-314-的混合策略"><a href="#3-求-MATH-INLINE-314-的混合策略" class="headerlink" title="3. 求 <script type="math/tex">B</script> 的混合策略"></a>3. 求 <script type="math/tex">B</script> 的混合策略</h3><p>令 <script type="math/tex">B</script> 的混合策略使 <script type="math/tex">A</script> 在 <script type="math/tex">u,v</script> 之间无差异。</p>
+<p>如果 <script type="math/tex">A</script> 选 <script type="math/tex">u</script>，期望收益为：</p>
+<script type="math/tex; mode=display">2q+1(1-q)=1+q</script>
+<p>如果 <script type="math/tex">A</script> 选 <script type="math/tex">v</script>，期望收益为：</p>
+<script type="math/tex; mode=display">0q+3(1-q)=3-3q</script>
+<p>令二者相等：</p>
+<script type="math/tex; mode=display">1+q=3-3q</script>
+<script type="math/tex; mode=display">4q=2</script>
+<script type="math/tex; mode=display">q=\frac12</script>
+<p>所以：</p>
+<script type="math/tex; mode=display">\boxed{
+B:x=\frac12,\quad B:y=\frac12
+}</script>
+<hr>
+<h3 id="4-求-MATH-INLINE-322-的混合策略"><a href="#4-求-MATH-INLINE-322-的混合策略" class="headerlink" title="4. 求 <script type="math/tex">A</script> 的混合策略"></a>4. 求 <script type="math/tex">A</script> 的混合策略</h3><p>令 <script type="math/tex">A</script> 的混合策略使 <script type="math/tex">B</script> 在 <script type="math/tex">x,y</script> 之间无差异。</p>
+<p>如果 <script type="math/tex">B</script> 选 <script type="math/tex">x</script>，<script type="math/tex">A</script> 的期望收益为：</p>
+<script type="math/tex; mode=display">2p+0(1-p)=2p</script>
+<p>如果 <script type="math/tex">B</script> 选 <script type="math/tex">y</script>，<script type="math/tex">A</script> 的期望收益为：</p>
+<script type="math/tex; mode=display">1p+3(1-p)=3-2p</script>
+<p>令二者相等：</p>
+<script type="math/tex; mode=display">2p=3-2p</script>
+<script type="math/tex; mode=display">4p=3</script>
+<script type="math/tex; mode=display">p=\frac34</script>
+<p>所以：</p>
+<script type="math/tex; mode=display">\boxed{
+A:u=\frac34,\quad A:v=\frac14
+}</script>
+<hr>
+<h3 id="5-计算-MATH-INLINE-332-的期望收益"><a href="#5-计算-MATH-INLINE-332-的期望收益" class="headerlink" title="5. 计算 <script type="math/tex">A</script> 的期望收益"></a>5. 计算 <script type="math/tex">A</script> 的期望收益</h3><p>代入均衡策略。</p>
+<p>使用：</p>
+<script type="math/tex; mode=display">2p</script>
+<p>可得：</p>
+<script type="math/tex; mode=display">2\times \frac34=\frac32</script>
+<p>所以 <script type="math/tex">A</script> 的均衡期望收益为：</p>
+<script type="math/tex; mode=display">\boxed{\frac32}</script>
+<p>对应地，<script type="math/tex">B</script> 的期望收益为：</p>
+<script type="math/tex; mode=display">\boxed{-\frac32}</script>
+<hr>
+<h3 id="（2）答案汇总"><a href="#（2）答案汇总" class="headerlink" title="（2）答案汇总"></a>（2）答案汇总</h3><table>
+<thead>
+<tr>
+<th>问题</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>纯策略纳什均衡</td>
+<td>不存在</td>
+</tr>
+<tr>
+<td><script type="math/tex">A</script> 的混合策略</td>
+<td><script type="math/tex">u</script> 的概率为 <script type="math/tex">\frac34</script>，<script type="math/tex">v</script> 的概率为 <script type="math/tex">\frac14</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">B</script> 的混合策略</td>
+<td><script type="math/tex">x</script> 的概率为 <script type="math/tex">\frac12</script>，<script type="math/tex">y</script> 的概率为 <script type="math/tex">\frac12</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">A</script> 的期望收益</td>
+<td><script type="math/tex">\frac32</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">B</script> 的期望收益</td>
+<td><script type="math/tex">-\frac32</script></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h2><p>这道题主要考察三个判断方法：</p>
+<ol>
+<li><strong>占优策略</strong>：看某个策略是否无论对方怎么选都更好；</li>
+<li><strong>纯策略纳什均衡</strong>：找双方最佳响应的交点；</li>
+<li><strong>混合策略纳什均衡</strong>：让对方在自己的纯策略之间无差异。</li>
+</ol>
+<p>对于零和博弈，还可以用一个直觉记忆：</p>
+<blockquote>
+<p>一方想最大化 <script type="math/tex">A</script> 的收益，另一方想最小化 <script type="math/tex">A</script> 的收益；混合策略均衡就是双方都无法通过改变概率进一步改善自己的结果。</p>
+</blockquote>
+</div><div class="tags"></div><div class="post-nav"><a class="pre" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a><a class="next" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>To be a better man.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" style="font-size: 15px;">人工智能</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E8%AF%86%E5%88%AB/" style="font-size: 15px;">图像识别</a> <a href="/tags/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">课程笔记</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/" style="font-size: 15px;">图像分类</a> <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">实验笔记</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">机器学习</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 15px;">自然语言处理</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">深度学习</a> <a href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" style="font-size: 15px;">期末复习</a> <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" style="font-size: 15px;">智能机器人</a> <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" style="font-size: 15px;">知识图谱</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 15px;">博客搭建</a> <a href="/tags/Hexo%E5%85%A5%E9%97%A8/" style="font-size: 15px;">Hexo入门</a> <a href="/tags/%E7%AB%99%E7%82%B9%E9%83%A8%E7%BD%B2/" style="font-size: 15px;">站点部署</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F/" style="font-size: 15px;">距离度量</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%87%A0%E4%BD%95/" style="font-size: 15px;">计算几何</a> <a href="/tags/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" style="font-size: 15px;">最小生成树</a> <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" style="font-size: 15px;">并查集</a> <a href="/tags/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" style="font-size: 15px;">算法刷题</a> <a href="/tags/%E5%8D%95%E8%B0%83%E6%A0%88/" style="font-size: 15px;">单调栈</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 15px;">数据结构</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 15px;">动态规划</a> <a href="/tags/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">算法笔记</a> <a href="/tags/%E9%99%8D%E7%BB%B4%E7%AE%97%E6%B3%95/" style="font-size: 15px;">降维算法</a> <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%8A%95%E5%BD%B1/" style="font-size: 15px;">随机投影</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E4%BF%9D%E6%8C%81/" style="font-size: 15px;">距离保持</a> <a href="/tags/%E5%9B%9B%E5%88%86%E6%A0%91/" style="font-size: 15px;">四分树</a> <a href="/tags/%E8%BF%91%E4%BC%BC%E7%AE%97%E6%B3%95/" style="font-size: 15px;">近似算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E9%99%8D%E7%BB%B4-JL%E6%96%B9%E6%B3%95/">降维:JL方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4g%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-%E4%BA%8C/">距离度量及其计算——低维欧氏距离(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/18/AI%E5%BC%95%E8%AE%BALab2%E2%80%94%E2%80%94%E4%BB%8Enumpy%E5%BC%80%E5%A7%8B%E7%9A%84u%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/">AI引论Lab2——从numpy开始的图像分类</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/AI%E5%BC%95%E8%AE%BA/">AI引论</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/04/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB/">距离度量及其计算——低维欧氏距离</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Square的小站.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>

@@ -2,7 +2,10 @@
 <h2 id="定位与地图创建"><a href="#定位与地图创建" class="headerlink" title="定位与地图创建"></a>定位与地图创建</h2><p>定位解决的是机器人当前位姿估计，地图创建解决的是环境表示。SLAM 把这两件事绑在一起：一边估计自己的位置，一边更新地图。</p>
 <h2 id="运动规划"><a href="#运动规划" class="headerlink" title="运动规划"></a>运动规划</h2><p>运动规划关心从起点到目标点怎么走，重点不是控制电机，而是在约束条件下找一条可行路径。</p>
 <h2 id="运动控制"><a href="#运动控制" class="headerlink" title="运动控制"></a>运动控制</h2><p>运动控制负责把规划出的路径变成实际动作。简单说，规划给目标，控制管执行。</p>
-<h1 id="强化学习"><a href="#强化学习" class="headerlink" title="强化学习"></a>强化学习</h1><h2 id="基本语言"><a href="#基本语言" class="headerlink" title="基本语言"></a>基本语言</h2><table>
+<h1 id="强化学习"><a href="#强化学习" class="headerlink" title="强化学习"></a>强化学习</h1><!-- 参考：强化学习 PPT :contentReference[oaicite:0]{index=0} -->
+
+<h2 id="基本语言"><a href="#基本语言" class="headerlink" title="基本语言"></a>基本语言</h2><p>强化学习研究的是一类“连续决策”问题：智能体不是只做一次判断，而是在环境中不断行动、获得反馈，并学习怎样行动才能让长期收益最大。</p>
+<table>
 <thead>
 <tr>
 <th>概念</th>
@@ -11,7 +14,7 @@
 </thead>
 <tbody><tr>
 <td>状态 state</td>
-<td>当前局面</td>
+<td>当前局面，例如棋盘状态、游戏画面、机器人姿态</td>
 </tr>
 <tr>
 <td>动作 action</td>
@@ -19,298 +22,1703 @@
 </tr>
 <tr>
 <td>奖励 reward</td>
-<td>这个动作带来的好坏反馈</td>
+<td>环境给智能体的反馈，表示这一步行动的好坏</td>
 </tr>
 <tr>
 <td>策略 policy</td>
-<td>在每个状态下应该怎么行动</td>
+<td>在每个状态下应该采取什么动作</td>
 </tr>
 <tr>
 <td>轨迹 trajectory</td>
 <td>一整段状态、动作、奖励序列</td>
 </tr>
 </tbody></table>
-<h2 id="Bellman-方程"><a href="#Bellman-方程" class="headerlink" title="Bellman 方程"></a>Bellman 方程</h2><h3 id="Bellman-期望方程推导"><a href="#Bellman-期望方程推导" class="headerlink" title="Bellman 期望方程推导"></a>Bellman 期望方程推导</h3><h4 id="1-折扣累计收益"><a href="#1-折扣累计收益" class="headerlink" title="1. 折扣累计收益"></a>1. 折扣累计收益</h4><p>从时刻 $t$ 开始，未来的折扣累计收益定义为：</p>
-<p>$$<br>G_t &#x3D; R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \cdots<br>$$</p>
-<p>其中 $\gamma$ 是折扣因子，表示未来奖励的重要程度。</p>
-<p>将它递归拆开：</p>
-<p>$$<br>\begin{aligned}<br>G_t<br>&amp;&#x3D; R_{t+1} + \gamma(R_{t+2} + \gamma R_{t+3} + \cdots) \<br>&amp;&#x3D; R_{t+1} + \gamma G_{t+1}<br>\end{aligned}<br>$$</p>
-<p>这说明：</p>
-<p>$$<br>\text{当前总收益} &#x3D; \text{当前奖励} + \gamma \times \text{未来总收益}<br>$$</p>
-<hr>
-<h4 id="2-状态价值函数"><a href="#2-状态价值函数" class="headerlink" title="2. 状态价值函数"></a>2. 状态价值函数</h4><p>对于固定策略 $\pi$，状态价值函数定义为：</p>
-<p>$$<br>V^\pi(s) &#x3D; \mathbb{E}_\pi [G_t \mid S_t &#x3D; s]<br>$$</p>
-<p>含义是：</p>
-<blockquote>
-<p>从状态 $s$ 出发，之后一直按照策略 $\pi$ 行动，能够获得的期望累计收益。</p>
-</blockquote>
-<p>将 $G_t &#x3D; R_{t+1} + \gamma G_{t+1}$ 代入：</p>
-<p>$$<br>\begin{aligned}<br>V^\pi(s)<br>&amp;&#x3D; \mathbb{E}<em>\pi [G_t \mid S_t&#x3D;s] \<br>&amp;&#x3D; \mathbb{E}</em>\pi [R_{t+1} + \gamma G_{t+1} \mid S_t&#x3D;s]<br>\end{aligned}<br>$$</p>
-<p>而从下一状态 $S_{t+1}$ 开始的期望累计收益就是：</p>
-<p>$$<br>V^\pi(S_{t+1})<br>$$</p>
-<p>所以：</p>
-<h1 id="V-pi-s"><a href="#V-pi-s" class="headerlink" title="$$V^\pi(s)"></a>$$<br>V^\pi(s)</h1><p>\mathbb{E}<em>\pi<br>[<br>R</em>{t+1} + \gamma V^\pi(S_{t+1})<br>\mid S_t&#x3D;s<br>]<br>$$</p>
-<p>这就是 Bellman 期望方程的简洁形式。</p>
-<hr>
-<h4 id="3-展开成求和形式"><a href="#3-展开成求和形式" class="headerlink" title="3. 展开成求和形式"></a>3. 展开成求和形式</h4><p>在状态 $s$ 下：</p>
-<ul>
-<li>策略 $\pi$ 以概率 $\pi(a|s)$ 选择动作 $a$；</li>
-<li>环境以概率 $p(s’|s,a)$ 转移到下一状态 $s’$；</li>
-<li>即时奖励为 $r(s,a,s’)$。</li>
-</ul>
-<p>因此：</p>
-<h1 id="V-pi-s-1"><a href="#V-pi-s-1" class="headerlink" title="$$V^\pi(s)"></a>$$<br>V^\pi(s)</h1><p>\sum_a \pi(a|s)<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’) + \gamma V^\pi(s’)<br>\right]<br>$$</p>
-<p>这就是状态价值函数形式的 Bellman 期望方程。</p>
-<p>它表示：</p>
-<h1 id="text-状态价值"><a href="#text-状态价值" class="headerlink" title="$$\text{状态价值}"></a>$$<br>\text{状态价值}</h1><p>\text{当前奖励的期望}<br>+<br>\gamma \times \text{下一状态价值的期望}<br>$$</p>
-<hr>
-<h4 id="4-动作价值函数形式"><a href="#4-动作价值函数形式" class="headerlink" title="4. 动作价值函数形式"></a>4. 动作价值函数形式</h4><p>动作价值函数定义为：</p>
-<h1 id="Q-pi-s-a"><a href="#Q-pi-s-a" class="headerlink" title="$$Q^\pi(s,a)"></a>$$<br>Q^\pi(s,a)</h1><p>\mathbb{E}_\pi [G_t \mid S_t&#x3D;s, A_t&#x3D;a]<br>$$</p>
-<p>含义是：</p>
-<blockquote>
-<p>在状态 $s$ 下先执行动作 $a$，之后按照策略 $\pi$ 行动，能够获得的期望累计收益。</p>
-</blockquote>
-<p>同理可得：</p>
-<h1 id="Q-pi-s-a-1"><a href="#Q-pi-s-a-1" class="headerlink" title="$$Q^\pi(s,a)"></a>$$<br>Q^\pi(s,a)</h1><p>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’) + \gamma V^\pi(s’)<br>\right]<br>$$</p>
-<p>又因为：</p>
-<h1 id="V-pi-s’"><a href="#V-pi-s’" class="headerlink" title="$$V^\pi(s’)"></a>$$<br>V^\pi(s’)</h1><p>\sum_{a’} \pi(a’|s’) Q^\pi(s’,a’)<br>$$</p>
-<p>所以：</p>
-<h1 id="Q-pi-s-a-2"><a href="#Q-pi-s-a-2" class="headerlink" title="$$Q^\pi(s,a)"></a>$$<br>Q^\pi(s,a)</h1><p>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma<br>\sum_{a’} \pi(a’|s’) Q^\pi(s’,a’)<br>\right]<br>$$</p>
-<hr>
-<h4 id="5-核心总结"><a href="#5-核心总结" class="headerlink" title="5. 核心总结"></a>5. 核心总结</h4><p>Bellman 期望方程的本质是：</p>
-<h1 id="boxed-text-当前价值"><a href="#boxed-text-当前价值" class="headerlink" title="$$\boxed{\text{当前价值}"></a>$$<br>\boxed{<br>\text{当前价值}</h1><p>\text{当前奖励}<br>+<br>\gamma \times \text{未来价值}<br>}<br>$$</p>
-<p>它之所以叫“期望方程”，是因为它是在固定策略 $\pi$ 下，对可能动作和可能状态转移求期望。</p>
-<p>状态价值形式：</p>
-<h1 id="V-pi-s-2"><a href="#V-pi-s-2" class="headerlink" title="$$V^\pi(s)"></a>$$<br>V^\pi(s)</h1><p>\sum_a \pi(a|s)<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’) + \gamma V^\pi(s’)<br>\right]<br>$$</p>
-<p>动作价值形式：</p>
-<h1 id="Q-pi-s-a-3"><a href="#Q-pi-s-a-3" class="headerlink" title="$$Q^\pi(s,a)"></a>$$<br>Q^\pi(s,a)</h1><p>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma<br>\sum_{a’} \pi(a’|s’) Q^\pi(s’,a’)<br>\right]<br>$$</p>
-<h3 id="Bellman-最优方程"><a href="#Bellman-最优方程" class="headerlink" title="Bellman 最优方程"></a>Bellman 最优方程</h3><h4 id="1-Bellman-最优方程要解决什么问题"><a href="#1-Bellman-最优方程要解决什么问题" class="headerlink" title="1. Bellman 最优方程要解决什么问题"></a>1. Bellman 最优方程要解决什么问题</h4><p>Bellman 期望方程解决的是：</p>
-<blockquote>
-<p>给定一个策略 $\pi$，计算这个策略的价值是多少。</p>
-</blockquote>
-<p>而 Bellman 最优方程解决的是：</p>
-<blockquote>
-<p>不固定某个策略，直接求所有策略中能达到的最大价值。</p>
-</blockquote>
-<p>也就是说，Bellman 期望方程关注的是：</p>
-<p>$$<br>V^\pi(s)<br>$$</p>
-<p>而 Bellman 最优方程关注的是：</p>
-<p>$$<br>V^*(s)<br>$$</p>
-<p>其中：</p>
-<p>$$<br>V^*(s) &#x3D; \max_\pi V^\pi(s)<br>$$</p>
-<p>含义是：</p>
-<blockquote>
-<p>从状态 $s$ 出发，在所有可能策略中，能够获得的最大期望累计收益。</p>
-</blockquote>
-<hr>
-<h4 id="2-最优状态价值函数"><a href="#2-最优状态价值函数" class="headerlink" title="2. 最优状态价值函数"></a>2. 最优状态价值函数</h4><p>对于固定策略 $\pi$，状态价值函数为：</p>
-<h1 id="V-pi-s-3"><a href="#V-pi-s-3" class="headerlink" title="$$V^\pi(s)"></a>$$<br>V^\pi(s)</h1><p>\mathbb{E}_\pi [G_t \mid S_t&#x3D;s]<br>$$</p>
-<p>而最优状态价值函数定义为：</p>
-<h1 id="V-s"><a href="#V-s" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_\pi V^\pi(s)<br>$$</p>
+<p>强化学习的基本循环是：</p>
+<script type="math/tex; mode=display">S_t \rightarrow A_t \rightarrow R_{t+1}, S_{t+1}</script>
 <p>也就是：</p>
-<h1 id="V-s-1"><a href="#V-s-1" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_\pi<br>\mathbb{E}_\pi [G_t \mid S_t&#x3D;s]<br>$$</p>
-<p>其中 $G_t$ 是从时刻 $t$ 开始的折扣累计收益：</p>
-<h1 id="G-t"><a href="#G-t" class="headerlink" title="$$G_t"></a>$$<br>G_t</h1><p>R_{t+1}<br>+<br>\gamma R_{t+2}<br>+<br>\gamma^2 R_{t+3}<br>+<br>\cdots<br>$$</p>
-<p>并且它满足递归关系：</p>
-<p>$$<br>G_t &#x3D; R_{t+1} + \gamma G_{t+1}<br>$$</p>
+<blockquote>
+<p>智能体观察当前状态 <script type="math/tex">S_t</script>，选择动作 <script type="math/tex">A_t</script>，环境返回奖励 <script type="math/tex">R_{t+1}</script> 和下一状态 <script type="math/tex">S_{t+1}</script>。</p>
+</blockquote>
+<p>强化学习的目标不是让某一步奖励最大，而是让长期累计奖励最大。</p>
 <hr>
-<h4 id="3-从累计收益递推到最优方程"><a href="#3-从累计收益递推到最优方程" class="headerlink" title="3. 从累计收益递推到最优方程"></a>3. 从累计收益递推到最优方程</h4><p>将</p>
-<p>$$<br>G_t &#x3D; R_{t+1} + \gamma G_{t+1}<br>$$</p>
-<p>代入最优状态价值函数：</p>
-<p>$$<br>\begin{aligned}<br>V^*(s)<br>&amp;&#x3D;<br>\max_\pi<br>\mathbb{E}<em>\pi [G_t \mid S_t&#x3D;s] \<br>&amp;&#x3D;<br>\max</em>\pi<br>\mathbb{E}<em>\pi<br>[<br>R</em>{t+1}<br>+<br>\gamma G_{t+1}<br>\mid S_t&#x3D;s<br>]<br>\end{aligned}<br>$$</p>
-<p>如果我们追求最优，那么在当前状态 $s$ 下，应该选择一个最好的动作 $a$。</p>
-<p>执行动作 $a$ 后，环境会转移到下一个状态 $s’$，之后仍然应该继续采取最优策略。</p>
-<p>因此，从下一状态 $s’$ 开始的最优未来价值就是：</p>
-<p>$$<br>V^*(s’)<br>$$</p>
+<h2 id="累计收益与价值函数"><a href="#累计收益与价值函数" class="headerlink" title="累计收益与价值函数"></a>累计收益与价值函数</h2><h3 id="折扣累计收益"><a href="#折扣累计收益" class="headerlink" title="折扣累计收益"></a>折扣累计收益</h3><p>从时刻 <script type="math/tex">t</script> 开始，未来的折扣累计收益定义为：</p>
+<script type="math/tex; mode=display">G_t
+=
+R_{t+1}
++
+\gamma R_{t+2}
++
+\gamma^2 R_{t+3}
++
+\cdots</script>
+<p>其中 <script type="math/tex">\gamma</script> 是折扣因子，满足：</p>
+<script type="math/tex; mode=display">0 \leq \gamma \leq 1</script>
+<p>它表示未来奖励的重要程度：</p>
+<ul>
+<li><script type="math/tex">\gamma</script> 越接近 <script type="math/tex">1</script>，越重视长期收益；</li>
+<li><script type="math/tex">\gamma</script> 越接近 <script type="math/tex">0</script>，越重视眼前收益。</li>
+</ul>
+<p>把 <script type="math/tex">G_t</script> 拆开：</p>
+<script type="math/tex; mode=display">\begin{aligned}
+G_t
+&=
+R_{t+1}
++
+\gamma R_{t+2}
++
+\gamma^2 R_{t+3}
++
+\cdots \\
+&=
+R_{t+1}
++
+\gamma
+(
+R_{t+2}
++
+\gamma R_{t+3}
++
+\cdots
+)
+\end{aligned}</script>
+<p>括号中的部分正是：</p>
+<script type="math/tex; mode=display">G_{t+1}</script>
 <p>所以：</p>
-<h1 id="V-s-2"><a href="#V-s-2" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_a<br>\mathbb{E}<br>[<br>R_{t+1}<br>+<br>\gamma V^*(S_{t+1})<br>\mid S_t&#x3D;s,A_t&#x3D;a<br>]<br>$$</p>
-<p>将期望展开为对所有可能下一状态 $s’$ 的求和：</p>
-<h1 id="V-s-3"><a href="#V-s-3" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_a<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^*(s’)<br>\right]<br>$$</p>
-<p>这就是状态价值函数形式的 Bellman 最优方程。</p>
+<script type="math/tex; mode=display">G_t
+=
+R_{t+1}
++
+\gamma G_{t+1}</script>
+<p>这就是 Bellman 方程最基础的来源：</p>
+<script type="math/tex; mode=display">\boxed{
+\text{从现在开始的总收益}
+=
+\text{当前一步奖励}
++
+\gamma \times \text{之后的总收益}
+}</script>
 <hr>
-<h4 id="4-公式含义"><a href="#4-公式含义" class="headerlink" title="4. 公式含义"></a>4. 公式含义</h4><p>Bellman 最优方程为：</p>
-<h1 id="V-s-4"><a href="#V-s-4" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_a<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^*(s’)<br>\right]<br>$$</p>
+<h3 id="状态价值函数"><a href="#状态价值函数" class="headerlink" title="状态价值函数"></a>状态价值函数</h3><p>对于一个固定策略 <script type="math/tex">\pi</script>，状态价值函数定义为：</p>
+<script type="math/tex; mode=display">V^\pi(s)
+=
+\mathbb{E}_\pi
+[
+G_t
+\mid
+S_t=s
+]</script>
+<p>含义是：</p>
+<blockquote>
+<p>如果当前在状态 <script type="math/tex">s</script>，之后一直按照策略 <script type="math/tex">\pi</script> 行动，那么未来期望能获得多少累计收益？</p>
+</blockquote>
+<p>这里的期望来自两方面：</p>
+<ol>
+<li>策略可能是随机的，例如 <script type="math/tex">\pi(a|s)</script>；</li>
+<li>环境转移可能是随机的，例如 <script type="math/tex">p(s'|s,a)</script>。</li>
+</ol>
+<hr>
+<h3 id="动作价值函数"><a href="#动作价值函数" class="headerlink" title="动作价值函数"></a>动作价值函数</h3><p>动作价值函数定义为：</p>
+<script type="math/tex; mode=display">Q^\pi(s,a)
+=
+\mathbb{E}_\pi
+[
+G_t
+\mid
+S_t=s,A_t=a
+]</script>
+<p>含义是：</p>
+<blockquote>
+<p>当前在状态 <script type="math/tex">s</script>，先执行动作 <script type="math/tex">a</script>，之后再按照策略 <script type="math/tex">\pi</script> 行动，未来期望能获得多少累计收益？</p>
+</blockquote>
+<p>二者区别是：</p>
+<ul>
+<li><script type="math/tex">V^\pi(s)</script>：评价一个状态好不好；</li>
+<li><script type="math/tex">Q^\pi(s,a)</script>：评价在某个状态下做某个动作好不好。</li>
+</ul>
+<hr>
+<h2 id="Bellman-方程"><a href="#Bellman-方程" class="headerlink" title="Bellman 方程"></a>Bellman 方程</h2><p>Bellman 方程的核心思想是：</p>
+<blockquote>
+<p>一个状态的价值，不应该孤立地看，而应该由“当前奖励”和“下一状态的价值”共同决定。</p>
+</blockquote>
+<p>它不是说“未来价值已经提前算好了”，而是说：</p>
+<blockquote>
+<p>真正合理的价值函数，必须满足当前价值和未来价值之间的自洽关系。</p>
+</blockquote>
+<hr>
+<h2 id="Bellman-期望方程"><a href="#Bellman-期望方程" class="headerlink" title="Bellman 期望方程"></a>Bellman 期望方程</h2><h3 id="解决的问题"><a href="#解决的问题" class="headerlink" title="解决的问题"></a>解决的问题</h3><p>Bellman 期望方程解决的是：</p>
+<blockquote>
+<p>给定一个策略 <script type="math/tex">\pi</script>，计算这个策略下每个状态的价值 <script type="math/tex">V^\pi(s)</script>。</p>
+</blockquote>
+<p>也就是说，它是在评价一个固定策略，而不是寻找最优策略。</p>
+<hr>
+<h3 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h3><p>由状态价值函数定义：</p>
+<script type="math/tex; mode=display">V^\pi(s)
+=
+\mathbb{E}_\pi
+[
+G_t
+\mid
+S_t=s
+]</script>
+<p>又因为：</p>
+<script type="math/tex; mode=display">G_t
+=
+R_{t+1}
++
+\gamma G_{t+1}</script>
+<p>所以：</p>
+<script type="math/tex; mode=display">\begin{aligned}
+V^\pi(s)
+&=
+\mathbb{E}_\pi
+[
+G_t
+\mid
+S_t=s
+] \\
+&=
+\mathbb{E}_\pi
+[
+R_{t+1}
++
+\gamma G_{t+1}
+\mid
+S_t=s
+]
+\end{aligned}</script>
+<p>从下一状态 <script type="math/tex">S_{t+1}</script> 开始，继续按照策略 <script type="math/tex">\pi</script> 行动，未来的期望累计收益就是：</p>
+<script type="math/tex; mode=display">V^\pi(S_{t+1})</script>
+<p>因此：</p>
+<script type="math/tex; mode=display">V^\pi(s)
+=
+\mathbb{E}_\pi
+[
+R_{t+1}
++
+\gamma V^\pi(S_{t+1})
+\mid
+S_t=s
+]</script>
+<p>展开成求和形式：</p>
+<script type="math/tex; mode=display">V^\pi(s)
+=
+\sum_a \pi(a|s)
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^\pi(s')
+\right]</script>
+<p>这就是状态价值函数形式的 Bellman 期望方程。</p>
+<hr>
+<h3 id="公式含义"><a href="#公式含义" class="headerlink" title="公式含义"></a>公式含义</h3><script type="math/tex; mode=display">V^\pi(s)
+=
+\sum_a \pi(a|s)
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^\pi(s')
+\right]</script>
 <p>其中：</p>
 <ul>
-<li>$V^*(s)$：状态 $s$ 的最优价值；</li>
-<li>$a$：当前可以选择的动作；</li>
-<li>$\max_a$：在所有动作中选择价值最大的动作；</li>
-<li>$p(s’|s,a)$：在状态 $s$ 执行动作 $a$ 后转移到 $s’$ 的概率；</li>
-<li>$r(s,a,s’)$：从 $s$ 执行动作 $a$ 到达 $s’$ 得到的即时奖励；</li>
-<li>$\gamma V^*(s’)$：折扣后的最优未来价值。</li>
+<li><script type="math/tex">\pi(a|s)</script>：在状态 <script type="math/tex">s</script> 下，策略 <script type="math/tex">\pi</script> 选择动作 <script type="math/tex">a</script> 的概率；</li>
+<li><script type="math/tex">p(s'|s,a)</script>：执行动作 <script type="math/tex">a</script> 后，环境转移到状态 <script type="math/tex">s'</script> 的概率；</li>
+<li><script type="math/tex">r(s,a,s')</script>：这一步得到的即时奖励；</li>
+<li><script type="math/tex">\gamma V^\pi(s')</script>：下一状态的折扣未来价值。</li>
 </ul>
 <p>所以它表达的是：</p>
-<h1 id="text-当前状态的最优价值"><a href="#text-当前状态的最优价值" class="headerlink" title="$$\text{当前状态的最优价值}"></a>$$<br>\text{当前状态的最优价值}</h1><p>\max_{\text{当前动作}}<br>(<br>\text{当前奖励}<br>+<br>\gamma<br>\times<br>\text{最优未来价值}<br>)<br>$$</p>
-<p>注意，这里的最优不是只看当前奖励，而是看：</p>
-<p>$$<br>r(s,a,s’) + \gamma V^*(s’)<br>$$</p>
+<script type="math/tex; mode=display">\boxed{
+\text{当前状态价值}
+=
+\text{当前奖励的期望}
++
+\gamma
+\times
+\text{下一状态价值的期望}
+}</script>
+<p>它叫“期望方程”，是因为它在固定策略 <script type="math/tex">\pi</script> 下，对所有可能动作和所有可能下一状态求期望。</p>
+<hr>
+<h3 id="动作价值形式"><a href="#动作价值形式" class="headerlink" title="动作价值形式"></a>动作价值形式</h3><p>动作价值函数也有类似的 Bellman 期望方程：</p>
+<script type="math/tex; mode=display">Q^\pi(s,a)
+=
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^\pi(s')
+\right]</script>
+<p>又因为：</p>
+<script type="math/tex; mode=display">V^\pi(s')
+=
+\sum_{a'} \pi(a'|s')Q^\pi(s',a')</script>
+<p>所以也可以写成只含 <script type="math/tex">Q^\pi</script> 的形式：</p>
+<script type="math/tex; mode=display">Q^\pi(s,a)
+=
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma
+\sum_{a'} \pi(a'|s')Q^\pi(s',a')
+\right]</script>
+<hr>
+<h2 id="Bellman-最优方程"><a href="#Bellman-最优方程" class="headerlink" title="Bellman 最优方程"></a>Bellman 最优方程</h2><h3 id="解决的问题-1"><a href="#解决的问题-1" class="headerlink" title="解决的问题"></a>解决的问题</h3><p>Bellman 期望方程是在问：</p>
+<blockquote>
+<p>如果按照策略 <script type="math/tex">\pi</script> 行动，价值是多少？</p>
+</blockquote>
+<p>Bellman 最优方程是在问：</p>
+<blockquote>
+<p>如果之后都采取最优行动，最多能获得多少价值？</p>
+</blockquote>
+<p>定义最优状态价值函数：</p>
+<script type="math/tex; mode=display">V^*(s)
+=
+\max_\pi V^\pi(s)</script>
+<p>含义是：</p>
+<blockquote>
+<p>从状态 <script type="math/tex">s</script> 出发，在所有可能策略中，能够获得的最大期望累计收益。</p>
+</blockquote>
+<hr>
+<h3 id="状态价值形式"><a href="#状态价值形式" class="headerlink" title="状态价值形式"></a>状态价值形式</h3><p>如果追求最优，那么在当前状态 <script type="math/tex">s</script> 下，智能体应该选择使长期收益最大的动作。</p>
+<p>所以：</p>
+<script type="math/tex; mode=display">V^*(s)
+=
+\max_a
+\mathbb{E}
+[
+R_{t+1}
++
+\gamma V^*(S_{t+1})
+\mid
+S_t=s,A_t=a
+]</script>
+<p>展开为求和形式：</p>
+<script type="math/tex; mode=display">V^*(s)
+=
+\max_a
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^*(s')
+\right]</script>
+<p>这就是状态价值形式的 Bellman 最优方程。</p>
+<hr>
+<h3 id="公式含义-1"><a href="#公式含义-1" class="headerlink" title="公式含义"></a>公式含义</h3><script type="math/tex; mode=display">V^*(s)
+=
+\max_a
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^*(s')
+\right]</script>
+<p>它表示：</p>
+<script type="math/tex; mode=display">\boxed{
+\text{当前状态的最优价值}
+=
+\max_{\text{当前动作}}
+(
+\text{当前奖励}
++
+\gamma
+\times
+\text{最优未来价值}
+)
+}</script>
+<p>注意，这里的最优不是只看当前奖励最大，而是看：</p>
+<script type="math/tex; mode=display">r(s,a,s')+\gamma V^*(s')</script>
 <p>也就是：</p>
 <blockquote>
 <p>当前动作带来的即时奖励，加上它通向的未来状态的最优价值。</p>
 </blockquote>
+<p>所以 Bellman 最优方程并不是短视贪心，而是在做长期最优决策。</p>
 <hr>
-<h4 id="5-为什么是对动作取最大，而不是对下一状态取最大"><a href="#5-为什么是对动作取最大，而不是对下一状态取最大" class="headerlink" title="5. 为什么是对动作取最大，而不是对下一状态取最大"></a>5. 为什么是对动作取最大，而不是对下一状态取最大</h4><p>Bellman 最优方程中：</p>
-<h1 id="V-s-5"><a href="#V-s-5" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_a<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^*(s’)<br>\right]<br>$$</p>
+<h3 id="为什么对动作取最大，而不是对下一状态取最大"><a href="#为什么对动作取最大，而不是对下一状态取最大" class="headerlink" title="为什么对动作取最大，而不是对下一状态取最大"></a>为什么对动作取最大，而不是对下一状态取最大</h3><p>Bellman 最优方程中：</p>
+<script type="math/tex; mode=display">V^*(s)
+=
+\max_a
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^*(s')
+\right]</script>
 <p>注意：</p>
 <ul>
-<li>对动作 $a$ 取最大；</li>
-<li>对下一状态 $s’$ 求期望。</li>
+<li>对动作 <script type="math/tex">a</script> 取最大；</li>
+<li>对下一状态 <script type="math/tex">s'</script> 求期望。</li>
 </ul>
 <p>原因是：</p>
 <blockquote>
-<p>动作是智能体可以选择的，所以可以取最大；<br>下一状态是环境决定的，可能具有随机性，所以只能按概率求期望。</p>
+<p>动作是智能体可以选择的，所以可以取最大；下一状态是环境决定的，所以只能按概率求期望。</p>
 </blockquote>
-<p>例如在网格世界中，智能体选择“向上走”，但环境可能规定：</p>
-<p>$$<br>0.8<br>$$</p>
-<p>的概率真的向上走，</p>
-<p>$$<br>0.1<br>$$</p>
-<p>的概率偏左，</p>
-<p>$$<br>0.1<br>$$</p>
-<p>的概率偏右。</p>
+<p>例如智能体选择“向上走”，但环境可能规定：</p>
+<ul>
+<li><script type="math/tex">0.8</script> 的概率真的向上；</li>
+<li><script type="math/tex">0.1</script> 的概率偏左；</li>
+<li><script type="math/tex">0.1</script> 的概率偏右。</li>
+</ul>
 <p>智能体能控制的是“选择哪个动作”，而不能控制“一定到达哪个下一状态”。</p>
-<p>因此，公式中是：</p>
-<p>$$<br>\max_a<br>$$</p>
+<p>因此，公式里是：</p>
+<script type="math/tex; mode=display">\max_a</script>
 <p>而不是：</p>
-<p>$$<br>\max_{s’}<br>$$</p>
+<script type="math/tex; mode=display">\max_{s'}</script>
 <hr>
-<h4 id="6-最优性原理"><a href="#6-最优性原理" class="headerlink" title="6. 最优性原理"></a>6. 最优性原理</h4><p>Bellman 最优方程背后的核心思想是：</p>
+<h3 id="最优性原理"><a href="#最优性原理" class="headerlink" title="最优性原理"></a>最优性原理</h3><p>Bellman 最优方程背后的核心思想是最优性原理：</p>
 <blockquote>
-<p>如果一个策略从状态 $s$ 出发是最优的，那么它到达任意后续状态 $s’$ 之后，剩下的策略也必须是从 $s’$ 出发的最优策略。</p>
+<p>如果一个策略从状态 <script type="math/tex">s</script> 出发是最优的，那么它到达任意后续状态 <script type="math/tex">s'</script> 后，剩下的策略也必须是从 <script type="math/tex">s'</script> 出发的最优策略。</p>
 </blockquote>
-<p>这叫做最优性原理。</p>
 <p>理由是：</p>
-<p>假设从 $s$ 出发的策略是最优的，但是它到达某个后续状态 $s’$ 后，后面的策略不是最优的。</p>
-<p>那么我们就可以把 $s’$ 之后的策略替换成一个更优策略。</p>
-<p>这样从 $s$ 出发的总收益就会变大。</p>
-<p>这与“原策略已经是最优策略”矛盾。</p>
+<p>如果从 <script type="math/tex">s</script> 出发的策略是最优的，但到达某个后续状态 <script type="math/tex">s'</script> 后，后面的策略不是最优的，那么我们可以把 <script type="math/tex">s'</script> 之后的策略替换成更好的策略。</p>
+<p>这样从 <script type="math/tex">s</script> 出发的总收益会变大，与“原策略已经最优”矛盾。</p>
 <p>所以：</p>
-<blockquote>
-<p>全局最优策略的后半段，也必须是局部最优的。</p>
-</blockquote>
-<p>正因为这个性质，长期决策问题才能被拆成：</p>
-<p>$$<br>\text{当前一步选择}<br>+<br>\text{后续状态的最优价值}<br>$$</p>
+<script type="math/tex; mode=display">\boxed{
+\text{全局最优策略的后半段，也必须是局部最优的}
+}</script>
+<p>正因为如此，长期决策问题才能被拆成：</p>
+<script type="math/tex; mode=display">\text{当前一步选择}
++
+\text{后续状态的最优价值}</script>
 <hr>
-<h4 id="7-动作价值函数形式"><a href="#7-动作价值函数形式" class="headerlink" title="7. 动作价值函数形式"></a>7. 动作价值函数形式</h4><p>除了状态价值函数 $V^*(s)$，还可以定义最优动作价值函数：</p>
-<h1 id="Q-s-a"><a href="#Q-s-a" class="headerlink" title="$$Q^*(s,a)"></a>$$<br>Q^*(s,a)</h1><p>\max_\pi Q^\pi(s,a)<br>$$</p>
+<h3 id="动作价值形式-1"><a href="#动作价值形式-1" class="headerlink" title="动作价值形式"></a>动作价值形式</h3><p>定义最优动作价值函数：</p>
+<script type="math/tex; mode=display">Q^*(s,a)
+=
+\max_\pi Q^\pi(s,a)</script>
 <p>含义是：</p>
 <blockquote>
-<p>在状态 $s$ 下先执行动作 $a$，之后采用最优策略，能够获得的最大期望累计收益。</p>
+<p>在状态 <script type="math/tex">s</script> 下先执行动作 <script type="math/tex">a</script>，之后采用最优策略，能够获得的最大期望累计收益。</p>
 </blockquote>
-<p>它的 Bellman 最优方程为：</p>
-<h1 id="Q-s-a-1"><a href="#Q-s-a-1" class="headerlink" title="$$Q^*(s,a)"></a>$$<br>Q^*(s,a)</h1><p>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma \max_{a’} Q^*(s’,a’)<br>\right]<br>$$</p>
-<p>含义是：</p>
-<blockquote>
-<p>当前在状态 $s$ 下先做动作 $a$，得到即时奖励并转移到 $s’$；<br>到达 $s’$ 后，再选择价值最大的动作 $a’$。</p>
-</blockquote>
-<p>其中：</p>
-<p>$$<br>\max_{a’} Q^*(s’,a’)<br>$$</p>
-<p>表示到达下一状态 $s’$ 后，所能获得的最优动作价值。</p>
-<hr>
-<h4 id="8-V-和-Q-的关系"><a href="#8-V-和-Q-的关系" class="headerlink" title="8. $V^$ 和 $Q^$ 的关系"></a>8. $V^<em>$ 和 $Q^</em>$ 的关系</h4><p>最优状态价值和最优动作价值之间有如下关系：</p>
-<h1 id="V-s-6"><a href="#V-s-6" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_a Q^*(s,a)<br>$$</p>
-<p>含义是：</p>
-<blockquote>
-<p>一个状态的最优价值，就是在这个状态下选择最优动作所能得到的价值。</p>
-</blockquote>
-<p>反过来：</p>
-<h1 id="Q-s-a-2"><a href="#Q-s-a-2" class="headerlink" title="$$Q^*(s,a)"></a>$$<br>Q^*(s,a)</h1><p>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^*(s’)<br>\right]<br>$$</p>
-<p>因为执行动作 $a$ 后，接下来进入状态 $s’$，之后继续采用最优策略。</p>
-<hr>
-<h4 id="9-如何由-Q-得到最优策略"><a href="#9-如何由-Q-得到最优策略" class="headerlink" title="9. 如何由 $Q^*$ 得到最优策略"></a>9. 如何由 $Q^*$ 得到最优策略</h4><p>如果已经知道 $Q^*(s,a)$，那么最优策略可以直接写成：</p>
-<h1 id="pi-s"><a href="#pi-s" class="headerlink" title="$$\pi^*(s)"></a>$$<br>\pi^*(s)</h1><p>\arg\max_a Q^*(s,a)<br>$$</p>
-<p>也就是说：</p>
-<blockquote>
-<p>在每个状态 $s$ 下，选择 $Q^*(s,a)$ 最大的动作。</p>
-</blockquote>
-<p>如果有多个动作并列最大，可以任选一个，或者在这些最优动作之间随机选择。</p>
-<p>这也是为什么很多强化学习算法会直接学习 $Q(s,a)$：</p>
-<blockquote>
-<p>一旦知道每个动作的价值，就可以直接根据动作价值选择动作。</p>
-</blockquote>
-<hr>
-<h4 id="10-和-Bellman-期望方程的区别"><a href="#10-和-Bellman-期望方程的区别" class="headerlink" title="10. 和 Bellman 期望方程的区别"></a>10. 和 Bellman 期望方程的区别</h4><p>Bellman 期望方程是：</p>
-<h1 id="V-pi-s-4"><a href="#V-pi-s-4" class="headerlink" title="$$V^\pi(s)"></a>$$<br>V^\pi(s)</h1><p>\sum_a \pi(a|s)<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^\pi(s’)<br>\right]<br>$$</p>
-<p>Bellman 最优方程是：</p>
-<h1 id="V-s-7"><a href="#V-s-7" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_a<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^*(s’)<br>\right]<br>$$</p>
-<p>二者最关键的区别是：</p>
-<p>$$<br>\sum_a \pi(a|s)(\cdots)<br>$$</p>
-<p>变成了：</p>
-<p>$$<br>\max_a(\cdots)<br>$$</p>
-<p>也就是说：</p>
+<p>它的 Bellman 最优方程是：</p>
+<script type="math/tex; mode=display">Q^*(s,a)
+=
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma \max_{a'}Q^*(s',a')
+\right]</script>
+<p>解释：</p>
 <ul>
-<li>Bellman 期望方程：按照给定策略 $\pi$ 对动作求平均；</li>
-<li>Bellman 最优方程：在所有动作中选择价值最大的动作。</li>
+<li>当前在状态 <script type="math/tex">s</script> 下先做动作 <script type="math/tex">a</script>；</li>
+<li>得到即时奖励并转移到 <script type="math/tex">s'</script>；</li>
+<li>到达 <script type="math/tex">s'</script> 后，再选择价值最大的动作 <script type="math/tex">a'</script>。</li>
 </ul>
-<p>所以：</p>
+<p>因此：</p>
+<script type="math/tex; mode=display">V^*(s)
+=
+\max_a Q^*(s,a)</script>
+<p>如果已经知道 <script type="math/tex">Q^*(s,a)</script>，最优策略可以直接写成：</p>
+<script type="math/tex; mode=display">\pi^*(s)
+=
+\arg\max_a Q^*(s,a)</script>
+<p>也就是：</p>
 <blockquote>
-<p>Bellman 期望方程用于评价一个固定策略；<br>Bellman 最优方程用于描述最优策略。</p>
+<p>在每个状态下，选择 <script type="math/tex">Q^*(s,a)</script> 最大的动作。</p>
 </blockquote>
 <hr>
-<h4 id="11-值迭代中的-Bellman-最优方程"><a href="#11-值迭代中的-Bellman-最优方程" class="headerlink" title="11. 值迭代中的 Bellman 最优方程"></a>11. 值迭代中的 Bellman 最优方程</h4><p>Bellman 最优方程本身是一个递归方程：</p>
-<h1 id="V-s-8"><a href="#V-s-8" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_a<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^*(s’)<br>\right]<br>$$</p>
-<p>问题是右边也有 $V^*(s’)$，所以通常不能直接一步算出。</p>
-<p>因此可以使用迭代方法。</p>
+<h2 id="期望方程和最优方程的区别"><a href="#期望方程和最优方程的区别" class="headerlink" title="期望方程和最优方程的区别"></a>期望方程和最优方程的区别</h2><p>Bellman 期望方程：</p>
+<script type="math/tex; mode=display">V^\pi(s)
+=
+\sum_a \pi(a|s)
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^\pi(s')
+\right]</script>
+<p>Bellman 最优方程：</p>
+<script type="math/tex; mode=display">V^*(s)
+=
+\max_a
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^*(s')
+\right]</script>
+<p>核心区别是：</p>
+<script type="math/tex; mode=display">\sum_a \pi(a|s)(\cdots)
+\quad
+\Longrightarrow
+\quad
+\max_a(\cdots)</script>
+<p>也就是说：</p>
+<table>
+<thead>
+<tr>
+<th>方程</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bellman 期望方程</td>
+<td>固定策略 <script type="math/tex">\pi</script>，按照策略对动作求平均，用来评价策略</td>
+</tr>
+<tr>
+<td>Bellman 最优方程</td>
+<td>不固定策略，直接选价值最大的动作，用来描述最优策略</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="策略评估迭代"><a href="#策略评估迭代" class="headerlink" title="策略评估迭代"></a>策略评估迭代</h2><h3 id="策略评估要解决什么问题"><a href="#策略评估要解决什么问题" class="headerlink" title="策略评估要解决什么问题"></a>策略评估要解决什么问题</h3><p>策略评估，也叫 Policy Evaluation，要解决的问题是：</p>
+<blockquote>
+<p>给定一个策略 <script type="math/tex">\pi</script>，计算这个策略对应的状态价值函数 <script type="math/tex">V^\pi(s)</script>。</p>
+</blockquote>
+<p>也就是说：</p>
+<script type="math/tex; mode=display">\pi
+\quad
+\Longrightarrow
+\quad
+V^\pi</script>
+<p>它不是在寻找最优策略，而是在评价当前策略。</p>
+<hr>
+<h3 id="为什么需要迭代"><a href="#为什么需要迭代" class="headerlink" title="为什么需要迭代"></a>为什么需要迭代</h3><p>策略评估的目标是求出满足 Bellman 期望方程的 <script type="math/tex">V^\pi</script>：</p>
+<script type="math/tex; mode=display">V^\pi(s)
+=
+\sum_a \pi(a|s)
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^\pi(s')
+\right]</script>
+<p>但是这个方程右边也含有 <script type="math/tex">V^\pi(s')</script>。</p>
+<p>也就是说，每个状态的价值都依赖别的状态的价值，甚至可能互相依赖。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">V(A)=1+0.9V(B)</script>
+<script type="math/tex; mode=display">V(B)=2+0.9V(C)</script>
+<script type="math/tex; mode=display">V(C)=0.5+0.9V(A)</script>
+<p>所以它不是简单地“先算未来，再算现在”，而是一个相互约束的方程组。</p>
+<p>因此我们先随便初始化一个价值函数，例如：</p>
+<script type="math/tex; mode=display">V_0(s)=0</script>
+<p>然后反复用 Bellman 期望方程修正它：</p>
+<script type="math/tex; mode=display">V_{k+1}(s)
+=
+\sum_a \pi(a|s)
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V_k(s')
+\right]</script>
+<p>这里：</p>
+<ul>
+<li><script type="math/tex">V_k(s)</script>：第 <script type="math/tex">k</script> 轮对状态 <script type="math/tex">s</script> 的价值估计；</li>
+<li><script type="math/tex">V_{k+1}(s)</script>：用 Bellman 期望方程修正后的新估计。</li>
+</ul>
+<p>也就是说：</p>
+<blockquote>
+<p>用上一轮的估值 <script type="math/tex">V_k</script>，计算下一轮更合理的估值 <script type="math/tex">V_{k+1}</script>。</p>
+</blockquote>
+<hr>
+<h3 id="为什么-MATH-INLINE-256-稳定就说明评估完成"><a href="#为什么-MATH-INLINE-256-稳定就说明评估完成" class="headerlink" title="为什么 <script type="math/tex">V_k</script> 稳定就说明评估完成"></a>为什么 <script type="math/tex">V_k</script> 稳定就说明评估完成</h3><p>这是理解策略评估迭代的关键。</p>
+<p>策略评估的目标不是让 <script type="math/tex">V_k</script> “变化很多”，而是找到一个价值函数 <script type="math/tex">V^\pi</script>，使它满足：</p>
+<script type="math/tex; mode=display">V^\pi = T^\pi V^\pi</script>
+<p>其中 <script type="math/tex">T^\pi</script> 表示“按照 Bellman 期望方程更新一次”。</p>
+<p>迭代过程可以写成：</p>
+<script type="math/tex; mode=display">V_{k+1}
+=
+T^\pi V_k</script>
+<p>如果经过很多轮之后：</p>
+<script type="math/tex; mode=display">V_{k+1}
+\approx
+V_k</script>
+<p>那么就说明：</p>
+<script type="math/tex; mode=display">T^\pi V_k
+\approx
+V_k</script>
+<p>也就是说：</p>
+<blockquote>
+<p>再用 Bellman 期望方程更新它，它几乎不变了。</p>
+</blockquote>
+<p>这说明当前的 <script type="math/tex">V_k</script> 已经基本满足 Bellman 期望方程。</p>
+<p>而满足 Bellman 期望方程的稳定解，就是当前策略 <script type="math/tex">\pi</script> 的价值函数 <script type="math/tex">V^\pi</script>。</p>
+<p>所以：</p>
+<script type="math/tex; mode=display">\boxed{
+V_k \text{ 稳定}
+\quad
+\Longrightarrow
+\quad
+V_k \text{ 接近 Bellman 方程的解}
+\quad
+\Longrightarrow
+\quad
+\text{策略评估完成}
+}</script>
+<hr>
+<h3 id="迭代过程的直观理解"><a href="#迭代过程的直观理解" class="headerlink" title="迭代过程的直观理解"></a>迭代过程的直观理解</h3><p>策略评估迭代可以理解为“奖励信息向前传播”。</p>
+<p>一开始：</p>
+<script type="math/tex; mode=display">V_0(s)=0</script>
+<p>表示暂时认为所有状态都没有未来价值。</p>
+<p>第一轮更新时，离奖励近的状态会先获得价值。</p>
+<p>第二轮更新时，这些价值会继续传给更前面的状态。</p>
+<p>继续迭代，奖励信息会沿着状态转移关系一层层传播。</p>
+<p>所以可以粗略理解为：</p>
+<ul>
+<li>第 <script type="math/tex">1</script> 轮：估计一步以内的收益；</li>
+<li>第 <script type="math/tex">2</script> 轮：估计两步以内的收益；</li>
+<li>第 <script type="math/tex">3</script> 轮：估计三步以内的收益；</li>
+<li>继续迭代：逐渐逼近长期累计收益。</li>
+</ul>
+<p>当所有状态的价值都不再明显变化时，说明奖励信息已经基本传播稳定。</p>
+<hr>
+<h3 id="迭代停止条件"><a href="#迭代停止条件" class="headerlink" title="迭代停止条件"></a>迭代停止条件</h3><p>实际计算中，通常设置一个很小的阈值 <script type="math/tex">\theta</script>。</p>
+<p>当：</p>
+<script type="math/tex; mode=display">\max_s
+|
+V_{k+1}(s)-V_k(s)
+|
+<
+\theta</script>
+<p>时，就停止迭代。</p>
+<p>含义是：</p>
+<blockquote>
+<p>所有状态的价值变化都已经很小，说明当前价值函数已经基本稳定。</p>
+</blockquote>
+<hr>
+<h3 id="策略评估算法流程"><a href="#策略评估算法流程" class="headerlink" title="策略评估算法流程"></a>策略评估算法流程</h3><p>输入：</p>
+<ul>
+<li>策略 <script type="math/tex">\pi</script>；</li>
+<li>转移概率 <script type="math/tex">p(s'|s,a)</script>；</li>
+<li>奖励函数 <script type="math/tex">r(s,a,s')</script>；</li>
+<li>折扣因子 <script type="math/tex">\gamma</script>；</li>
+<li>停止阈值 <script type="math/tex">\theta</script>。</li>
+</ul>
+<p>初始化：</p>
+<ul>
+<li>对所有状态 <script type="math/tex">s</script>，令 <script type="math/tex">V(s)=0</script>。</li>
+</ul>
+<p>循环：</p>
+<ol>
+<li>令 <script type="math/tex">\Delta=0</script>；</li>
+<li>对每个状态 <script type="math/tex">s</script>：<ul>
+<li>记录旧值 <script type="math/tex">old=V(s)</script>；</li>
+<li>用 Bellman 期望方程更新 <script type="math/tex">V(s)</script>；</li>
+<li>更新 <script type="math/tex">\Delta=\max(\Delta, |old - V(s)|)</script>；</li>
+</ul>
+</li>
+<li>如果 <script type="math/tex">\Delta<\theta</script>，停止迭代。</li>
+</ol>
+<p>输出：</p>
+<ul>
+<li>当前策略 <script type="math/tex">\pi</script> 对应的状态价值函数 <script type="math/tex">V^\pi</script>。</li>
+</ul>
+<p>公式形式是：</p>
+<script type="math/tex; mode=display">V_{k+1}(s)
+=
+\sum_a \pi(a|s)
+\sum_{s'} p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V_k(s')
+\right]</script>
+<hr>
+<h2 id="策略评估之后做什么"><a href="#策略评估之后做什么" class="headerlink" title="策略评估之后做什么"></a>策略评估之后做什么</h2><p>策略评估本身只是第一步。</p>
+<p>它的作用是：</p>
+<blockquote>
+<p>先知道当前策略在每个状态下的价值，再根据这些价值改进策略。</p>
+</blockquote>
+<p>有了 <script type="math/tex">V^\pi(s)</script> 之后，可以计算动作价值：</p>
+<script type="math/tex; mode=display">Q^\pi(s,a)
+=
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^\pi(s')
+\right]</script>
+<p>然后在每个状态下选择动作价值最大的动作：</p>
+<script type="math/tex; mode=display">\pi'(s)
+=
+\arg\max_a Q^\pi(s,a)</script>
+<p>这样得到一个改进后的策略 <script type="math/tex">\pi'</script>。</p>
+<p>整体逻辑是：</p>
+<script type="math/tex; mode=display">\pi
+\quad
+\xrightarrow{\text{策略评估}}
+\quad
+V^\pi
+\quad
+\xrightarrow{\text{策略提升}}
+\quad
+\pi'</script>
+<p>反复进行策略评估和策略提升，就得到策略迭代：</p>
+<script type="math/tex; mode=display">\pi_0
+\rightarrow
+V^{\pi_0}
+\rightarrow
+\pi_1
+\rightarrow
+V^{\pi_1}
+\rightarrow
+\pi_2
+\rightarrow
+\cdots</script>
+<hr>
+<h2 id="本部分核心逻辑"><a href="#本部分核心逻辑" class="headerlink" title="本部分核心逻辑"></a>本部分核心逻辑</h2><p>这一部分可以压缩成一条线：</p>
+<p>强化学习关心长期累计奖励。</p>
+<script type="math/tex; mode=display">\Downarrow</script>
+<p>长期收益可以拆成：</p>
+<script type="math/tex; mode=display">\text{当前奖励}+\gamma \times \text{未来收益}</script>
+<script type="math/tex; mode=display">\Downarrow</script>
+<p>定义状态价值 <script type="math/tex">V</script> 和动作价值 <script type="math/tex">Q</script>。</p>
+<script type="math/tex; mode=display">\Downarrow</script>
+<p>Bellman 期望方程：固定策略，评价它的价值。</p>
+<script type="math/tex; mode=display">\Downarrow</script>
+<p>Bellman 最优方程：不固定策略，描述最优价值。</p>
+<script type="math/tex; mode=display">\Downarrow</script>
+<p>策略评估迭代：反复用期望方程修正 <script type="math/tex">V</script>。</p>
+<script type="math/tex; mode=display">\Downarrow</script>
+<p>当 <script type="math/tex">V</script> 稳定时，说明它已经接近 Bellman 方程的解。</p>
+<script type="math/tex; mode=display">\Downarrow</script>
+<p>得到 <script type="math/tex">V^\pi</script> 后，可以进一步做策略提升。</p>
+<p>最重要的理解是：</p>
+<script type="math/tex; mode=display">\boxed{
+Bellman 方程不是说未来价值已经提前知道，
+而是说真正的价值函数必须满足
+“当前价值 = 当前奖励 + 折扣未来价值”
+这种自洽关系。
+}</script>
+<p>策略评估迭代就是在不断寻找这个自洽的价值函数。</p>
+<h2 id="值迭代"><a href="#值迭代" class="headerlink" title="值迭代"></a>值迭代</h2><h3 id="1-值迭代要解决什么问题"><a href="#1-值迭代要解决什么问题" class="headerlink" title="1. 值迭代要解决什么问题"></a>1. 值迭代要解决什么问题</h3><p>策略迭代的流程是：</p>
+<script type="math/tex; mode=display">\text{策略评估}
+\rightarrow
+\text{策略提升}
+\rightarrow
+\text{策略评估}
+\rightarrow
+\text{策略提升}
+\rightarrow
+\cdots</script>
+<p>它的问题是：</p>
+<blockquote>
+<p>每次策略提升之后，都要重新对新策略做完整的策略评估，直到价值函数基本收敛，这可能比较慢。</p>
+</blockquote>
+<p>因此可以换一种思路：</p>
+<blockquote>
+<p>既然最终目标是求最优价值函数，不如直接用 Bellman 最优方程更新价值函数。</p>
+</blockquote>
+<p>这就是值迭代。</p>
+<hr>
+<h3 id="2-值迭代的核心公式"><a href="#2-值迭代的核心公式" class="headerlink" title="2. 值迭代的核心公式"></a>2. 值迭代的核心公式</h3><p>Bellman 最优方程是：</p>
+<script type="math/tex; mode=display">V^*(s)
+=
+\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^*(s')
+\right]</script>
+<p>但是一开始不知道最优价值函数 <script type="math/tex">V^*</script>，所以用迭代来逼近。</p>
 <p>先初始化：</p>
-<p>$$<br>V_0(s)&#x3D;0<br>$$</p>
-<p>然后反复更新：</p>
-<h1 id="V-k-1-s"><a href="#V-k-1-s" class="headerlink" title="$$V_{k+1}(s)"></a>$$<br>V_{k+1}(s)</h1><p>\max_a<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V_k(s’)<br>\right]<br>$$</p>
-<p>这个过程叫做值迭代。</p>
-<p>可以直观理解为：</p>
-<ul>
-<li>第 $1$ 轮：估计一步以内的最优收益；</li>
-<li>第 $2$ 轮：估计两步以内的最优收益；</li>
-<li>第 $3$ 轮：估计三步以内的最优收益；</li>
-<li>不断迭代后，逐渐逼近长期最优价值。</li>
-</ul>
-<p>当价值函数基本不再变化时，就可以根据：</p>
-<h1 id="pi-s-1"><a href="#pi-s-1" class="headerlink" title="$$\pi^*(s)"></a>$$<br>\pi^*(s)</h1><p>\arg\max_a<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^*(s’)<br>\right]<br>$$</p>
-<p>得到最优策略。</p>
+<script type="math/tex; mode=display">V_0(s)=0</script>
+<p>然后不断更新：</p>
+<script type="math/tex; mode=display">V_{k+1}(s)
+=
+\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V_k(s')
+\right]</script>
+<p>这就是值迭代的核心公式。</p>
+<p>它的意思是：</p>
+<blockquote>
+<p>用上一轮的价值估计 <script type="math/tex">V_k</script>，计算下一轮更接近最优的价值估计 <script type="math/tex">V_{k+1}</script>。</p>
+</blockquote>
 <hr>
-<h4 id="12-Q-learning-和-Bellman-最优方程的关系"><a href="#12-Q-learning-和-Bellman-最优方程的关系" class="headerlink" title="12. Q-learning 和 Bellman 最优方程的关系"></a>12. Q-learning 和 Bellman 最优方程的关系</h4><p>Bellman 最优方程的 $Q$ 形式是：</p>
-<h1 id="Q-s-a-3"><a href="#Q-s-a-3" class="headerlink" title="$$Q^*(s,a)"></a>$$<br>Q^*(s,a)</h1><p>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma \max_{a’} Q^*(s’,a’)<br>\right]<br>$$</p>
-<p>但在真实环境中，智能体往往不知道完整的转移概率：</p>
-<p>$$<br>p(s’|s,a)<br>$$</p>
-<p>也不知道完整的奖励函数。</p>
-<p>因此 Q-learning 不对所有 $s’$ 求期望，而是通过一次实际采样来更新。</p>
-<p>假设智能体经历了一步：</p>
-<p>$$<br>s \xrightarrow{a,r} s’<br>$$</p>
-<p>即：</p>
-<ul>
-<li>当前状态为 $s$；</li>
-<li>执行动作为 $a$；</li>
-<li>得到奖励 $r$；</li>
-<li>到达下一状态 $s’$。</li>
-</ul>
-<p>那么 Q-learning 的更新公式为：</p>
-<h2 id="Q-s-a-leftarrowQ-s-a-alpha-left-r-gamma-max-a’-Q-s’-a’"><a href="#Q-s-a-leftarrowQ-s-a-alpha-left-r-gamma-max-a’-Q-s’-a’" class="headerlink" title="$$Q(s,a)\leftarrowQ(s,a)+\alpha\left[r+\gamma \max_{a’} Q(s’,a’)"></a>$$<br>Q(s,a)<br>\leftarrow<br>Q(s,a)<br>+<br>\alpha<br>\left[<br>r<br>+<br>\gamma \max_{a’} Q(s’,a’)</h2><p>Q(s,a)<br>\right]<br>$$</p>
+<h3 id="3-公式含义"><a href="#3-公式含义" class="headerlink" title="3. 公式含义"></a>3. 公式含义</h3><p>对于每个状态 <script type="math/tex">s</script>，值迭代会比较所有可能动作 <script type="math/tex">a</script>。</p>
+<p>对于某个动作 <script type="math/tex">a</script>，它的价值估计是：</p>
+<script type="math/tex; mode=display">\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V_k(s')
+\right]</script>
 <p>其中：</p>
 <ul>
-<li>$\alpha$ 是学习率；</li>
-<li>$r+\gamma \max_{a’}Q(s’,a’)$ 是 TD target；</li>
-<li>$r+\gamma \max_{a’}Q(s’,a’)-Q(s,a)$ 是 TD error。</li>
+<li><script type="math/tex">p(s'|s,a)</script>：执行动作 <script type="math/tex">a</script> 后转移到状态 <script type="math/tex">s'</script> 的概率；</li>
+<li><script type="math/tex">r(s,a,s')</script>：当前动作带来的即时奖励；</li>
+<li><script type="math/tex">\gamma V_k(s')</script>：下一状态的折扣未来价值。</li>
 </ul>
-<p>直观地说：</p>
+<p>然后在所有动作中取最大值：</p>
+<script type="math/tex; mode=display">\max_a</script>
+<p>所以值迭代表达的是：</p>
+<script type="math/tex; mode=display">\boxed{
+\text{当前状态的新价值}
+=
+\max_{\text{当前动作}}
+(
+\text{当前奖励}
++
+\gamma
+\times
+\text{下一状态价值}
+)
+}</script>
+<p>注意，值迭代不是只选择眼前奖励最大的动作，而是选择：</p>
+<script type="math/tex; mode=display">\text{当前奖励}
++
+\gamma
+\times
+\text{未来价值}</script>
+<p>最大的动作。</p>
+<hr>
+<h3 id="4-为什么值迭代可以逼近最优价值"><a href="#4-为什么值迭代可以逼近最优价值" class="headerlink" title="4. 为什么值迭代可以逼近最优价值"></a>4. 为什么值迭代可以逼近最优价值</h3><p>值迭代是在反复使用 Bellman 最优方程修正价值函数。</p>
+<p>一开始 <script type="math/tex">V_0</script> 可能很不准确，比如全部设为 <script type="math/tex">0</script>。</p>
+<p>经过一次更新，<script type="math/tex">V_1</script> 会反映一步以内的最优收益。</p>
+<p>经过两次更新，<script type="math/tex">V_2</script> 会进一步考虑两步以内的最优收益。</p>
+<p>继续迭代，奖励信息会不断向更早的状态传播。</p>
+<p>可以粗略理解为：</p>
+<ul>
+<li>第 <script type="math/tex">1</script> 轮：估计一步以内的最优收益；</li>
+<li>第 <script type="math/tex">2</script> 轮：估计两步以内的最优收益；</li>
+<li>第 <script type="math/tex">3</script> 轮：估计三步以内的最优收益；</li>
+<li>继续迭代：逐渐逼近长期最优收益。</li>
+</ul>
+<p>当价值函数基本不再变化时，说明它已经接近 Bellman 最优方程的稳定解，也就是最优价值函数 <script type="math/tex">V^*</script>。</p>
+<hr>
+<h3 id="5-迭代停止条件"><a href="#5-迭代停止条件" class="headerlink" title="5. 迭代停止条件"></a>5. 迭代停止条件</h3><p>实际计算中，可以设定一个很小的阈值 <script type="math/tex">\theta</script>。</p>
+<p>如果：</p>
+<script type="math/tex; mode=display">\max_s
+|
+V_{k+1}(s)-V_k(s)
+|
+<
+\theta</script>
+<p>就停止迭代。</p>
+<p>含义是：</p>
 <blockquote>
-<p>如果新的估计值比原来的 $Q(s,a)$ 更大，就把 $Q(s,a)$ 调高；<br>如果新的估计值比原来的 $Q(s,a)$ 更小，就把 $Q(s,a)$ 调低。</p>
+<p>所有状态的价值变化都已经很小，说明价值函数基本稳定。</p>
 </blockquote>
-<p>因此，Q-learning 可以看作：</p>
+<p>此时可以认为：</p>
+<script type="math/tex; mode=display">V_k(s)
+\approx
+V^*(s)</script>
+<hr>
+<h3 id="6-如何从最优价值函数得到策略"><a href="#6-如何从最优价值函数得到策略" class="headerlink" title="6. 如何从最优价值函数得到策略"></a>6. 如何从最优价值函数得到策略</h3><p>值迭代本身主要是在求最优价值函数。</p>
+<p>当价值函数收敛后，再根据它提取最优策略：</p>
+<script type="math/tex; mode=display">\pi^*(s)
+=
+\arg\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^*(s')
+\right]</script>
+<p>意思是：</p>
 <blockquote>
-<p>用采样的方式近似 Bellman 最优方程。</p>
+<p>在每个状态 <script type="math/tex">s</script> 下，选择能让“当前奖励 + 折扣未来价值”最大的动作。</p>
+</blockquote>
+<p>所以值迭代的完整逻辑是：</p>
+<script type="math/tex; mode=display">V_0
+\rightarrow
+V_1
+\rightarrow
+V_2
+\rightarrow
+\cdots
+\rightarrow
+V^*
+\rightarrow
+\pi^*</script>
+<p>也就是：</p>
+<blockquote>
+<p>先求最优价值，再根据最优价值反推出最优策略。</p>
 </blockquote>
 <hr>
-<h4 id="13-核心总结"><a href="#13-核心总结" class="headerlink" title="13. 核心总结"></a>13. 核心总结</h4><p>Bellman 最优方程的核心思想是：</p>
-<h1 id="boxed-text-当前最优价值"><a href="#boxed-text-当前最优价值" class="headerlink" title="$$\boxed{\text{当前最优价值}"></a>$$<br>\boxed{<br>\text{当前最优价值}</h1><p>\max_{\text{当前动作}}<br>(<br>\text{当前奖励}<br>+<br>\gamma<br>\times<br>\text{未来最优价值}<br>)<br>}<br>$$</p>
-<p>状态价值形式：</p>
-<h1 id="V-s-9"><a href="#V-s-9" class="headerlink" title="$$V^*(s)"></a>$$<br>V^*(s)</h1><p>\max_a<br>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma V^*(s’)<br>\right]<br>$$</p>
-<p>动作价值形式：</p>
-<h1 id="Q-s-a-4"><a href="#Q-s-a-4" class="headerlink" title="$$Q^*(s,a)"></a>$$<br>Q^*(s,a)</h1><p>\sum_{s’} p(s’|s,a)<br>\left[<br>r(s,a,s’)<br>+<br>\gamma \max_{a’} Q^*(s’,a’)<br>\right]<br>$$</p>
-<p>它和 Bellman 期望方程的区别是：</p>
-<p>$$<br>\text{期望方程：固定策略，按策略求平均}<br>$$</p>
-<p>$$<br>\text{最优方程：不固定策略，对动作取最大}<br>$$</p>
-<p>最重要的是：</p>
+<h3 id="7-值迭代和策略迭代的区别"><a href="#7-值迭代和策略迭代的区别" class="headerlink" title="7. 值迭代和策略迭代的区别"></a>7. 值迭代和策略迭代的区别</h3><p>策略迭代是：</p>
+<script type="math/tex; mode=display">\pi
+\rightarrow
+V^\pi
+\rightarrow
+\pi'
+\rightarrow
+V^{\pi'}
+\rightarrow
+\cdots</script>
+<p>它每一轮都分成两步：</p>
+<ol>
+<li>策略评估：固定当前策略，计算它的价值；</li>
+<li>策略提升：根据价值函数改进策略。</li>
+</ol>
+<p>值迭代则不显式维护策略，而是直接更新价值函数：</p>
+<script type="math/tex; mode=display">V_{k+1}(s)
+=
+\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V_k(s')
+\right]</script>
+<p>可以这样理解：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>核心思想</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>策略迭代</td>
+<td>先完整评价当前策略，再改进策略</td>
+</tr>
+<tr>
+<td>值迭代</td>
+<td>不完整评价某个策略，而是每次直接朝最优价值更新</td>
+</tr>
+</tbody></table>
+<p>策略迭代更像是：</p>
 <blockquote>
-<p>Bellman 最优方程不是只看眼前奖励最大，而是选择“当前奖励 + 最优未来价值”最大的动作。</p>
+<p>先认真评价当前方案，再修改方案。</p>
 </blockquote>
-</div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" rel="tag">人工智能</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag">强化学习</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" rel="tag">智能机器人</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" rel="tag">期末复习</a></li></ul></div><div class="post-nav"><a class="next" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>To be a better man.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" style="font-size: 15px;">人工智能</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/" style="font-size: 15px;">图像分类</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">机器学习</a> <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">实验笔记</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E8%AF%86%E5%88%AB/" style="font-size: 15px;">图像识别</a> <a href="/tags/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">课程笔记</a> <a href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" style="font-size: 15px;">期末复习</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 15px;">自然语言处理</a> <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" style="font-size: 15px;">知识图谱</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F/" style="font-size: 15px;">距离度量</a> <a href="/tags/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">算法笔记</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%87%A0%E4%BD%95/" style="font-size: 15px;">计算几何</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 15px;">博客搭建</a> <a href="/tags/%E7%AB%99%E7%82%B9%E9%83%A8%E7%BD%B2/" style="font-size: 15px;">站点部署</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" style="font-size: 15px;">智能机器人</a> <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a> <a href="/tags/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" style="font-size: 15px;">算法刷题</a> <a href="/tags/%E5%8D%95%E8%B0%83%E6%A0%88/" style="font-size: 15px;">单调栈</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 15px;">数据结构</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 15px;">动态规划</a> <a href="/tags/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" style="font-size: 15px;">最小生成树</a> <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" style="font-size: 15px;">并查集</a> <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%8A%95%E5%BD%B1/" style="font-size: 15px;">随机投影</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E4%BF%9D%E6%8C%81/" style="font-size: 15px;">距离保持</a> <a href="/tags/%E5%9B%9B%E5%88%86%E6%A0%91/" style="font-size: 15px;">四分树</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">深度学习</a> <a href="/tags/Hexo%E5%85%A5%E9%97%A8/" style="font-size: 15px;">Hexo入门</a> <a href="/tags/%E8%BF%91%E4%BC%BC%E7%AE%97%E6%B3%95/" style="font-size: 15px;">近似算法</a> <a href="/tags/%E9%99%8D%E7%BB%B4%E7%AE%97%E6%B3%95/" style="font-size: 15px;">降维算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E9%99%8D%E7%BB%B4-JL%E6%96%B9%E6%B3%95/">降维:JL方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4g%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-%E4%BA%8C/">距离度量及其计算——低维欧氏距离(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/18/AI%E5%BC%95%E8%AE%BALab2%E2%80%94%E2%80%94%E4%BB%8Enumpy%E5%BC%80%E5%A7%8B%E7%9A%84u%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/">AI引论Lab2——从numpy开始的图像分类</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/AI%E5%BC%95%E8%AE%BA/">AI引论</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/04/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB/">距离度量及其计算——低维欧氏距离</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/04/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98%E9%9A%8F%E8%AE%B0%E2%80%94%E2%80%94monotonic-stack/">算法刷题随记——monotonic stack</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/04/30/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97/">距离度量及其计算</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Square的小站.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+<p>值迭代更像是：</p>
+<blockquote>
+<p>每次更新价值时，就直接假设当前动作要选最优的。</p>
+</blockquote>
+<hr>
+<h3 id="8-值迭代的算法流程"><a href="#8-值迭代的算法流程" class="headerlink" title="8. 值迭代的算法流程"></a>8. 值迭代的算法流程</h3><p>输入：</p>
+<ul>
+<li>状态集合 <script type="math/tex">S</script>；</li>
+<li>动作集合 <script type="math/tex">A</script>；</li>
+<li>转移概率 <script type="math/tex">p(s'|s,a)</script>；</li>
+<li>奖励函数 <script type="math/tex">r(s,a,s')</script>；</li>
+<li>折扣因子 <script type="math/tex">\gamma</script>；</li>
+<li>停止阈值 <script type="math/tex">\theta</script>。</li>
+</ul>
+<p>初始化：</p>
+<ul>
+<li>对所有状态 <script type="math/tex">s</script>，令 <script type="math/tex">V(s)=0</script>。</li>
+</ul>
+<p>重复：</p>
+<ol>
+<li>令 <script type="math/tex">\Delta=0</script>；</li>
+<li>对每个状态 <script type="math/tex">s</script>：<ul>
+<li>记录旧值 <script type="math/tex">old=V(s)</script>；</li>
+<li>用 Bellman 最优方程更新 <script type="math/tex">V(s)</script>；</li>
+<li>更新 <script type="math/tex">\Delta=\max(\Delta, |old-V(s)|)</script>；</li>
+</ul>
+</li>
+<li>如果 <script type="math/tex">\Delta<\theta</script>，停止迭代。</li>
+</ol>
+<p>最后，根据收敛后的价值函数提取策略：</p>
+<script type="math/tex; mode=display">\pi(s)
+=
+\arg\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V(s')
+\right]</script>
+<hr>
+<h3 id="9-核心总结"><a href="#9-核心总结" class="headerlink" title="9. 核心总结"></a>9. 核心总结</h3><p>值迭代的核心是：</p>
+<script type="math/tex; mode=display">\boxed{
+V_{k+1}(s)
+=
+\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V_k(s')
+\right]
+}</script>
+<p>它本质上是在用 Bellman 最优方程反复修正价值函数。</p>
+<p>当价值函数稳定时，就近似得到了最优价值函数：</p>
+<script type="math/tex; mode=display">V_k
+\approx
+V^*</script>
+<p>然后可以根据最优价值函数得到最优策略：</p>
+<script type="math/tex; mode=display">\pi^*(s)
+=
+\arg\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V^*(s')
+\right]</script>
+<p>一句话总结：</p>
+<blockquote>
+<p>值迭代不再反复完整评估某个策略，而是直接用 Bellman 最优方程更新价值函数，让它逐渐逼近最优价值函数。</p>
+</blockquote>
+<h2 id="Q-learning"><a href="#Q-learning" class="headerlink" title="Q-learning"></a>Q-learning</h2><h3 id="1-Q-learning-要解决什么问题"><a href="#1-Q-learning-要解决什么问题" class="headerlink" title="1. Q-learning 要解决什么问题"></a>1. Q-learning 要解决什么问题</h3><p>前面的值迭代使用 Bellman 最优方程：</p>
+<script type="math/tex; mode=display">V_{k+1}(s)
+=
+\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V_k(s')
+\right]</script>
+<p>它有一个重要前提：</p>
+<blockquote>
+<p>我们知道完整的环境模型。</p>
+</blockquote>
+<p>也就是说，需要知道：</p>
+<script type="math/tex; mode=display">p(s'|s,a)</script>
+<p>即在状态 <script type="math/tex">s</script> 下执行动作 <script type="math/tex">a</script> 后，转移到每个下一状态 <script type="math/tex">s'</script> 的概率。</p>
+<p>但真实强化学习场景中，环境往往是未知的。智能体通常只能通过实际试错得到经验：</p>
+<script type="math/tex; mode=display">s
+\xrightarrow{a,r}
+s'</script>
+<p>也就是：</p>
+<ul>
+<li>当前在状态 <script type="math/tex">s</script>；</li>
+<li>执行动作 <script type="math/tex">a</script>；</li>
+<li>得到奖励 <script type="math/tex">r</script>；</li>
+<li>到达下一状态 <script type="math/tex">s'</script>。</li>
+</ul>
+<p>因此，Q-learning 的核心目标是：</p>
+<blockquote>
+<p>不依赖完整环境模型，而是通过一次次实际交互，学习每个状态-动作对的长期价值。</p>
+</blockquote>
+<hr>
+<h3 id="2-为什么学习-MATH-INLINE-331-而不是只学习-MATH-INLINE-332"><a href="#2-为什么学习-MATH-INLINE-331-而不是只学习-MATH-INLINE-332" class="headerlink" title="2. 为什么学习 <script type="math/tex">Q(s,a)</script> 而不是只学习 <script type="math/tex">V(s)</script>"></a>2. 为什么学习 <script type="math/tex">Q(s,a)</script> 而不是只学习 <script type="math/tex">V(s)</script></h3><p>状态价值函数：</p>
+<script type="math/tex; mode=display">V(s)</script>
+<p>表示：</p>
+<blockquote>
+<p>状态 <script type="math/tex">s</script> 本身有多好。</p>
+</blockquote>
+<p>但它没有直接告诉我们：</p>
+<blockquote>
+<p>在状态 <script type="math/tex">s</script> 下应该选择哪个动作。</p>
+</blockquote>
+<p>如果只知道 <script type="math/tex">V(s)</script>，想选择动作时还需要知道执行动作后会到达哪些状态，也就是仍然需要环境模型。</p>
+<p>而动作价值函数：</p>
+<script type="math/tex; mode=display">Q(s,a)</script>
+<p>表示：</p>
+<blockquote>
+<p>在状态 <script type="math/tex">s</script> 下执行动作 <script type="math/tex">a</script>，从长期来看有多好。</p>
+</blockquote>
+<p>一旦知道了 <script type="math/tex">Q(s,a)</script>，选动作就很简单：</p>
+<script type="math/tex; mode=display">\pi(s)
+=
+\arg\max_a Q(s,a)</script>
+<p>也就是说：</p>
+<blockquote>
+<p>在当前状态下，哪个动作的 <script type="math/tex">Q</script> 值最大，就选择哪个动作。</p>
+</blockquote>
+<p>所以 Q-learning 学习的是动作价值函数 <script type="math/tex">Q(s,a)</script>，这样就可以在不知道完整环境模型的情况下直接做决策。</p>
+<hr>
+<h3 id="3-Bellman-最优方程的-MATH-INLINE-341-形式"><a href="#3-Bellman-最优方程的-MATH-INLINE-341-形式" class="headerlink" title="3. Bellman 最优方程的 <script type="math/tex">Q</script> 形式"></a>3. Bellman 最优方程的 <script type="math/tex">Q</script> 形式</h3><p>Q-learning 的理论基础是 Bellman 最优方程的动作价值形式：</p>
+<script type="math/tex; mode=display">Q^*(s,a)
+=
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma \max_{a'}Q^*(s',a')
+\right]</script>
+<p>这个公式的含义是：</p>
+<blockquote>
+<p>当前在状态 <script type="math/tex">s</script> 下先执行动作 <script type="math/tex">a</script>，得到即时奖励并转移到下一状态 <script type="math/tex">s'</script>；到达 <script type="math/tex">s'</script> 后，之后选择最优动作，因此未来价值是 <script type="math/tex">\max_{a'}Q^*(s',a')</script>。</p>
+</blockquote>
+<p>可以理解为：</p>
+<script type="math/tex; mode=display">\boxed{
+Q^*(s,a)
+=
+\text{当前奖励}
++
+\gamma
+\times
+\text{下一状态的最优动作价值}
+}</script>
+<hr>
+<h3 id="4-从-Bellman-最优方程到-Q-learning"><a href="#4-从-Bellman-最优方程到-Q-learning" class="headerlink" title="4. 从 Bellman 最优方程到 Q-learning"></a>4. 从 Bellman 最优方程到 Q-learning</h3><p>Bellman 最优 <script type="math/tex">Q</script> 方程需要对所有可能的下一状态求期望：</p>
+<script type="math/tex; mode=display">\sum_{s'}p(s'|s,a)(\cdots)</script>
+<p>但 Q-learning 不知道完整的转移概率，所以不做完整求和，而是使用一次真实采样：</p>
+<script type="math/tex; mode=display">s
+\xrightarrow{a,r}
+s'</script>
+<p>于是用这一次经验构造目标值：</p>
+<script type="math/tex; mode=display">r
++
+\gamma \max_{a'}Q(s',a')</script>
+<p>这个目标值叫做 <strong>TD target</strong>。</p>
+<p>它表示：</p>
+<blockquote>
+<p>根据这一次真实经验，<script type="math/tex">Q(s,a)</script> 应该更接近“当前奖励 + 下一状态的最优未来价值”。</p>
+</blockquote>
+<hr>
+<h3 id="5-Q-learning-更新公式"><a href="#5-Q-learning-更新公式" class="headerlink" title="5. Q-learning 更新公式"></a>5. Q-learning 更新公式</h3><p>Q-learning 的核心更新公式是：</p>
+<script type="math/tex; mode=display">Q(s,a)
+\leftarrow
+Q(s,a)
++
+\alpha
+\left[
+r
++
+\gamma \max_{a'}Q(s',a')
+-
+Q(s,a)
+\right]</script>
+<p>也可以理解成：</p>
+<script type="math/tex; mode=display">\text{新估计}
+=
+\text{旧估计}
++
+\alpha
+(
+\text{目标值}
+-
+\text{旧估计}
+)</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">Q(s,a)</script>：原来对这个状态-动作对的价值估计；</li>
+<li><script type="math/tex">r+\gamma \max_{a'}Q(s',a')</script>：新的目标估计，也叫 TD target；</li>
+<li><script type="math/tex">r+\gamma \max_{a'}Q(s',a')-Q(s,a)</script>：目标值和旧估计之间的差距，也叫 TD error；</li>
+<li><script type="math/tex">\alpha</script>：学习率，控制每次更新的幅度。</li>
+</ul>
+<p>所以 Q-learning 的直觉是：</p>
+<blockquote>
+<p>原来我以为 <script type="math/tex">Q(s,a)</script> 是某个值；现在我实际试了一次，发现它应该更接近新的目标值，于是把旧估计往目标值方向移动一点。</p>
+</blockquote>
+<hr>
+<h3 id="6-TD-target-和-TD-error"><a href="#6-TD-target-和-TD-error" class="headerlink" title="6. TD target 和 TD error"></a>6. TD target 和 TD error</h3><p>TD target 是：</p>
+<script type="math/tex; mode=display">r
++
+\gamma \max_{a'}Q(s',a')</script>
+<p>含义是：</p>
+<blockquote>
+<p>根据这一步经验，对 <script type="math/tex">Q(s,a)</script> 给出的新目标。</p>
+</blockquote>
+<p>TD error 是：</p>
+<script type="math/tex; mode=display">r
++
+\gamma \max_{a'}Q(s',a')
+-
+Q(s,a)</script>
+<p>含义是：</p>
+<blockquote>
+<p>当前估计和目标估计之间相差多少。</p>
+</blockquote>
+<p>因此 Q-learning 更新公式可以写成：</p>
+<script type="math/tex; mode=display">Q(s,a)
+\leftarrow
+Q(s,a)
++
+\alpha
+\times
+\text{TD error}</script>
+<p>如果 TD error 大于 <script type="math/tex">0</script>，说明原来低估了这个动作的价值，于是 <script type="math/tex">Q(s,a)</script> 会被调高。</p>
+<p>如果 TD error 小于 <script type="math/tex">0</script>，说明原来高估了这个动作的价值，于是 <script type="math/tex">Q(s,a)</script> 会被调低。</p>
+<hr>
+<h3 id="7-学习率-MATH-INLINE-359"><a href="#7-学习率-MATH-INLINE-359" class="headerlink" title="7. 学习率 <script type="math/tex">\alpha</script>"></a>7. 学习率 <script type="math/tex">\alpha</script></h3><p>学习率 <script type="math/tex">\alpha</script> 控制每次更新时对新经验的相信程度。</p>
+<p>如果：</p>
+<script type="math/tex; mode=display">\alpha=1</script>
+<p>表示完全相信这一次采样，直接把旧值改成目标值。</p>
+<p>如果 <script type="math/tex">\alpha</script> 较小，则表示只把旧值往目标值方向移动一点。</p>
+<p>使用学习率的原因是：</p>
+<blockquote>
+<p>单次采样可能有偶然性，所以不要被一次经验完全改变，而是通过多次经验逐渐修正估计。</p>
+</blockquote>
+<hr>
+<h3 id="8-折扣因子-MATH-INLINE-362"><a href="#8-折扣因子-MATH-INLINE-362" class="headerlink" title="8. 折扣因子 <script type="math/tex">\gamma</script>"></a>8. 折扣因子 <script type="math/tex">\gamma</script></h3><p>折扣因子 <script type="math/tex">\gamma</script> 控制未来价值的重要程度。</p>
+<p>在 TD target 中：</p>
+<script type="math/tex; mode=display">r
++
+\gamma \max_{a'}Q(s',a')</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">r</script> 是当前奖励；</li>
+<li><script type="math/tex">\gamma \max_{a'}Q(s',a')</script> 是折扣后的未来价值。</li>
+</ul>
+<p>如果 <script type="math/tex">\gamma</script> 接近 <script type="math/tex">0</script>，智能体更关注眼前奖励。</p>
+<p>如果 <script type="math/tex">\gamma</script> 接近 <script type="math/tex">1</script>，智能体更关注长期收益。</p>
+<p>所以 Q-learning 不是简单选择眼前奖励最大的动作，而是在学习：</p>
+<script type="math/tex; mode=display">\text{当前奖励}
++
+\gamma
+\times
+\text{未来价值}</script>
+<hr>
+<h3 id="9-Q-learning-的算法流程"><a href="#9-Q-learning-的算法流程" class="headerlink" title="9. Q-learning 的算法流程"></a>9. Q-learning 的算法流程</h3><p>Q-learning 的基本流程是：</p>
+<ol>
+<li>初始化所有 <script type="math/tex">Q(s,a)</script>，通常设为 <script type="math/tex">0</script>；</li>
+<li>智能体从某个初始状态 <script type="math/tex">s</script> 出发；</li>
+<li>根据行为策略选择动作 <script type="math/tex">a</script>；</li>
+<li>执行动作 <script type="math/tex">a</script>，得到奖励 <script type="math/tex">r</script> 和下一状态 <script type="math/tex">s'</script>；</li>
+<li>使用 Q-learning 公式更新 <script type="math/tex">Q(s,a)</script>；</li>
+<li>令 <script type="math/tex">s=s'</script>，继续下一步；</li>
+<li>经过大量交互后，<script type="math/tex">Q(s,a)</script> 逐渐接近最优动作价值。</li>
+</ol>
+<p>核心公式是：</p>
+<script type="math/tex; mode=display">Q(s,a)
+\leftarrow
+Q(s,a)
++
+\alpha
+\left[
+r
++
+\gamma \max_{a'}Q(s',a')
+-
+Q(s,a)
+\right]</script>
+<p>训练完成后，策略为：</p>
+<script type="math/tex; mode=display">\pi(s)
+=
+\arg\max_a Q(s,a)</script>
+<p>也就是说：</p>
+<blockquote>
+<p>训练时不断试错更新 Q 值；使用时直接选择 Q 值最大的动作。</p>
+</blockquote>
+<hr>
+<h3 id="10-行为策略和目标策略"><a href="#10-行为策略和目标策略" class="headerlink" title="10. 行为策略和目标策略"></a>10. 行为策略和目标策略</h3><p>Q-learning 里要区分两个策略：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>行为策略 behavior policy</td>
+<td>实际用来和环境交互、产生经验数据的策略</td>
+</tr>
+<tr>
+<td>目标策略 target policy</td>
+<td>算法最终想学到的最优策略</td>
+</tr>
+</tbody></table>
+<p>训练时，智能体不能永远选择当前 Q 值最大的动作，否则可能过早陷入局部最优，无法探索到更好的动作。</p>
+<p>因此行为策略常用 <script type="math/tex">\varepsilon</script>-greedy。</p>
+<hr>
+<h3 id="11-MATH-INLINE-381-greedy-策略"><a href="#11-MATH-INLINE-381-greedy-策略" class="headerlink" title="11. <script type="math/tex">\varepsilon</script>-greedy 策略"></a>11. <script type="math/tex">\varepsilon</script>-greedy 策略</h3><p><script type="math/tex">\varepsilon</script>-greedy 的规则是：</p>
+<table>
+<thead>
+<tr>
+<th>概率</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">1-\varepsilon</script></td>
+<td>选择当前 Q 值最大的动作</td>
+</tr>
+<tr>
+<td><script type="math/tex">\varepsilon</script></td>
+<td>随机选择一个动作</td>
+</tr>
+</tbody></table>
+<p>例如：</p>
+<script type="math/tex; mode=display">\varepsilon=0.1</script>
+<p>表示：</p>
+<ul>
+<li><script type="math/tex">90\%</script> 的概率选择当前看来最好的动作；</li>
+<li><script type="math/tex">10\%</script> 的概率随机探索其他动作。</li>
+</ul>
+<p>它解决的是强化学习中的一个基本矛盾：</p>
+<blockquote>
+<p>既要利用已有经验，也要探索未知动作。</p>
+</blockquote>
+<hr>
+<h3 id="12-为什么-Q-learning-是-off-policy"><a href="#12-为什么-Q-learning-是-off-policy" class="headerlink" title="12. 为什么 Q-learning 是 off-policy"></a>12. 为什么 Q-learning 是 off-policy</h3><p>Q-learning 是 off-policy 方法。</p>
+<p>原因是：</p>
+<blockquote>
+<p>它实际采样时用的是行为策略，但更新目标中使用的是目标策略。</p>
+</blockquote>
+<p>训练时，行为策略可能是 <script type="math/tex">\varepsilon</script>-greedy，会随机探索。</p>
+<p>但更新公式中使用的是：</p>
+<script type="math/tex; mode=display">\max_{a'}Q(s',a')</script>
+<p>这对应的是贪心策略，即到达下一状态后选择 Q 值最大的动作。</p>
+<p>所以：</p>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>使用的策略</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实际产生经验</td>
+<td><script type="math/tex">\varepsilon</script>-greedy 行为策略</td>
+</tr>
+<tr>
+<td>更新目标</td>
+<td>greedy 目标策略</td>
+</tr>
+</tbody></table>
+<p>二者不完全相同，因此 Q-learning 是 off-policy。</p>
+<p>与之对比，SARSA 是 on-policy 方法。SARSA 的更新公式是：</p>
+<script type="math/tex; mode=display">Q(s,a)
+\leftarrow
+Q(s,a)
++
+\alpha
+\left[
+r
++
+\gamma Q(s',a')
+-
+Q(s,a)
+\right]</script>
+<p>其中 <script type="math/tex">a'</script> 是行为策略实际在下一状态选择的动作。</p>
+<p>而 Q-learning 使用的是：</p>
+<script type="math/tex; mode=display">\max_{a'}Q(s',a')</script>
+<p>所以二者区别是：</p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>下一状态未来价值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SARSA</td>
+<td>使用实际选到的动作 <script type="math/tex">a'</script></td>
+</tr>
+<tr>
+<td>Q-learning</td>
+<td>使用最大 Q 值对应的动作</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="13-4×4-迷宫中的-Q-table-更新"><a href="#13-4×4-迷宫中的-Q-table-更新" class="headerlink" title="13. 4×4 迷宫中的 Q-table 更新"></a>13. 4×4 迷宫中的 Q-table 更新</h3><p>在小规模离散状态空间中，可以用 Q-table 存储所有 <script type="math/tex">Q(s,a)</script>。</p>
+<p>例如 4×4 迷宫中，每个格子是一个状态，每个状态有若干动作，比如：</p>
+<ul>
+<li>上；</li>
+<li>下；</li>
+<li>左；</li>
+<li>右。</li>
+</ul>
+<p>那么 Q-table 中每个状态都对应多个动作价值：</p>
+<script type="math/tex; mode=display">Q(s,\text{上}),
+Q(s,\text{下}),
+Q(s,\text{左}),
+Q(s,\text{右})</script>
+<p>Q-learning 每走一步，只更新当前这一步对应的那个 <script type="math/tex">Q(s,a)</script>。</p>
+<p>假设某一步是：</p>
+<script type="math/tex; mode=display">s_{33}
+\xrightarrow{\text{右},\ r=-1}
+s_{34}</script>
+<p>也就是说：</p>
+<ul>
+<li>当前状态是 <script type="math/tex">s_{33}</script>；</li>
+<li>当前动作是“右”；</li>
+<li>得到奖励 <script type="math/tex">r=-1</script>；</li>
+<li>下一状态是 <script type="math/tex">s_{34}</script>。</li>
+</ul>
+<p>假设 PPT 中给定：</p>
+<script type="math/tex; mode=display">\alpha=0.1</script>
+<script type="math/tex; mode=display">\gamma=0.9</script>
+<p>原来的 Q 值是：</p>
+<script type="math/tex; mode=display">Q(s_{33},\text{右})=1</script>
+<p>下一状态 <script type="math/tex">s_{34}</script> 中最大的 Q 值是：</p>
+<script type="math/tex; mode=display">\max_{a'}Q(s_{34},a')=3</script>
+<p>先计算 TD target：</p>
+<script type="math/tex; mode=display">r
++
+\gamma \max_{a'}Q(s_{34},a')
+=
+-1
++
+0.9 \times 3
+=
+1.7</script>
+<p>再计算 TD error：</p>
+<script type="math/tex; mode=display">1.7-1=0.7</script>
+<p>更新：</p>
+<script type="math/tex; mode=display">Q(s_{33},\text{右})
+\leftarrow
+1
++
+0.1 \times 0.7
+=
+1.07</script>
+<p>所以这个 Q 值从：</p>
+<script type="math/tex; mode=display">1</script>
+<p>更新为：</p>
+<script type="math/tex; mode=display">1.07</script>
+<p>这个例子说明：</p>
+<blockquote>
+<p>Q-learning 不是一次重新计算整张 Q-table，而是根据一次实际经验，把某一个状态-动作对的 Q 值往更合理的方向移动一点。</p>
+</blockquote>
+<hr>
+<h3 id="14-Q-learning-和值迭代的关系"><a href="#14-Q-learning-和值迭代的关系" class="headerlink" title="14. Q-learning 和值迭代的关系"></a>14. Q-learning 和值迭代的关系</h3><p>值迭代使用的是 Bellman 最优方程：</p>
+<script type="math/tex; mode=display">V_{k+1}(s)
+=
+\max_a
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma V_k(s')
+\right]</script>
+<p>它需要知道完整的环境模型。</p>
+<p>Q-learning 使用的是 Bellman 最优方程的 <script type="math/tex">Q</script> 形式：</p>
+<script type="math/tex; mode=display">Q^*(s,a)
+=
+\sum_{s'}p(s'|s,a)
+\left[
+r(s,a,s')
++
+\gamma \max_{a'}Q^*(s',a')
+\right]</script>
+<p>但它不对所有 <script type="math/tex">s'</script> 求期望，而是用一次实际采样：</p>
+<script type="math/tex; mode=display">s
+\xrightarrow{a,r}
+s'</script>
+<p>更新：</p>
+<script type="math/tex; mode=display">Q(s,a)
+\leftarrow
+Q(s,a)
++
+\alpha
+\left[
+r
++
+\gamma \max_{a'}Q(s',a')
+-
+Q(s,a)
+\right]</script>
+<p>所以：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>是否需要完整环境模型</th>
+<th>更新方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>值迭代</td>
+<td>需要</td>
+<td>对所有可能下一状态求期望</td>
+</tr>
+<tr>
+<td>Q-learning</td>
+<td>不需要</td>
+<td>用实际采样到的一步经验更新</td>
+</tr>
+</tbody></table>
+<p>一句话：</p>
+<blockquote>
+<p>值迭代是“知道环境模型后计算最优价值”；Q-learning 是“不知道环境模型时边试边学”。</p>
+</blockquote>
+<hr>
+<h3 id="15-Q-learning-的局限与-DQN-的引出"><a href="#15-Q-learning-的局限与-DQN-的引出" class="headerlink" title="15. Q-learning 的局限与 DQN 的引出"></a>15. Q-learning 的局限与 DQN 的引出</h3><p>普通 Q-learning 适合状态空间较小、动作空间离散的情况，因为它需要维护一张 Q-table。</p>
+<p>但如果状态空间很大，例如：</p>
+<ul>
+<li>游戏画面；</li>
+<li>机器人传感器数据；</li>
+<li>自动驾驶状态；</li>
+<li>连续高维状态空间；</li>
+</ul>
+<p>就无法为每个状态-动作对都存一个 Q 值。</p>
+<p>这时需要用函数近似：</p>
+<script type="math/tex; mode=display">Q(s,a;\theta)</script>
+<p>也就是用带参数的函数，例如神经网络，近似 Q 值。</p>
+<p>这就引出了 DQN：</p>
+<blockquote>
+<p>用深度神经网络代替 Q-table，输入状态，输出各个动作的 Q 值。</p>
+</blockquote>
+<hr>
+<h3 id="16-核心总结"><a href="#16-核心总结" class="headerlink" title="16. 核心总结"></a>16. 核心总结</h3><p>Q-learning 的核心公式是：</p>
+<script type="math/tex; mode=display">\boxed{
+Q(s,a)
+\leftarrow
+Q(s,a)
++
+\alpha
+\left[
+r
++
+\gamma \max_{a'}Q(s',a')
+-
+Q(s,a)
+\right]
+}</script>
+<p>它的本质是：</p>
+<blockquote>
+<p>用一次真实交互经验，修正当前对 <script type="math/tex">Q(s,a)</script> 的估计。</p>
+</blockquote>
+<p>Q-learning 的关键特点是：</p>
+<table>
+<thead>
+<tr>
+<th>特点</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>学习对象</td>
+<td>动作价值函数 <script type="math/tex">Q(s,a)</script></td>
+</tr>
+<tr>
+<td>理论基础</td>
+<td>Bellman 最优方程</td>
+</tr>
+<tr>
+<td>更新方式</td>
+<td>用采样经验更新</td>
+</tr>
+<tr>
+<td>是否需要环境模型</td>
+<td>不需要完整环境模型</td>
+</tr>
+<tr>
+<td>策略类型</td>
+<td>off-policy</td>
+</tr>
+<tr>
+<td>小规模实现</td>
+<td>Q-table</td>
+</tr>
+<tr>
+<td>大规模扩展</td>
+<td>DQN</td>
+</tr>
+</tbody></table>
+<p>一句话总结：</p>
+<blockquote>
+<p>Q-learning 是 Bellman 最优方程的采样版：它不要求提前知道环境转移概率，而是通过不断试错，让 Q 值逐渐接近最优动作价值。</p>
+</blockquote>
+<h2 id="例题：火箭回收中的策略评估与-Q-learning"><a href="#例题：火箭回收中的策略评估与-Q-learning" class="headerlink" title="例题：火箭回收中的策略评估与 Q-learning"></a>例题：火箭回收中的策略评估与 Q-learning</h2><h3 id="题目整理"><a href="#题目整理" class="headerlink" title="题目整理"></a>题目整理</h3><p>系统有三个非终止状态：</p>
+<ul>
+<li><script type="math/tex">s_0</script>：高空</li>
+<li><script type="math/tex">s_1</script>：中空</li>
+<li><script type="math/tex">s_2</script>：低空</li>
+</ul>
+<p>两个终止状态：</p>
+<ul>
+<li>安全着陆：价值 <script type="math/tex">100</script></li>
+<li>坠毁：价值 <script type="math/tex">-100</script></li>
+</ul>
+<p>动作与奖励：</p>
+<ul>
+<li>点火：<script type="math/tex">r=-1</script></li>
+<li>不点火：<script type="math/tex">r=0</script></li>
+</ul>
+<p>折扣因子：</p>
+<script type="math/tex; mode=display">\gamma=0.9</script>
+<p>状态转移关系：</p>
+<ul>
+<li><script type="math/tex">s_0</script> 点火：<script type="math/tex">0.1</script> 概率回到 <script type="math/tex">s_0</script>，<script type="math/tex">0.9</script> 概率到 <script type="math/tex">s_1</script></li>
+<li><script type="math/tex">s_0</script> 不点火：确定回到 <script type="math/tex">s_0</script></li>
+<li><script type="math/tex">s_1</script> 点火：确定到 <script type="math/tex">s_2</script></li>
+<li><script type="math/tex">s_1</script> 不点火：确定坠毁</li>
+<li><script type="math/tex">s_2</script> 点火：确定安全着陆</li>
+<li><script type="math/tex">s_2</script> 不点火：确定坠毁</li>
+</ul>
+<p>题目分为两问：</p>
+<ol>
+<li>给定策略 <script type="math/tex">\pi_a</script>，做一次策略评估迭代，求 <script type="math/tex">V_1(s)</script>；</li>
+<li>给定状态价值 <script type="math/tex">V_b(s)</script>，先求动作价值 <script type="math/tex">Q_b(s,a)</script>，再按轨迹做 Q-learning 更新。</li>
+</ol>
+<hr>
+<h3 id="解题过程"><a href="#解题过程" class="headerlink" title="解题过程"></a>解题过程</h3><h4 id="1-策略评估"><a href="#1-策略评估" class="headerlink" title="1. 策略评估"></a>1. 策略评估</h4><p>给定策略 <script type="math/tex">\pi_a</script>：</p>
+<script type="math/tex; mode=display">s_0 \rightarrow \text{点火}</script>
+<script type="math/tex; mode=display">s_1 \rightarrow 50\%\text{ 点火，}50\%\text{ 不点火}</script>
+<script type="math/tex; mode=display">s_2 \rightarrow \text{点火}</script>
+<p>初始价值为：</p>
+<script type="math/tex; mode=display">V_0(s_0)=10,\quad V_0(s_1)=20,\quad V_0(s_2)=30</script>
+<p>策略评估公式为：</p>
+<script type="math/tex; mode=display">V_{k+1}(s)
+=
+\sum_a \pi(a|s)
+\sum_{s'}p(s'|s,a)
+[
+r(s,a,s')+\gamma V_k(s')
+]</script>
+<hr>
+<h4 id="2-计算-MATH-INLINE-425"><a href="#2-计算-MATH-INLINE-425" class="headerlink" title="2. 计算 <script type="math/tex">V_1(s_0)</script>"></a>2. 计算 <script type="math/tex">V_1(s_0)</script></h4><p>在 <script type="math/tex">s_0</script> 下策略规定点火，因此：</p>
+<script type="math/tex; mode=display">V_1(s_0)
+=
+0.1[-1+0.9V_0(s_0)]
++
+0.9[-1+0.9V_0(s_1)]</script>
+<p>代入：</p>
+<script type="math/tex; mode=display">V_1(s_0)
+=
+0.1[-1+0.9\times10]
++
+0.9[-1+0.9\times20]</script>
+<script type="math/tex; mode=display">=
+0.1\times8+0.9\times17
+=
+16.1</script>
+<p>所以：</p>
+<script type="math/tex; mode=display">V_1(s_0)=16.1</script>
+<hr>
+<h4 id="3-计算-MATH-INLINE-427"><a href="#3-计算-MATH-INLINE-427" class="headerlink" title="3. 计算 <script type="math/tex">V_1(s_1)</script>"></a>3. 计算 <script type="math/tex">V_1(s_1)</script></h4><p>在 <script type="math/tex">s_1</script> 下，策略为 <script type="math/tex">50\%</script> 点火，<script type="math/tex">50\%</script> 不点火。</p>
+<p>点火到 <script type="math/tex">s_2</script>：</p>
+<script type="math/tex; mode=display">-1+0.9V_0(s_2)
+=
+-1+0.9\times30
+=
+26</script>
+<p>不点火到坠毁：</p>
+<script type="math/tex; mode=display">0+0.9\times(-100)
+=
+-90</script>
+<p>所以：</p>
+<script type="math/tex; mode=display">V_1(s_1)
+=
+0.5\times26+0.5\times(-90)
+=
+-32</script>
+<hr>
+<h4 id="4-计算-MATH-INLINE-432"><a href="#4-计算-MATH-INLINE-432" class="headerlink" title="4. 计算 <script type="math/tex">V_1(s_2)</script>"></a>4. 计算 <script type="math/tex">V_1(s_2)</script></h4><p>在 <script type="math/tex">s_2</script> 下策略规定点火，到达安全着陆：</p>
+<script type="math/tex; mode=display">V_1(s_2)
+=
+-1+0.9\times100
+=
+89</script>
+<hr>
+<h4 id="5-策略评估结果"><a href="#5-策略评估结果" class="headerlink" title="5. 策略评估结果"></a>5. 策略评估结果</h4><script type="math/tex; mode=display">\boxed{V_1(s_0)=16.1}</script>
+<script type="math/tex; mode=display">\boxed{V_1(s_1)=-32}</script>
+<script type="math/tex; mode=display">\boxed{V_1(s_2)=89}</script>
+<hr>
+<h3 id="动作价值函数计算"><a href="#动作价值函数计算" class="headerlink" title="动作价值函数计算"></a>动作价值函数计算</h3><p>给定：</p>
+<script type="math/tex; mode=display">V_b(s_0)=10,\quad V_b(s_1)=20,\quad V_b(s_2)=30</script>
+<p>动作价值公式为：</p>
+<script type="math/tex; mode=display">Q_b(s,a)
+=
+\sum_{s'}p(s'|s,a)
+[
+r(s,a,s')+\gamma V_b(s')
+]</script>
+<hr>
+<h4 id="1-计算-MATH-INLINE-434"><a href="#1-计算-MATH-INLINE-434" class="headerlink" title="1. 计算 <script type="math/tex">Q_b(s_0,\text{点火})</script>"></a>1. 计算 <script type="math/tex">Q_b(s_0,\text{点火})</script></h4><script type="math/tex; mode=display">Q_b(s_0,\text{点火})
+=
+0.1[-1+0.9V_b(s_0)]
++
+0.9[-1+0.9V_b(s_1)]</script>
+<script type="math/tex; mode=display">=
+0.1[-1+9]+0.9[-1+18]
+=
+16.1</script>
+<hr>
+<h4 id="2-计算-MATH-INLINE-435"><a href="#2-计算-MATH-INLINE-435" class="headerlink" title="2. 计算 <script type="math/tex">Q_b(s_0,\text{不点火})</script>"></a>2. 计算 <script type="math/tex">Q_b(s_0,\text{不点火})</script></h4><script type="math/tex; mode=display">Q_b(s_0,\text{不点火})
+=
+0+0.9V_b(s_0)
+=
+9</script>
+<hr>
+<h4 id="3-计算-MATH-INLINE-436"><a href="#3-计算-MATH-INLINE-436" class="headerlink" title="3. 计算 <script type="math/tex">Q_b(s_1,\text{点火})</script>"></a>3. 计算 <script type="math/tex">Q_b(s_1,\text{点火})</script></h4><script type="math/tex; mode=display">Q_b(s_1,\text{点火})
+=
+-1+0.9V_b(s_2)
+=
+-1+27
+=
+26</script>
+<hr>
+<h4 id="4-计算-MATH-INLINE-437"><a href="#4-计算-MATH-INLINE-437" class="headerlink" title="4. 计算 <script type="math/tex">Q_b(s_1,\text{不点火})</script>"></a>4. 计算 <script type="math/tex">Q_b(s_1,\text{不点火})</script></h4><script type="math/tex; mode=display">Q_b(s_1,\text{不点火})
+=
+0+0.9\times(-100)
+=
+-90</script>
+<hr>
+<h4 id="5-动作价值结果"><a href="#5-动作价值结果" class="headerlink" title="5. 动作价值结果"></a>5. 动作价值结果</h4><script type="math/tex; mode=display">\boxed{Q_b(s_0,\text{点火})=16.1}</script>
+<script type="math/tex; mode=display">\boxed{Q_b(s_0,\text{不点火})=9}</script>
+<script type="math/tex; mode=display">\boxed{Q_b(s_1,\text{点火})=26}</script>
+<script type="math/tex; mode=display">\boxed{Q_b(s_1,\text{不点火})=-90}</script>
+<hr>
+<h3 id="Q-learning-更新"><a href="#Q-learning-更新" class="headerlink" title="Q-learning 更新"></a>Q-learning 更新</h3><p>Q-learning 更新公式为：</p>
+<script type="math/tex; mode=display">Q(s,a)
+\leftarrow
+Q(s,a)
++
+\alpha
+[
+r+\gamma\max_{a'}Q(s',a')-Q(s,a)
+]</script>
+<p>题目给定：</p>
+<script type="math/tex; mode=display">\alpha=0.5,\quad \gamma=0.9</script>
+<p>初始 Q 值取前面算出的动作价值：</p>
+<script type="math/tex; mode=display">Q(s_0,\text{点火})=16.1</script>
+<script type="math/tex; mode=display">Q(s_0,\text{不点火})=9</script>
+<script type="math/tex; mode=display">Q(s_1,\text{点火})=26</script>
+<script type="math/tex; mode=display">Q(s_1,\text{不点火})=-90</script>
+<p>轨迹顺序为：</p>
+<script type="math/tex; mode=display">①\quad (s_0,\text{点火},r=-1,s_0)</script>
+<script type="math/tex; mode=display">②\quad (s_0,\text{点火},r=-1,s_1)</script>
+<hr>
+<h4 id="1-第一次更新：轨迹-①"><a href="#1-第一次更新：轨迹-①" class="headerlink" title="1. 第一次更新：轨迹 ①"></a>1. 第一次更新：轨迹 ①</h4><p>轨迹：</p>
+<script type="math/tex; mode=display">(s_0,\text{点火},r=-1,s_0)</script>
+<p>更新 <script type="math/tex">Q(s_0,\text{点火})</script>。</p>
+<p>下一状态仍为 <script type="math/tex">s_0</script>，所以：</p>
+<script type="math/tex; mode=display">\max_{a'}Q(s_0,a')
+=
+\max\{16.1,9\}
+=
+16.1</script>
+<p>TD target：</p>
+<script type="math/tex; mode=display">-1+0.9\times16.1
+=
+13.49</script>
+<p>更新：</p>
+<script type="math/tex; mode=display">Q(s_0,\text{点火})
+=
+16.1+0.5(13.49-16.1)</script>
+<script type="math/tex; mode=display">=
+16.1-1.305
+=
+14.795</script>
+<p>第一次更新后：</p>
+<script type="math/tex; mode=display">Q(s_0,\text{点火})=14.795</script>
+<hr>
+<h4 id="2-第二次更新：轨迹-②"><a href="#2-第二次更新：轨迹-②" class="headerlink" title="2. 第二次更新：轨迹 ②"></a>2. 第二次更新：轨迹 ②</h4><p>轨迹：</p>
+<script type="math/tex; mode=display">(s_0,\text{点火},r=-1,s_1)</script>
+<p>仍然更新 <script type="math/tex">Q(s_0,\text{点火})</script>。</p>
+<p>注意这里要使用第一次更新后的值：</p>
+<script type="math/tex; mode=display">Q(s_0,\text{点火})=14.795</script>
+<p>下一状态为 <script type="math/tex">s_1</script>，所以：</p>
+<script type="math/tex; mode=display">\max_{a'}Q(s_1,a')
+=
+\max\{26,-90\}
+=
+26</script>
+<p>TD target：</p>
+<script type="math/tex; mode=display">-1+0.9\times26
+=
+22.4</script>
+<p>更新：</p>
+<script type="math/tex; mode=display">Q(s_0,\text{点火})
+=
+14.795+0.5(22.4-14.795)</script>
+<script type="math/tex; mode=display">=
+14.795+3.8025
+=
+18.5975</script>
+<hr>
+<h3 id="最终答案"><a href="#最终答案" class="headerlink" title="最终答案"></a>最终答案</h3><p>策略评估结果：</p>
+<script type="math/tex; mode=display">\boxed{V_1(s_0)=16.1}</script>
+<script type="math/tex; mode=display">\boxed{V_1(s_1)=-32}</script>
+<script type="math/tex; mode=display">\boxed{V_1(s_2)=89}</script>
+<p>动作价值结果：</p>
+<script type="math/tex; mode=display">\boxed{Q_b(s_0,\text{点火})=16.1}</script>
+<script type="math/tex; mode=display">\boxed{Q_b(s_0,\text{不点火})=9}</script>
+<script type="math/tex; mode=display">\boxed{Q_b(s_1,\text{点火})=26}</script>
+<script type="math/tex; mode=display">\boxed{Q_b(s_1,\text{不点火})=-90}</script>
+<p>Q-learning 更新后：</p>
+<script type="math/tex; mode=display">\boxed{Q(s_0,\text{点火})=18.5975}</script>
+<p>未被更新的 Q 值保持不变：</p>
+<script type="math/tex; mode=display">\boxed{Q(s_0,\text{不点火})=9}</script>
+<script type="math/tex; mode=display">\boxed{Q(s_1,\text{点火})=26}</script>
+<script type="math/tex; mode=display">\boxed{Q(s_1,\text{不点火})=-90}</script>
+<hr>
+<h3 id="核心思路"><a href="#核心思路" class="headerlink" title="核心思路"></a>核心思路</h3><p>这道题分三步：</p>
+<ol>
+<li>用 Bellman 期望方程做一次策略评估，求 <script type="math/tex">V_1(s)</script>；</li>
+<li>用给定的状态价值 <script type="math/tex">V_b(s)</script> 计算动作价值 <script type="math/tex">Q_b(s,a)</script>；</li>
+<li>按轨迹顺序做 Q-learning 更新，每次只更新当前经历的那个 <script type="math/tex">Q(s,a)</script>。</li>
+</ol>
+<p>第二次 Q-learning 更新时，要使用第一次更新后的 <script type="math/tex">Q(s_0,\text{点火})</script>。</p>
+</div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" rel="tag">人工智能</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag">强化学习</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" rel="tag">智能机器人</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" rel="tag">期末复习</a></li></ul></div><div class="post-nav"><a class="pre" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a><a class="next" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>To be a better man.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" style="font-size: 15px;">人工智能</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E8%AF%86%E5%88%AB/" style="font-size: 15px;">图像识别</a> <a href="/tags/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">课程笔记</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/" style="font-size: 15px;">图像分类</a> <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">实验笔记</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">机器学习</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 15px;">自然语言处理</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">深度学习</a> <a href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" style="font-size: 15px;">期末复习</a> <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" style="font-size: 15px;">智能机器人</a> <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" style="font-size: 15px;">知识图谱</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 15px;">博客搭建</a> <a href="/tags/Hexo%E5%85%A5%E9%97%A8/" style="font-size: 15px;">Hexo入门</a> <a href="/tags/%E7%AB%99%E7%82%B9%E9%83%A8%E7%BD%B2/" style="font-size: 15px;">站点部署</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F/" style="font-size: 15px;">距离度量</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%87%A0%E4%BD%95/" style="font-size: 15px;">计算几何</a> <a href="/tags/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" style="font-size: 15px;">最小生成树</a> <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" style="font-size: 15px;">并查集</a> <a href="/tags/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" style="font-size: 15px;">算法刷题</a> <a href="/tags/%E5%8D%95%E8%B0%83%E6%A0%88/" style="font-size: 15px;">单调栈</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 15px;">数据结构</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 15px;">动态规划</a> <a href="/tags/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">算法笔记</a> <a href="/tags/%E9%99%8D%E7%BB%B4%E7%AE%97%E6%B3%95/" style="font-size: 15px;">降维算法</a> <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%8A%95%E5%BD%B1/" style="font-size: 15px;">随机投影</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E4%BF%9D%E6%8C%81/" style="font-size: 15px;">距离保持</a> <a href="/tags/%E5%9B%9B%E5%88%86%E6%A0%91/" style="font-size: 15px;">四分树</a> <a href="/tags/%E8%BF%91%E4%BC%BC%E7%AE%97%E6%B3%95/" style="font-size: 15px;">近似算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E9%99%8D%E7%BB%B4-JL%E6%96%B9%E6%B3%95/">降维:JL方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4g%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-%E4%BA%8C/">距离度量及其计算——低维欧氏距离(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/18/AI%E5%BC%95%E8%AE%BALab2%E2%80%94%E2%80%94%E4%BB%8Enumpy%E5%BC%80%E5%A7%8B%E7%9A%84u%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/">AI引论Lab2——从numpy开始的图像分类</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/AI%E5%BC%95%E8%AE%BA/">AI引论</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/04/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB/">距离度量及其计算——低维欧氏距离</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Square的小站.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/x-mathjax-config">MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
   });
-</script><script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
+</script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>

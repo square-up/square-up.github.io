@@ -1,0 +1,915 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>AI引论期末复习(四):其它 | Square的小站</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 8.1.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">AI引论期末复习(四):其它</h1><a id="logo" href="/.">Square的小站</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">AI引论期末复习(四):其它</h1><div class="post-meta">2026-06-14</div><div class="post-content"><h1 id="几何与绘制：从光线追踪题出发整理"><a href="#几何与绘制：从光线追踪题出发整理" class="headerlink" title="几何与绘制：从光线追踪题出发整理"></a>几何与绘制：从光线追踪题出发整理</h1><blockquote>
+<p>本文围绕“几何与绘制”部分展开，以一道光线追踪计算题为起点，整理几何表示、投影模型、射线求交、着色模型等知识。:contentReference[oaicite:0]{index&#x3D;0}</p>
+</blockquote>
+<h2 id="0-整体主线"><a href="#0-整体主线" class="headerlink" title="0. 整体主线"></a>0. 整体主线</h2><p>几何与绘制可以按下面的链条理解：</p>
+<pre><code>三维形状
+→ 几何表示
+→ 投影 / 射线构造
+→ 射线与物体求交
+→ 法向量
+→ 光照模型
+→ 像素颜色
+</code></pre>
+<p>其中：</p>
+<ul>
+<li>几何：物体是什么形状？</li>
+<li>绘制：从某个视角看过去，图像上每个像素是什么颜色？</li>
+</ul>
+<hr>
+<h2 id="1-例题整理"><a href="#1-例题整理" class="headerlink" title="1. 例题整理"></a>1. 例题整理</h2><h3 id="1-1-题目信息"><a href="#1-1-题目信息" class="headerlink" title="1.1 题目信息"></a>1.1 题目信息</h3><p>场景中有：</p>
+<ul>
+<li>相机点：</li>
+</ul>
+<script type="math/tex; mode=display">O=(0,0,-1)</script>
+<ul>
+<li>屏幕平面：</li>
+</ul>
+<script type="math/tex; mode=display">z=0</script>
+<ul>
+<li>球心：</li>
+</ul>
+<script type="math/tex; mode=display">C=(0,0,4)</script>
+<ul>
+<li>球半径：</li>
+</ul>
+<script type="math/tex; mode=display">R=\sqrt{2}</script>
+<ul>
+<li>球体颜色：</li>
+</ul>
+<script type="math/tex; mode=display">k=0.2</script>
+<ul>
+<li>光源位置：</li>
+</ul>
+<script type="math/tex; mode=display">L=(0,5,-1)</script>
+<ul>
+<li>光源颜色 &#x2F; 强度：</li>
+</ul>
+<script type="math/tex; mode=display">I=0.8</script>
+<ul>
+<li>背景颜色：</li>
+</ul>
+<script type="math/tex; mode=display">0</script>
+<p>要求计算屏幕上三个像素点的颜色：</p>
+<script type="math/tex; mode=display">(0,1,0),\quad (0,0.25,0),\quad (0,-0.25,0)</script>
+<p>分别在：</p>
+<ul>
+<li>透视投影下；</li>
+<li>正交投影下；</li>
+</ul>
+<p>对应的颜色。</p>
+<hr>
+<h3 id="1-2-球的方程"><a href="#1-2-球的方程" class="headerlink" title="1.2 球的方程"></a>1.2 球的方程</h3><p>球心为：</p>
+<script type="math/tex; mode=display">C=(0,0,4)</script>
+<p>半径为：</p>
+<script type="math/tex; mode=display">R=\sqrt{2}</script>
+<p>所以球面方程为：</p>
+<script type="math/tex; mode=display">x^2+y^2+(z-4)^2=2</script>
+<hr>
+<h3 id="1-3-颜色计算公式"><a href="#1-3-颜色计算公式" class="headerlink" title="1.3 颜色计算公式"></a>1.3 颜色计算公式</h3><p>设射线与球的交点为 <script type="math/tex">P</script>。</p>
+<p>球面法向量：</p>
+<script type="math/tex; mode=display">\mathbf n=\frac{P-C}{R}</script>
+<p>从交点指向光源的方向：</p>
+<script type="math/tex; mode=display">\mathbf l=\frac{L-P}{\|L-P\|}</script>
+<p>使用朗伯漫反射模型：</p>
+<script type="math/tex; mode=display">\text{Color}=kI\max(0,\mathbf n\cdot \mathbf l)</script>
+<p>代入本题中的 <script type="math/tex">k=0.2,\ I=0.8</script>：</p>
+<script type="math/tex; mode=display">\text{Color}=0.16\max(0,\mathbf n\cdot \mathbf l)</script>
+<p>如果：</p>
+<script type="math/tex; mode=display">\mathbf n\cdot \mathbf l < 0</script>
+<p>说明光源在表面背侧，没有反射，颜色取 <script type="math/tex">0</script>。</p>
+<hr>
+<h2 id="2-透视投影下的解法"><a href="#2-透视投影下的解法" class="headerlink" title="2. 透视投影下的解法"></a>2. 透视投影下的解法</h2><h3 id="2-1-透视投影的射线"><a href="#2-1-透视投影的射线" class="headerlink" title="2.1 透视投影的射线"></a>2.1 透视投影的射线</h3><p>透视投影中，所有射线都从相机点出发。</p>
+<p>屏幕像素为：</p>
+<script type="math/tex; mode=display">A=(0,y,0)</script>
+<p>相机点为：</p>
+<script type="math/tex; mode=display">O=(0,0,-1)</script>
+<p>射线方向：</p>
+<script type="math/tex; mode=display">A-O=(0,y,1)</script>
+<p>所以射线方程为：</p>
+<script type="math/tex; mode=display">r(t)=O+t(A-O)</script>
+<p>即：</p>
+<script type="math/tex; mode=display">r(t)=(0,ty,-1+t)</script>
+<hr>
+<h3 id="2-2-射线与球求交"><a href="#2-2-射线与球求交" class="headerlink" title="2.2 射线与球求交"></a>2.2 射线与球求交</h3><p>代入球面方程：</p>
+<script type="math/tex; mode=display">x^2+y^2+(z-4)^2=2</script>
+<p>得到：</p>
+<script type="math/tex; mode=display">(1+y^2)t^2-10t+23=0</script>
+<p>判别式：</p>
+<script type="math/tex; mode=display">\Delta=8-92y^2</script>
+<p>若 <script type="math/tex">\Delta<0</script>，射线没有打到球，颜色为 <script type="math/tex">0</script>。</p>
+<hr>
+<h3 id="2-3-三个像素结果"><a href="#2-3-三个像素结果" class="headerlink" title="2.3 三个像素结果"></a>2.3 三个像素结果</h3><h4 id="像素-MATH-INLINE-95"><a href="#像素-MATH-INLINE-95" class="headerlink" title="像素 <script type="math/tex">(0,1,0)</script>"></a>像素 <script type="math/tex">(0,1,0)</script></h4><p>此时：</p>
+<script type="math/tex; mode=display">y=1</script>
+<p>判别式：</p>
+<script type="math/tex; mode=display">\Delta=8-92<0</script>
+<p>所以没有打到球。</p>
+<p>颜色：</p>
+<script type="math/tex; mode=display">0</script>
+<h4 id="像素-MATH-INLINE-96"><a href="#像素-MATH-INLINE-96" class="headerlink" title="像素 <script type="math/tex">(0,0.25,0)</script>"></a>像素 <script type="math/tex">(0,0.25,0)</script></h4><p>此时：</p>
+<script type="math/tex; mode=display">y=\frac14</script>
+<p>判别式：</p>
+<script type="math/tex; mode=display">\Delta=\frac94>0</script>
+<p>射线打到球。</p>
+<p>较小正根：</p>
+<script type="math/tex; mode=display">t=4</script>
+<p>交点：</p>
+<script type="math/tex; mode=display">P=(0,1,3)</script>
+<p>法向量：</p>
+<script type="math/tex; mode=display">\mathbf n=\frac{(0,1,-1)}{\sqrt2}</script>
+<p>光照方向：</p>
+<script type="math/tex; mode=display">\mathbf l=\frac{(0,1,-1)}{\sqrt2}</script>
+<p>点积：</p>
+<script type="math/tex; mode=display">\mathbf n\cdot \mathbf l=1</script>
+<p>颜色：</p>
+<script type="math/tex; mode=display">0.16</script>
+<h4 id="像素-MATH-INLINE-97"><a href="#像素-MATH-INLINE-97" class="headerlink" title="像素 <script type="math/tex">(0,-0.25,0)</script>"></a>像素 <script type="math/tex">(0,-0.25,0)</script></h4><p>此时：</p>
+<script type="math/tex; mode=display">y=-\frac14</script>
+<p>射线打到球，交点为：</p>
+<script type="math/tex; mode=display">P=(0,-1,3)</script>
+<p>计算可得：</p>
+<script type="math/tex; mode=display">\mathbf n\cdot \mathbf l=-\frac1{\sqrt{26}}<0</script>
+<p>光源在背侧，没有反射。</p>
+<p>颜色：</p>
+<script type="math/tex; mode=display">0</script>
+<hr>
+<h3 id="2-4-透视投影答案"><a href="#2-4-透视投影答案" class="headerlink" title="2.4 透视投影答案"></a>2.4 透视投影答案</h3><table>
+<thead>
+<tr>
+<th>像素坐标</th>
+<th align="right">颜色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">(0,1,0)</script></td>
+<td align="right"><script type="math/tex">0</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(0,0.25,0)</script></td>
+<td align="right"><script type="math/tex">0.16</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(0,-0.25,0)</script></td>
+<td align="right"><script type="math/tex">0</script></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="3-正交投影下的解法"><a href="#3-正交投影下的解法" class="headerlink" title="3. 正交投影下的解法"></a>3. 正交投影下的解法</h2><h3 id="3-1-正交投影的射线"><a href="#3-1-正交投影的射线" class="headerlink" title="3.1 正交投影的射线"></a>3.1 正交投影的射线</h3><p>正交投影中，所有射线互相平行。</p>
+<p>本题中，射线沿 <script type="math/tex">+z</script> 方向发出。</p>
+<p>屏幕像素为：</p>
+<script type="math/tex; mode=display">A=(0,y,0)</script>
+<p>射线方程为：</p>
+<script type="math/tex; mode=display">r(t)=A+t(0,0,1)</script>
+<p>即：</p>
+<script type="math/tex; mode=display">r(t)=(0,y,t)</script>
+<hr>
+<h3 id="3-2-射线与球求交"><a href="#3-2-射线与球求交" class="headerlink" title="3.2 射线与球求交"></a>3.2 射线与球求交</h3><p>代入球面方程：</p>
+<script type="math/tex; mode=display">x^2+y^2+(z-4)^2=2</script>
+<p>得到：</p>
+<script type="math/tex; mode=display">y^2+(t-4)^2=2</script>
+<p>所以：</p>
+<script type="math/tex; mode=display">t=4-\sqrt{2-y^2}</script>
+<p>取较小的 <script type="math/tex">t</script>，表示射线首先打到的前表面。</p>
+<hr>
+<h3 id="3-3-三个像素结果"><a href="#3-3-三个像素结果" class="headerlink" title="3.3 三个像素结果"></a>3.3 三个像素结果</h3><h4 id="像素-MATH-INLINE-106"><a href="#像素-MATH-INLINE-106" class="headerlink" title="像素 <script type="math/tex">(0,1,0)</script>"></a>像素 <script type="math/tex">(0,1,0)</script></h4><p>此时：</p>
+<script type="math/tex; mode=display">y=1</script>
+<p>交点：</p>
+<script type="math/tex; mode=display">P=(0,1,3)</script>
+<p>与前面透视投影中第二个像素的交点相同。</p>
+<p>颜色：</p>
+<script type="math/tex; mode=display">0.16</script>
+<h4 id="像素-MATH-INLINE-107"><a href="#像素-MATH-INLINE-107" class="headerlink" title="像素 <script type="math/tex">(0,0.25,0)</script>"></a>像素 <script type="math/tex">(0,0.25,0)</script></h4><p>此时：</p>
+<script type="math/tex; mode=display">y=\frac14</script>
+<p>交点：</p>
+<script type="math/tex; mode=display">P=\left(0,\frac14,4-\frac{\sqrt{31}}4\right)</script>
+<p>计算可得：</p>
+<script type="math/tex; mode=display">\mathbf n\cdot \mathbf l\approx 0.7361</script>
+<p>颜色：</p>
+<script type="math/tex; mode=display">0.16\times 0.7361\approx 0.1178</script>
+<h4 id="像素-MATH-INLINE-108"><a href="#像素-MATH-INLINE-108" class="headerlink" title="像素 <script type="math/tex">(0,-0.25,0)</script>"></a>像素 <script type="math/tex">(0,-0.25,0)</script></h4><p>此时：</p>
+<script type="math/tex; mode=display">y=-\frac14</script>
+<p>交点：</p>
+<script type="math/tex; mode=display">P=\left(0,-\frac14,4-\frac{\sqrt{31}}4\right)</script>
+<p>计算可得：</p>
+<script type="math/tex; mode=display">\mathbf n\cdot \mathbf l\approx 0.4118</script>
+<p>颜色：</p>
+<script type="math/tex; mode=display">0.16\times 0.4118\approx 0.0659</script>
+<hr>
+<h3 id="3-4-正交投影答案"><a href="#3-4-正交投影答案" class="headerlink" title="3.4 正交投影答案"></a>3.4 正交投影答案</h3><table>
+<thead>
+<tr>
+<th>像素坐标</th>
+<th align="right">颜色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">(0,1,0)</script></td>
+<td align="right"><script type="math/tex">0.16</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(0,0.25,0)</script></td>
+<td align="right"><script type="math/tex">\approx 0.1178</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(0,-0.25,0)</script></td>
+<td align="right"><script type="math/tex">\approx 0.0659</script></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="4-最终答案汇总"><a href="#4-最终答案汇总" class="headerlink" title="4. 最终答案汇总"></a>4. 最终答案汇总</h2><table>
+<thead>
+<tr>
+<th>像素坐标</th>
+<th align="right">透视投影颜色</th>
+<th align="right">正交投影颜色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><script type="math/tex">(0,1,0)</script></td>
+<td align="right"><script type="math/tex">0</script></td>
+<td align="right"><script type="math/tex">0.16</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(0,0.25,0)</script></td>
+<td align="right"><script type="math/tex">0.16</script></td>
+<td align="right"><script type="math/tex">\approx 0.1178</script></td>
+</tr>
+<tr>
+<td><script type="math/tex">(0,-0.25,0)</script></td>
+<td align="right"><script type="math/tex">0</script></td>
+<td align="right"><script type="math/tex">\approx 0.0659</script></td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="5-本题关键理解"><a href="#5-本题关键理解" class="headerlink" title="5. 本题关键理解"></a>5. 本题关键理解</h2><h3 id="5-1-透视投影和正交投影的区别"><a href="#5-1-透视投影和正交投影的区别" class="headerlink" title="5.1 透视投影和正交投影的区别"></a>5.1 透视投影和正交投影的区别</h3><p>透视投影：</p>
+<script type="math/tex; mode=display">r(t)=O+t(A-O)</script>
+<ul>
+<li>射线从相机点 <script type="math/tex">O</script> 出发；</li>
+<li>不同像素对应不同方向；</li>
+<li>有近大远小效果；</li>
+<li>更接近真实相机和人眼。</li>
+</ul>
+<p>正交投影：</p>
+<script type="math/tex; mode=display">r(t)=A+t\mathbf d</script>
+<ul>
+<li>射线从屏幕像素点出发；</li>
+<li>所有射线方向相同；</li>
+<li>物体大小与距离无关；</li>
+<li>常用于 CAD、工程图、三视图。</li>
+</ul>
+<p>一句话记忆：</p>
+<blockquote>
+<p>透视投影：从相机点发散出去。<br>正交投影：从屏幕平行射出去。</p>
+</blockquote>
+<hr>
+<h3 id="5-2-本题为什么两种投影结果不同？"><a href="#5-2-本题为什么两种投影结果不同？" class="headerlink" title="5.2 本题为什么两种投影结果不同？"></a>5.2 本题为什么两种投影结果不同？</h3><p>同一个屏幕像素，在两种投影下对应的射线不同。</p>
+<p>例如像素 <script type="math/tex">(0,1,0)</script>：</p>
+<p>透视投影下：</p>
+<script type="math/tex; mode=display">r(t)=(0,t,-1+t)</script>
+<p>这条射线向上偏得太多，没有打到球。</p>
+<p>正交投影下：</p>
+<script type="math/tex; mode=display">r(t)=(0,1,t)</script>
+<p>这条射线从 <script type="math/tex">y=1</script> 的位置笔直向前，能打到球的上方。</p>
+<p>所以：</p>
+<ul>
+<li>透视投影下颜色为 <script type="math/tex">0</script>；</li>
+<li>正交投影下颜色为 <script type="math/tex">0.16</script>。</li>
+</ul>
+<hr>
+<h2 id="6-几何与绘制知识提纲"><a href="#6-几何与绘制知识提纲" class="headerlink" title="6. 几何与绘制知识提纲"></a>6. 几何与绘制知识提纲</h2><h3 id="6-1-整体框架"><a href="#6-1-整体框架" class="headerlink" title="6.1 整体框架"></a>6.1 整体框架</h3><p>几何与绘制主要回答两个问题：</p>
+<ol>
+<li>如何表示三维形状？</li>
+<li>如何把三维形状画成二维图像？</li>
+</ol>
+<p>整体流程：</p>
+<pre><code>几何表示
+→ 投影 / 射线求交
+→ 可见性判断
+→ 着色
+→ 图像
+</code></pre>
+<hr>
+<h3 id="6-2-几何表示"><a href="#6-2-几何表示" class="headerlink" title="6.2 几何表示"></a>6.2 几何表示</h3><h4 id="几何表示的目标"><a href="#几何表示的目标" class="headerlink" title="几何表示的目标"></a>几何表示的目标</h4><p>希望能做到：</p>
+<ul>
+<li>判断一个点在物体内部、外部还是表面；</li>
+<li>能生成或枚举物体表面的点；</li>
+<li>能用于绘制、仿真、碰撞检测等任务。</li>
+</ul>
+<h4 id="隐式表示"><a href="#隐式表示" class="headerlink" title="隐式表示"></a>隐式表示</h4><p>形式：</p>
+<script type="math/tex; mode=display">f(x,y,z)=0</script>
+<p>含义：</p>
+<ul>
+<li>满足方程的点构成物体表面；</li>
+<li>通过 <script type="math/tex">f(x,y,z)</script> 的符号判断内外关系。</li>
+</ul>
+<p>例子：</p>
+<p>球面：</p>
+<script type="math/tex; mode=display">x^2+y^2+z^2-r^2=0</script>
+<p>优点：</p>
+<ul>
+<li>判断点和形状的关系方便；</li>
+<li>适合射线求交；</li>
+<li>适合表示规则几何体、SDF、NeRF 等。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>不容易直接枚举表面点；</li>
+<li>复杂形状可能难以写出解析表达式。</li>
+</ul>
+<h4 id="显式表示"><a href="#显式表示" class="headerlink" title="显式表示"></a>显式表示</h4><p>形式：</p>
+<script type="math/tex; mode=display">P(u,v)=(x(u,v),y(u(v),z(u,v))</script>
+<p>更标准地写为：</p>
+<script type="math/tex; mode=display">P(u,v)=(x(u,v),y(u,v),z(u,v))</script>
+<p>含义：</p>
+<ul>
+<li>给定参数 <script type="math/tex">u,v</script>，可以直接生成表面点。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>容易生成表面点；</li>
+<li>适合采样和绘制。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>判断一个空间点是否在物体上比较困难；</li>
+<li>判断内外关系不方便。</li>
+</ul>
+<h4 id="隐式表示与显式表示对比"><a href="#隐式表示与显式表示对比" class="headerlink" title="隐式表示与显式表示对比"></a>隐式表示与显式表示对比</h4><table>
+<thead>
+<tr>
+<th>表示方式</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>隐式表示</td>
+<td>判断点与形状关系方便</td>
+<td>枚举表面点困难</td>
+</tr>
+<tr>
+<td>显式表示</td>
+<td>枚举表面点方便</td>
+<td>判断点与形状关系困难</td>
+</tr>
+</tbody></table>
+<p>记忆：</p>
+<pre><code>隐式：判断方便，生成困难。
+显式：生成方便，判断困难。
+</code></pre>
+<hr>
+<h3 id="6-3-常见几何表示方式"><a href="#6-3-常见几何表示方式" class="headerlink" title="6.3 常见几何表示方式"></a>6.3 常见几何表示方式</h3><h4 id="代数曲面"><a href="#代数曲面" class="headerlink" title="代数曲面"></a>代数曲面</h4><p>通过代数方程表示曲面。</p>
+<p>例子：</p>
+<p>球：</p>
+<script type="math/tex; mode=display">x^2+y^2+z^2=r^2</script>
+<p>平面：</p>
+<script type="math/tex; mode=display">ax+by+cz+d=0</script>
+<p>圆柱：</p>
+<script type="math/tex; mode=display">x^2+y^2=r^2</script>
+<p>特点：</p>
+<ul>
+<li>数学形式清楚；</li>
+<li>适合推导；</li>
+<li>适合简单规则物体。</li>
+</ul>
+<hr>
+<h4 id="有符号距离函数-SDF"><a href="#有符号距离函数-SDF" class="headerlink" title="有符号距离函数 SDF"></a>有符号距离函数 SDF</h4><p>SDF：</p>
+<script type="math/tex; mode=display">f(P)=\text{点 }P\text{ 到物体表面的有符号距离}</script>
+<p>常见约定：</p>
+<ul>
+<li><script type="math/tex">f(P)>0</script>：点在物体外部；</li>
+<li><script type="math/tex">f(P)=0</script>：点在物体表面；</li>
+<li><script type="math/tex">f(P)<0</script>：点在物体内部。</li>
+</ul>
+<p>球的 SDF：</p>
+<script type="math/tex; mode=display">f(P)=\|P-C\|-R</script>
+<p>特点：</p>
+<ul>
+<li>能表示点到表面的距离；</li>
+<li>适合碰撞检测；</li>
+<li>适合隐式几何建模；</li>
+<li>可以用神经网络或空间网格近似表示复杂形状。</li>
+</ul>
+<hr>
+<h4 id="点云"><a href="#点云" class="headerlink" title="点云"></a>点云</h4><p>点云表示：</p>
+<script type="math/tex; mode=display">P_1,P_2,\dots,P_n</script>
+<p>每个点通常包含：</p>
+<ul>
+<li>坐标；</li>
+<li>颜色；</li>
+<li>法向量；</li>
+<li>其他传感器信息。</li>
+</ul>
+<p>来源：</p>
+<ul>
+<li>深度相机；</li>
+<li>激光雷达；</li>
+<li>结构光扫描；</li>
+<li>多视角重建。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>获取方便；</li>
+<li>是许多三维传感器的直接输出；</li>
+<li>能表示真实物体表面采样。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>离散、不连续；</li>
+<li>点少时形状稀疏；</li>
+<li>点多时计算量大；</li>
+<li>往往需要进一步重建成网格或其他几何表示。</li>
+</ul>
+<hr>
+<h4 id="体素-Voxel"><a href="#体素-Voxel" class="headerlink" title="体素 Voxel"></a>体素 Voxel</h4><p>体素是三维空间中的像素。</p>
+<p>思想：</p>
+<pre><code>把三维空间划分成均匀小立方体，
+记录每个小立方体是否被物体占据。
+</code></pre>
+<p>优点：</p>
+<ul>
+<li>直观；</li>
+<li>适合表示空间占用；</li>
+<li>适合某些物理仿真和医学图像。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>分辨率低时形状粗糙；</li>
+<li>分辨率高时存储量巨大。</li>
+</ul>
+<p>核心矛盾：</p>
+<script type="math/tex; mode=display">\text{精度越高} \Rightarrow \text{体素数量越多} \Rightarrow \text{存储和计算成本越高}</script>
+<hr>
+<h4 id="多边形网格"><a href="#多边形网格" class="headerlink" title="多边形网格"></a>多边形网格</h4><p>多边形网格用很多小面片近似物体表面。</p>
+<p>常见形式：</p>
+<ul>
+<li>三角网格；</li>
+<li>四边形网格。</li>
+</ul>
+<p>通常记录：</p>
+<ul>
+<li>顶点坐标；</li>
+<li>面片连接关系；</li>
+<li>法向量；</li>
+<li>纹理坐标；</li>
+<li>材质信息。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>图形学中最常用；</li>
+<li>适合复杂物体；</li>
+<li>适合光栅化；</li>
+<li>GPU 支持好。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>本质是近似；</li>
+<li>精度越高，面片越多；</li>
+<li>判断内外关系不如隐式表示方便。</li>
+</ul>
+<hr>
+<h3 id="6-4-几何获取"><a href="#6-4-几何获取" class="headerlink" title="6.4 几何获取"></a>6.4 几何获取</h3><p>几何获取：把真实世界中的物体转成数字几何模型。</p>
+<h4 id="时差测距-Time-of-Flight"><a href="#时差测距-Time-of-Flight" class="headerlink" title="时差测距 Time of Flight"></a>时差测距 Time of Flight</h4><p>思想：</p>
+<ul>
+<li>发出光信号；</li>
+<li>测量反射回来的时间；</li>
+<li>根据时间计算距离。</li>
+</ul>
+<p>常见于：</p>
+<ul>
+<li>深度相机；</li>
+<li>激光雷达。</li>
+</ul>
+<h4 id="结构光-Structured-Light"><a href="#结构光-Structured-Light" class="headerlink" title="结构光 Structured Light"></a>结构光 Structured Light</h4><p>思想：</p>
+<ul>
+<li>向物体投射已知图案；</li>
+<li>用相机观察图案变形；</li>
+<li>根据变形恢复三维形状。</li>
+</ul>
+<p>常见图案：</p>
+<ul>
+<li>条纹；</li>
+<li>点阵；</li>
+<li>网格。</li>
+</ul>
+<h4 id="立体视觉-Stereoscopic-Vision"><a href="#立体视觉-Stereoscopic-Vision" class="headerlink" title="立体视觉 Stereoscopic Vision"></a>立体视觉 Stereoscopic Vision</h4><p>思想：</p>
+<ul>
+<li>用两个或多个相机从不同角度拍摄；</li>
+<li>匹配不同图像中的对应点；</li>
+<li>根据视差恢复深度。</li>
+</ul>
+<p>类似人类双眼通过视差感知距离。</p>
+<h4 id="几何获取流程"><a href="#几何获取流程" class="headerlink" title="几何获取流程"></a>几何获取流程</h4><pre><code>真实物体
+→ 传感器采集
+→ 点云
+→ 几何重建
+→ 网格 / SDF / 其他表示
+</code></pre>
+<hr>
+<h2 id="7-绘制-Rendering"><a href="#7-绘制-Rendering" class="headerlink" title="7. 绘制 Rendering"></a>7. 绘制 Rendering</h2><h3 id="7-1-绘制的定义"><a href="#7-1-绘制的定义" class="headerlink" title="7.1 绘制的定义"></a>7.1 绘制的定义</h3><p>绘制就是把三维几何模型转换成二维图像。</p>
+<p>核心问题：</p>
+<ol>
+<li>每个像素看到哪个物体？</li>
+<li>这个物体在该位置是什么颜色？</li>
+</ol>
+<p>对应到光线追踪：</p>
+<ol>
+<li>射线与哪个物体相交？</li>
+<li>交点处如何着色？</li>
+</ol>
+<hr>
+<h3 id="7-2-图像的本质"><a href="#7-2-图像的本质" class="headerlink" title="7.2 图像的本质"></a>7.2 图像的本质</h3><p>图像可以看作二维平面上的颜色函数：</p>
+<script type="math/tex; mode=display">I(x,y)=\text{Color}</script>
+<p>计算机中实际存储为像素阵列。</p>
+<p>灰度图：</p>
+<ul>
+<li>每个像素是一个数。</li>
+</ul>
+<p>RGB 图像：</p>
+<ul>
+<li>每个像素是三个数：</li>
+</ul>
+<script type="math/tex; mode=display">(R,G,B)</script>
+<hr>
+<h3 id="7-3-绘制的两个目标"><a href="#7-3-绘制的两个目标" class="headerlink" title="7.3 绘制的两个目标"></a>7.3 绘制的两个目标</h3><h4 id="真实感"><a href="#真实感" class="headerlink" title="真实感"></a>真实感</h4><p>希望生成的图像接近真实照片。</p>
+<p>需要考虑：</p>
+<ul>
+<li>光照；</li>
+<li>阴影；</li>
+<li>反射；</li>
+<li>折射；</li>
+<li>材质；</li>
+<li>全局光照。</li>
+</ul>
+<h4 id="速度"><a href="#速度" class="headerlink" title="速度"></a>速度</h4><p>希望绘制足够快。</p>
+<p>典型需求：</p>
+<ul>
+<li>游戏；</li>
+<li>交互式系统；</li>
+<li>实时仿真；</li>
+<li>虚拟现实。</li>
+</ul>
+<p>真实感和速度通常需要权衡。</p>
+<hr>
+<h2 id="8-光栅化-Rasterization"><a href="#8-光栅化-Rasterization" class="headerlink" title="8. 光栅化 Rasterization"></a>8. 光栅化 Rasterization</h2><h3 id="8-1-基本思想"><a href="#8-1-基本思想" class="headerlink" title="8.1 基本思想"></a>8.1 基本思想</h3><p>光栅化：</p>
+<pre><code>把三维物体投影到二维屏幕，
+再判断它覆盖哪些像素，
+给这些像素填充颜色。
+</code></pre>
+<hr>
+<h3 id="8-2-基本流程"><a href="#8-2-基本流程" class="headerlink" title="8.2 基本流程"></a>8.2 基本流程</h3><pre><code>初始化图像为背景颜色
+→ 遍历场景中的物体
+→ 将物体投影到屏幕
+→ 光栅化成像素
+→ 计算像素颜色
+→ 处理遮挡关系
+</code></pre>
+<hr>
+<h3 id="8-3-特点"><a href="#8-3-特点" class="headerlink" title="8.3 特点"></a>8.3 特点</h3><p>优点：</p>
+<ul>
+<li>速度快；</li>
+<li>适合实时渲染；</li>
+<li>GPU 支持成熟；</li>
+<li>游戏和交互应用中常用。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>复杂光照处理不自然；</li>
+<li>反射、折射、全局光照需要额外技巧。</li>
+</ul>
+<hr>
+<h2 id="9-光线追踪-Ray-Tracing"><a href="#9-光线追踪-Ray-Tracing" class="headerlink" title="9. 光线追踪 Ray Tracing"></a>9. 光线追踪 Ray Tracing</h2><h3 id="9-1-基本思想"><a href="#9-1-基本思想" class="headerlink" title="9.1 基本思想"></a>9.1 基本思想</h3><p>光线追踪：</p>
+<pre><code>从相机或屏幕像素发出射线，
+看射线打到哪个物体，
+再计算交点颜色。
+</code></pre>
+<hr>
+<h3 id="9-2-基本流程"><a href="#9-2-基本流程" class="headerlink" title="9.2 基本流程"></a>9.2 基本流程</h3><pre><code>遍历每一个像素
+→ 构造该像素对应的射线
+→ 判断射线与场景中物体是否相交
+→ 若不相交，返回背景色
+→ 若相交，取最近交点
+→ 计算交点颜色
+</code></pre>
+<hr>
+<h3 id="9-3-光线追踪中的两类计算"><a href="#9-3-光线追踪中的两类计算" class="headerlink" title="9.3 光线追踪中的两类计算"></a>9.3 光线追踪中的两类计算</h3><h4 id="几何计算"><a href="#几何计算" class="headerlink" title="几何计算"></a>几何计算</h4><p>问题：</p>
+<ul>
+<li>射线是否与物体相交？</li>
+<li>交点在哪里？</li>
+<li>哪个交点离相机最近？</li>
+</ul>
+<h4 id="着色计算"><a href="#着色计算" class="headerlink" title="着色计算"></a>着色计算</h4><p>问题：</p>
+<ul>
+<li>交点处的法向量是什么？</li>
+<li>光源方向是什么？</li>
+<li>材质如何反射光？</li>
+<li>最终颜色是多少？</li>
+</ul>
+<hr>
+<h3 id="9-4-特点"><a href="#9-4-特点" class="headerlink" title="9.4 特点"></a>9.4 特点</h3><p>优点：</p>
+<ul>
+<li>物理直觉清楚；</li>
+<li>适合高真实感渲染；</li>
+<li>反射、折射、阴影更自然。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>计算量大；</li>
+<li>通常比光栅化慢；</li>
+<li>实时渲染需要硬件加速或近似。</li>
+</ul>
+<hr>
+<h3 id="9-5-光栅化与光线追踪对比"><a href="#9-5-光栅化与光线追踪对比" class="headerlink" title="9.5 光栅化与光线追踪对比"></a>9.5 光栅化与光线追踪对比</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>思路</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>光栅化</td>
+<td>物体找像素</td>
+<td>快，适合实时</td>
+<td>复杂光影不自然</td>
+</tr>
+<tr>
+<td>光线追踪</td>
+<td>像素找物体</td>
+<td>真实感强</td>
+<td>计算量大</td>
+</tr>
+</tbody></table>
+<p>记忆：</p>
+<pre><code>光栅化：物体投到屏幕上。
+光线追踪：从像素往场景里看。
+</code></pre>
+<hr>
+<h2 id="10-投影模型"><a href="#10-投影模型" class="headerlink" title="10. 投影模型"></a>10. 投影模型</h2><h3 id="10-1-投影的作用"><a href="#10-1-投影的作用" class="headerlink" title="10.1 投影的作用"></a>10.1 投影的作用</h3><p>投影决定：</p>
+<pre><code>屏幕上的一个像素，
+对应三维空间中的哪一条射线。
+</code></pre>
+<hr>
+<h3 id="10-2-透视投影"><a href="#10-2-透视投影" class="headerlink" title="10.2 透视投影"></a>10.2 透视投影</h3><p>公式：</p>
+<script type="math/tex; mode=display">r(t)=O+t(A-O)</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">O</script>：相机点；</li>
+<li><script type="math/tex">A</script>：屏幕像素点。</li>
+</ul>
+<p>特点：</p>
+<ul>
+<li>射线从相机点出发；</li>
+<li>不同像素方向不同；</li>
+<li>有近大远小效果；</li>
+<li>接近真实相机和人眼。</li>
+</ul>
+<hr>
+<h3 id="10-3-正交投影"><a href="#10-3-正交投影" class="headerlink" title="10.3 正交投影"></a>10.3 正交投影</h3><p>公式：</p>
+<script type="math/tex; mode=display">r(t)=A+t\mathbf d</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">A</script>：屏幕像素点；</li>
+<li><script type="math/tex">\mathbf d</script>：统一方向。</li>
+</ul>
+<p>特点：</p>
+<ul>
+<li>所有射线互相平行；</li>
+<li>物体大小与距离无关；</li>
+<li>没有近大远小；</li>
+<li>常用于 CAD、工程图。</li>
+</ul>
+<hr>
+<h3 id="10-4-对比"><a href="#10-4-对比" class="headerlink" title="10.4 对比"></a>10.4 对比</h3><table>
+<thead>
+<tr>
+<th>投影方式</th>
+<th>射线特点</th>
+<th>视觉效果</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>透视投影</td>
+<td>从相机点发散</td>
+<td>近大远小</td>
+<td>相机、人眼、真实感绘制</td>
+</tr>
+<tr>
+<td>正交投影</td>
+<td>互相平行</td>
+<td>大小与距离无关</td>
+<td>CAD、工程图、三视图</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="11-射线与球求交"><a href="#11-射线与球求交" class="headerlink" title="11. 射线与球求交"></a>11. 射线与球求交</h2><h3 id="11-1-射线形式"><a href="#11-1-射线形式" class="headerlink" title="11.1 射线形式"></a>11.1 射线形式</h3><p>一般射线：</p>
+<script type="math/tex; mode=display">r(t)=O+t\mathbf d</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">O</script> 是起点；</li>
+<li><script type="math/tex">\mathbf d</script> 是方向；</li>
+<li><script type="math/tex">t\geq 0</script>。</li>
+</ul>
+<hr>
+<h3 id="11-2-球面方程"><a href="#11-2-球面方程" class="headerlink" title="11.2 球面方程"></a>11.2 球面方程</h3><p>球心为 <script type="math/tex">C=(c_x,c_y,c_z)</script>，半径为 <script type="math/tex">R</script>：</p>
+<script type="math/tex; mode=display">(x-c_x)^2+(y-c_y)^2+(z-c_z)^2=R^2</script>
+<p>向量形式：</p>
+<script type="math/tex; mode=display">\|P-C\|^2=R^2</script>
+<hr>
+<h3 id="11-3-求交步骤"><a href="#11-3-求交步骤" class="headerlink" title="11.3 求交步骤"></a>11.3 求交步骤</h3><p>将：</p>
+<script type="math/tex; mode=display">P=O+t\mathbf d</script>
+<p>代入：</p>
+<script type="math/tex; mode=display">\|P-C\|^2=R^2</script>
+<p>得到关于 <script type="math/tex">t</script> 的二次方程。</p>
+<p>判断：</p>
+<ul>
+<li>无实数解：没有相交；</li>
+<li>有解但 <script type="math/tex">t<0</script>：交点在射线反方向，不可见；</li>
+<li>有正实数解：射线打到物体；</li>
+<li>有两个正实数解：取较小的正根。</li>
+</ul>
+<hr>
+<h2 id="12-法向量"><a href="#12-法向量" class="headerlink" title="12. 法向量"></a>12. 法向量</h2><h3 id="12-1-法向量定义"><a href="#12-1-法向量定义" class="headerlink" title="12.1 法向量定义"></a>12.1 法向量定义</h3><p>法向量是垂直于表面的方向。</p>
+<p>用途：</p>
+<ul>
+<li>判断表面朝向；</li>
+<li>计算光照；</li>
+<li>判断光源是否在背侧。</li>
+</ul>
+<hr>
+<h3 id="12-2-球面法向量"><a href="#12-2-球面法向量" class="headerlink" title="12.2 球面法向量"></a>12.2 球面法向量</h3><p>球心为 <script type="math/tex">C</script>，球面点为 <script type="math/tex">P</script>：</p>
+<script type="math/tex; mode=display">\mathbf n=\frac{P-C}{\|P-C\|}</script>
+<p>若球半径为 <script type="math/tex">R</script>：</p>
+<script type="math/tex; mode=display">\mathbf n=\frac{P-C}{R}</script>
+<hr>
+<h2 id="13-着色-Shading"><a href="#13-着色-Shading" class="headerlink" title="13. 着色 Shading"></a>13. 着色 Shading</h2><h3 id="13-1-着色的目标"><a href="#13-1-着色的目标" class="headerlink" title="13.1 着色的目标"></a>13.1 着色的目标</h3><p>着色是计算交点处的颜色。</p>
+<p>颜色可能由以下因素决定：</p>
+<ul>
+<li>物体本身颜色；</li>
+<li>光源颜色 &#x2F; 强度；</li>
+<li>光照方向；</li>
+<li>表面法向量；</li>
+<li>视角方向；</li>
+<li>材质；</li>
+<li>阴影；</li>
+<li>反射和折射。</li>
+</ul>
+<hr>
+<h3 id="13-2-环境光"><a href="#13-2-环境光" class="headerlink" title="13.2 环境光"></a>13.2 环境光</h3><p>环境光：</p>
+<ul>
+<li>来自四面八方；</li>
+<li>与方向无关；</li>
+<li>使阴影处不至于完全黑。</li>
+</ul>
+<p>简单形式：</p>
+<script type="math/tex; mode=display">\text{Color}=I_a k_a</script>
+<hr>
+<h3 id="13-3-朗伯漫反射"><a href="#13-3-朗伯漫反射" class="headerlink" title="13.3 朗伯漫反射"></a>13.3 朗伯漫反射</h3><p>朗伯模型适合理想粗糙表面。</p>
+<p>公式：</p>
+<script type="math/tex; mode=display">\text{Color}=kI\max(0,\mathbf n\cdot \mathbf l)</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">k</script>：物体颜色 &#x2F; 漫反射系数；</li>
+<li><script type="math/tex">I</script>：光源强度；</li>
+<li><script type="math/tex">\mathbf n</script>：单位法向量；</li>
+<li><script type="math/tex">\mathbf l</script>：从交点指向光源的单位向量。</li>
+</ul>
+<p>理解：</p>
+<ul>
+<li><script type="math/tex">\mathbf n\cdot\mathbf l=1</script>：正对光源，最亮；</li>
+<li><script type="math/tex">\mathbf n\cdot\mathbf l=0</script>：光线擦过表面，亮度为 0；</li>
+<li><script type="math/tex">\mathbf n\cdot\mathbf l<0</script>：光源在背侧，没有反射。</li>
+</ul>
+<hr>
+<h3 id="13-4-更复杂的光照"><a href="#13-4-更复杂的光照" class="headerlink" title="13.4 更复杂的光照"></a>13.4 更复杂的光照</h3><p>朗伯模型只描述理想漫反射。</p>
+<p>更复杂的现象包括：</p>
+<ul>
+<li>镜面反射；</li>
+<li>折射；</li>
+<li>阴影；</li>
+<li>半透明；</li>
+<li>次表面散射；</li>
+<li>全局光照。</li>
+</ul>
+<p>相关概念：</p>
+<ul>
+<li>BRDF；</li>
+<li>BSSRDF；</li>
+<li>BSSDF；</li>
+<li>路径追踪；</li>
+<li>全局光照。</li>
+</ul>
+<p>考试中如果是基础计算题，一般重点掌握朗伯模型即可。</p>
+<hr>
+<h2 id="14-反射、折射与全局光照"><a href="#14-反射、折射与全局光照" class="headerlink" title="14. 反射、折射与全局光照"></a>14. 反射、折射与全局光照</h2><h3 id="14-1-反射"><a href="#14-1-反射" class="headerlink" title="14.1 反射"></a>14.1 反射</h3><p>当射线打到镜面物体时，会沿反射方向继续传播。</p>
+<p>光线追踪可以递归追踪反射光线。</p>
+<hr>
+<h3 id="14-2-折射"><a href="#14-2-折射" class="headerlink" title="14.2 折射"></a>14.2 折射</h3><p>当射线进入玻璃、水等透明介质时，方向会改变。</p>
+<p>这对应折射现象。</p>
+<hr>
+<h3 id="14-3-全局光照"><a href="#14-3-全局光照" class="headerlink" title="14.3 全局光照"></a>14.3 全局光照</h3><p>全局光照考虑：</p>
+<ul>
+<li>光源直接照射物体；</li>
+<li>物体反射出的光继续照亮其他物体；</li>
+<li>多次反射共同决定最终颜色。</li>
+</ul>
+<p>特点：</p>
+<ul>
+<li>真实感强；</li>
+<li>计算量大。</li>
+</ul>
+<hr>
+<h2 id="15-神经辐射场-NeRF"><a href="#15-神经辐射场-NeRF" class="headerlink" title="15. 神经辐射场 NeRF"></a>15. 神经辐射场 NeRF</h2><h3 id="15-1-传统绘制思路"><a href="#15-1-传统绘制思路" class="headerlink" title="15.1 传统绘制思路"></a>15.1 传统绘制思路</h3><p>传统光线追踪：</p>
+<pre><code>明确几何模型
+→ 射线与几何模型求交
+→ 在交点处计算颜色
+</code></pre>
+<hr>
+<h3 id="15-2-NeRF-思路"><a href="#15-2-NeRF-思路" class="headerlink" title="15.2 NeRF 思路"></a>15.2 NeRF 思路</h3><p>NeRF 使用神经网络表示三维场景。</p>
+<p>大致流程：</p>
+<pre><code>从像素发出射线
+→ 沿射线采样许多空间点
+→ 神经网络预测每个点的颜色和密度
+→ 按透明度累积颜色
+→ 得到像素颜色
+</code></pre>
+<hr>
+<h3 id="15-3-NeRF-的特点"><a href="#15-3-NeRF-的特点" class="headerlink" title="15.3 NeRF 的特点"></a>15.3 NeRF 的特点</h3><ul>
+<li>用神经网络隐式表示三维场景；</li>
+<li>同时表达几何和外观；</li>
+<li>可以根据已有多视角图像生成新视角图像；</li>
+<li>属于神经隐式表示的一类。</li>
+</ul>
+<hr>
+<h2 id="16-考试重点总结"><a href="#16-考试重点总结" class="headerlink" title="16. 考试重点总结"></a>16. 考试重点总结</h2><h3 id="16-1-几何表示"><a href="#16-1-几何表示" class="headerlink" title="16.1 几何表示"></a>16.1 几何表示</h3><p>需要掌握：</p>
+<ul>
+<li>隐式表示；</li>
+<li>显式表示；</li>
+<li>SDF；</li>
+<li>点云；</li>
+<li>体素；</li>
+<li>多边形网格。</li>
+</ul>
+<p>重点理解：</p>
+<pre><code>不同表示方法适合不同任务。
+</code></pre>
+<hr>
+<h3 id="16-2-绘制方法"><a href="#16-2-绘制方法" class="headerlink" title="16.2 绘制方法"></a>16.2 绘制方法</h3><p>需要掌握：</p>
+<ul>
+<li>光栅化；</li>
+<li>光线追踪；</li>
+<li>二者区别。</li>
+</ul>
+<p>重点记忆：</p>
+<pre><code>光栅化：物体找像素，速度快。
+光线追踪：像素找物体，真实感强。
+</code></pre>
+<hr>
+<h3 id="16-3-投影方式"><a href="#16-3-投影方式" class="headerlink" title="16.3 投影方式"></a>16.3 投影方式</h3><p>需要掌握：</p>
+<ul>
+<li>透视投影；</li>
+<li>正交投影。</li>
+</ul>
+<p>重点公式：</p>
+<script type="math/tex; mode=display">r_{\text{perspective}}(t)=O+t(A-O)</script>
+<script type="math/tex; mode=display">r_{\text{orthographic}}(t)=A+t\mathbf d</script>
+<hr>
+<h3 id="16-4-射线求交"><a href="#16-4-射线求交" class="headerlink" title="16.4 射线求交"></a>16.4 射线求交</h3><p>需要掌握：</p>
+<ul>
+<li>射线方程；</li>
+<li>球面方程；</li>
+<li>代入得到二次方程；</li>
+<li>用判别式判断是否相交；</li>
+<li>取最近的正交点。</li>
+</ul>
+<hr>
+<h3 id="16-5-朗伯光照"><a href="#16-5-朗伯光照" class="headerlink" title="16.5 朗伯光照"></a>16.5 朗伯光照</h3><p>需要掌握：</p>
+<script type="math/tex; mode=display">\text{Color}=kI\max(0,\mathbf n\cdot \mathbf l)</script>
+<p>其中：</p>
+<script type="math/tex; mode=display">\mathbf n=\frac{P-C}{R}</script>
+<script type="math/tex; mode=display">\mathbf l=\frac{L-P}{\|L-P\|}</script>
+<hr>
+<h2 id="17-最简答题模板"><a href="#17-最简答题模板" class="headerlink" title="17. 最简答题模板"></a>17. 最简答题模板</h2><h3 id="17-1-光线追踪如何计算像素颜色？"><a href="#17-1-光线追踪如何计算像素颜色？" class="headerlink" title="17.1 光线追踪如何计算像素颜色？"></a>17.1 光线追踪如何计算像素颜色？</h3><p>可以答：</p>
+<pre><code>对每个像素构造一条射线；
+判断射线是否与场景中的物体相交；
+若不相交，则返回背景颜色；
+若相交，则取最近交点；
+计算交点处的法向量和光照方向；
+使用着色模型，如朗伯模型，计算像素颜色。
+</code></pre>
+<hr>
+<h3 id="17-2-透视投影和正交投影的区别？"><a href="#17-2-透视投影和正交投影的区别？" class="headerlink" title="17.2 透视投影和正交投影的区别？"></a>17.2 透视投影和正交投影的区别？</h3><p>可以答：</p>
+<pre><code>透视投影中，射线从相机点出发，穿过屏幕像素，
+不同像素对应不同方向，因此有近大远小效果。
+正交投影中，所有射线互相平行，
+物体大小与距离无关，常用于工程图和 CAD。
+</code></pre>
+<hr>
+<h3 id="17-3-隐式表示和显式表示的区别？"><a href="#17-3-隐式表示和显式表示的区别？" class="headerlink" title="17.3 隐式表示和显式表示的区别？"></a>17.3 隐式表示和显式表示的区别？</h3><p>可以答：</p>
+<pre><code>隐式表示用方程 f(x,y,z)=0 定义形状，
+判断点与形状关系方便，但枚举表面点困难。
+显式表示直接给出表面点的生成方式，
+枚举表面点方便，但判断点与形状关系困难。
+</code></pre>
+</div><div class="tags"></div><div class="post-nav"><a class="next" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>To be a better man.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" style="font-size: 15px;">人工智能</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E8%AF%86%E5%88%AB/" style="font-size: 15px;">图像识别</a> <a href="/tags/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">课程笔记</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/" style="font-size: 15px;">图像分类</a> <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">实验笔记</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">机器学习</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 15px;">自然语言处理</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">深度学习</a> <a href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" style="font-size: 15px;">期末复习</a> <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" style="font-size: 15px;">智能机器人</a> <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" style="font-size: 15px;">知识图谱</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 15px;">博客搭建</a> <a href="/tags/Hexo%E5%85%A5%E9%97%A8/" style="font-size: 15px;">Hexo入门</a> <a href="/tags/%E7%AB%99%E7%82%B9%E9%83%A8%E7%BD%B2/" style="font-size: 15px;">站点部署</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F/" style="font-size: 15px;">距离度量</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%87%A0%E4%BD%95/" style="font-size: 15px;">计算几何</a> <a href="/tags/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" style="font-size: 15px;">最小生成树</a> <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" style="font-size: 15px;">并查集</a> <a href="/tags/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" style="font-size: 15px;">算法刷题</a> <a href="/tags/%E5%8D%95%E8%B0%83%E6%A0%88/" style="font-size: 15px;">单调栈</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 15px;">数据结构</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 15px;">动态规划</a> <a href="/tags/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">算法笔记</a> <a href="/tags/%E9%99%8D%E7%BB%B4%E7%AE%97%E6%B3%95/" style="font-size: 15px;">降维算法</a> <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%8A%95%E5%BD%B1/" style="font-size: 15px;">随机投影</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E4%BF%9D%E6%8C%81/" style="font-size: 15px;">距离保持</a> <a href="/tags/%E5%9B%9B%E5%88%86%E6%A0%91/" style="font-size: 15px;">四分树</a> <a href="/tags/%E8%BF%91%E4%BC%BC%E7%AE%97%E6%B3%95/" style="font-size: 15px;">近似算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E9%99%8D%E7%BB%B4-JL%E6%96%B9%E6%B3%95/">降维:JL方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4g%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-%E4%BA%8C/">距离度量及其计算——低维欧氏距离(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/18/AI%E5%BC%95%E8%AE%BALab2%E2%80%94%E2%80%94%E4%BB%8Enumpy%E5%BC%80%E5%A7%8B%E7%9A%84u%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/">AI引论Lab2——从numpy开始的图像分类</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/AI%E5%BC%95%E8%AE%BA/">AI引论</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/04/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB/">距离度量及其计算——低维欧氏距离</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Square的小站.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
