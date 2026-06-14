@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>Square的小站</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 8.1.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Square的小站</h1><a id="logo" href="/.">Square的小站</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title"><a href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></h1><div class="post-meta">2026-06-14</div><div class="post-content">几何与绘制：从光线追踪题出发整理
-本文围绕“几何与绘制”部分展开，以一道光线追踪计算题为起点，整理几何表示、投影模型、射线求交、着色模型等知识。:contentReference[oaicite:0]{index&#x3D;0}
+本文围绕“几何与绘制”部分展开，以一道光线追踪计算题为起点，整理几何表示、投影模型、射线求交、着色模型等知识。
 
 0. 整体主线几何与绘制可以按下面的链条理解：
 三维形状
@@ -7,7 +7,13 @@
 → 投影 / 射线构造
 → 射线与物体求交
 → 法向量
-...</div><p class="readmore"><a href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">Read More</a></p></div><div class="post"><h1 class="post-title"><a href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></h1><div class="post-meta">2026-06-13</div><div class="post-content">囚徒困境中的几个重要概念1. 囚徒困境的基本设定两个嫌犯 A 和 B 被单独审问，二人不能交流。每个人都有两个选择：
+→ 光照模型
+→ 像素颜色
+
+其中：
+
+几何：物体是什么形状？
+绘制：从某个视角看过...</div><p class="readmore"><a href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">Read More</a></p></div><div class="post"><h1 class="post-title"><a href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></h1><div class="post-meta">2026-06-13</div><div class="post-content">囚徒困境中的几个重要概念1. 囚徒困境的基本设定两个嫌犯 A 和 B 被单独审问，二人不能交流。每个人都有两个选择：
 
 检举：背叛对方；
 沉默：不背叛对方。

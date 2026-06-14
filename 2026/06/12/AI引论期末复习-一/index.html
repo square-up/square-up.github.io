@@ -1,10 +1,10 @@
-<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>AI引论期末复习(一) | Square的小站</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 8.1.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">AI引论期末复习(一)</h1><a id="logo" href="/.">Square的小站</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">AI引论期末复习(一)</h1><div class="post-meta">2026-06-12</div><div class="post-content"><h1 id="自然语言处理"><a href="#自然语言处理" class="headerlink" title="自然语言处理"></a>自然语言处理</h1><h2 id="句法分析：CYK-算法"><a href="#句法分析：CYK-算法" class="headerlink" title="句法分析：CYK 算法"></a>句法分析：CYK 算法</h2><h3 id="上下文无关文法（CFG）"><a href="#上下文无关文法（CFG）" class="headerlink" title="上下文无关文法（CFG）"></a>上下文无关文法（CFG）</h3><ol>
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>AI引论期末复习(一) | Square的小站</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 8.1.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">AI引论期末复习(一)</h1><a id="logo" href="/.">Square的小站</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">AI引论期末复习(一)</h1><div class="post-meta">2026-06-12</div><div class="post-content"><h1 id="句法分析：CYK-算法"><a href="#句法分析：CYK-算法" class="headerlink" title="句法分析：CYK 算法"></a>句法分析：CYK 算法</h1><h2 id="上下文无关文法（CFG）"><a href="#上下文无关文法（CFG）" class="headerlink" title="上下文无关文法（CFG）"></a>上下文无关文法（CFG）</h2><ol>
 <li>终结符</li>
 <li>非终结符</li>
 <li>起始符号</li>
 <li>产生式规则</li>
 </ol>
-<h3 id="输入文法格式：乔姆斯基范式（CNF）"><a href="#输入文法格式：乔姆斯基范式（CNF）" class="headerlink" title="输入文法格式：乔姆斯基范式（CNF）"></a>输入文法格式：乔姆斯基范式（CNF）</h3><ol>
+<h2 id="输入文法格式：乔姆斯基范式（CNF）"><a href="#输入文法格式：乔姆斯基范式（CNF）" class="headerlink" title="输入文法格式：乔姆斯基范式（CNF）"></a>输入文法格式：乔姆斯基范式（CNF）</h2><ol>
 <li>一个非终结符推出两个非终结符</li>
 <li>一个非终结符推出一个终结符</li>
 </ol>
@@ -13,16 +13,16 @@
 <li>右边超过两个符号：引入新的非终结符并多加规则，拆成二叉结构</li>
 <li>终结符出现在右边：为它单独造一个非终结符</li>
 </ol>
-<h3 id="具体算法步骤"><a href="#具体算法步骤" class="headerlink" title="具体算法步骤"></a>具体算法步骤</h3><p>三个特点：自底向上；动态规划；三角形表格</p>
+<h2 id="具体算法步骤"><a href="#具体算法步骤" class="headerlink" title="具体算法步骤"></a>具体算法步骤</h2><p>三个特点：自底向上；动态规划；三角形表格</p>
 <p>表格中格子含义：<strong>X(i, j) &#x3D; 能够推出子串 <script type="math/tex">w_i \ldots w_j</script> 的所有非终结符集合</strong></p>
-<h4 id="输入"><a href="#输入" class="headerlink" title="输入"></a>输入</h4><ul>
+<h3 id="输入"><a href="#输入" class="headerlink" title="输入"></a>输入</h3><ul>
 <li>CNF 文法 G</li>
 <li>字符串 w &#x3D; w1 w2 ... wn</li>
 </ul>
-<h4 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h4><ul>
+<h3 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h3><ul>
 <li>判断 w 是否属于 L(G)</li>
 </ul>
-<h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><ol>
+<h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><ol>
 <li>构造三角形表格 X。</li>
 <li>对每个单词 wi，根据 A → wi 填入 X(i,i)。</li>
 <li>按照子串长度从 2 到 n 依次填表。</li>
@@ -30,8 +30,836 @@
 <li>若存在 A → B C，且 B ∈ X(i,k), C ∈ X(k+1,j)，则 A ∈ X(i,j)。</li>
 <li>最后检查 S 是否属于 X(1,n)。</li>
 </ol>
-<h2 id="统计语言模型与词表示"><a href="#统计语言模型与词表示" class="headerlink" title="统计语言模型与词表示"></a>统计语言模型与词表示</h2><p>统计语言模型关心的是“一个句子出现的概率有多大”。从 n-gram 到词向量，思路大致是从离散计数走向连续表示：前者好算但表达能力有限，后者能把词语放进向量空间里，让相似词在几何上也更接近。</p>
-<h2 id="Transformer"><a href="#Transformer" class="headerlink" title="Transformer"></a>Transformer</h2><p>Transformer 复习时先抓两点：<strong>自注意力</strong>负责看句子内部哪些 token 互相关联，<strong>位置编码</strong>补上序列顺序信息。它没有 RNN 那种一步一步读的结构，所以更适合并行训练。</p>
+<h1 id="统计语言模型与词表示"><a href="#统计语言模型与词表示" class="headerlink" title="统计语言模型与词表示"></a>统计语言模型与词表示</h1><p>统计语言模型关心的是“一个句子出现的概率有多大”。从 n-gram 到词向量，思路大致是从离散计数走向连续表示：前者好算但表达能力有限，后者能把词语放进向量空间里，让相似词在几何上也更接近。</p>
+<h1 id="Transformer-复习提纲：从-RNN-到大语言模型"><a href="#Transformer-复习提纲：从-RNN-到大语言模型" class="headerlink" title="Transformer 复习提纲：从 RNN 到大语言模型"></a>Transformer 复习提纲：从 RNN 到大语言模型</h1><blockquote>
+<p>整体主线：<br>自然语言是序列 → RNN 处理序列 → RNN 有长距离依赖和并行问题 → Attention 缓解信息瓶颈 → Self-Attention 让 token 直接互相看 → Transformer 用多头注意力、位置编码、残差连接、LayerNorm、FFN 组成完整结构 → Decoder 通过 Linear + Softmax 预测下一个 token → 大语言模型是 Transformer 的大规模扩展。</p>
+</blockquote>
+<hr>
+<h2 id="一、从-RNN-到-Attention：为什么需要-Transformer"><a href="#一、从-RNN-到-Attention：为什么需要-Transformer" class="headerlink" title="一、从 RNN 到 Attention：为什么需要 Transformer"></a>一、从 RNN 到 Attention：为什么需要 Transformer</h2><h3 id="1-自然语言是序列问题"><a href="#1-自然语言是序列问题" class="headerlink" title="1. 自然语言是序列问题"></a>1. 自然语言是序列问题</h3><p>自然语言处理中的文本不是孤立的词集合，而是有顺序的 token 序列。</p>
+<p>例如：</p>
+<pre><code>我 喜欢 你
+</code></pre>
+<p>和：</p>
+<pre><code>你 喜欢 我
+</code></pre>
+<p>包含的词一样，但顺序不同，含义完全不同。</p>
+<p>常见 NLP 任务包括：</p>
+<ul>
+<li>文本分类：句子 → 类别</li>
+<li>机器翻译：源语言序列 → 目标语言序列</li>
+<li>文本生成：前文 → 后文</li>
+<li>问答：问题 + 上下文 → 答案</li>
+<li>摘要：长文本 → 短文本</li>
+</ul>
+<p>因此，模型需要处理：</p>
+<ul>
+<li>序列顺序；</li>
+<li>上下文依赖；</li>
+<li>不定长输入；</li>
+<li>不定长输出。</li>
+</ul>
+<hr>
+<h3 id="2-RNN-的基本思想：隐藏状态"><a href="#2-RNN-的基本思想：隐藏状态" class="headerlink" title="2. RNN 的基本思想：隐藏状态"></a>2. RNN 的基本思想：隐藏状态</h3><p>RNN 按顺序一个 token 一个 token 读取输入。</p>
+<p>核心公式：</p>
+<script type="math/tex; mode=display">h_t = f_W(h_{t-1}, x_t)</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">x_t</script>：第 <script type="math/tex">t</script> 个 token 的输入向量；</li>
+<li><script type="math/tex">h_{t-1}</script>：读到上一个 token 后留下来的隐藏状态；</li>
+<li><script type="math/tex">h_t</script>：读完当前 token 后的新隐藏状态；</li>
+<li><script type="math/tex">f_W</script>：带参数的状态更新函数。</li>
+</ul>
+<p>隐藏状态可以理解为：</p>
+<blockquote>
+<p>模型读到当前位置时，对“目前为止已经读过内容”的内部记忆 &#x2F; 摘要。</p>
+</blockquote>
+<p>如果要在每个时间步输出结果，可以再接一个输出函数：</p>
+<script type="math/tex; mode=display">y_t = g(h_t)</script>
+<p>直观理解：</p>
+<pre><code>旧记忆 h_{t-1}
++
+当前输入 x_t
+↓
+新记忆 h_t
+</code></pre>
+<hr>
+<h3 id="3-RNN-的优缺点"><a href="#3-RNN-的优缺点" class="headerlink" title="3. RNN 的优缺点"></a>3. RNN 的优缺点</h3><p>RNN 的优点：</p>
+<ul>
+<li>可以处理任意长度的序列；</li>
+<li>输入长度变化时，模型参数量不变；</li>
+<li>适合处理文本、时间序列等顺序数据。</li>
+</ul>
+<p>RNN 的缺点：</p>
+<h4 id="3-1-难以并行"><a href="#3-1-难以并行" class="headerlink" title="3.1 难以并行"></a>3.1 难以并行</h4><p>因为：</p>
+<script type="math/tex; mode=display">h_t = f_W(h_{t-1}, x_t)</script>
+<p>所以必须先算 <script type="math/tex">h_{t-1}</script>，才能算 <script type="math/tex">h_t</script>。</p>
+<p>也就是说：</p>
+<pre><code>h1 → h2 → h3 → h4 → ...
+</code></pre>
+<p>不能像矩阵运算那样一次性并行计算所有位置。</p>
+<h4 id="3-2-长距离依赖困难"><a href="#3-2-长距离依赖困难" class="headerlink" title="3.2 长距离依赖困难"></a>3.2 长距离依赖困难</h4><p>例如：</p>
+<pre><code>The course which seems very difficult is fun.
+</code></pre>
+<p>主语 <code>course</code> 和形容词 <code>fun</code> 隔得很远。</p>
+<p>RNN 需要通过隐藏状态一步步传递信息，经过很多次更新后，前面的信息可能被冲淡或遗忘。</p>
+<p>这会导致：</p>
+<ul>
+<li>梯度消失；</li>
+<li>长距离依赖难以捕获；</li>
+<li>早期信息容易丢失。</li>
+</ul>
+<hr>
+<h3 id="4-seq2seq-与-Encoder-Decoder-架构"><a href="#4-seq2seq-与-Encoder-Decoder-架构" class="headerlink" title="4. seq2seq 与 Encoder-Decoder 架构"></a>4. seq2seq 与 Encoder-Decoder 架构</h3><p>Transformer 最初主要用于机器翻译等 seq2seq 任务。</p>
+<p>seq2seq 指：</p>
+<script type="math/tex; mode=display">\text{input sequence} \rightarrow \text{output sequence}</script>
+<p>例如：</p>
+<pre><code>Je suis étudiant
+↓
+I am a student
+</code></pre>
+<p>经典结构是 Encoder-Decoder：</p>
+<pre><code>输入序列
+↓
+Encoder：读懂输入
+↓
+上下文表示
+↓
+Decoder：逐步生成输出
+↓
+输出序列
+</code></pre>
+<p>早期 RNN seq2seq 的一个问题是：</p>
+<pre><code>整个输入句子
+↓
+被压缩成最后一个 hidden state / context vector
+↓
+Decoder 只能依赖这个压缩表示生成输出
+</code></pre>
+<p>如果句子很长，最后一个隐藏状态不一定能保存所有信息，这就是信息瓶颈。</p>
+<hr>
+<h3 id="5-Attention-的基本思想"><a href="#5-Attention-的基本思想" class="headerlink" title="5. Attention 的基本思想"></a>5. Attention 的基本思想</h3><p>Attention 的作用是缓解 RNN seq2seq 的信息瓶颈。</p>
+<p>原来的做法：</p>
+<pre><code>Encoder 只把最后一个隐藏状态传给 Decoder
+</code></pre>
+<p>Attention 的做法：</p>
+<pre><code>Encoder 把所有位置的隐藏状态都传给 Decoder
+Decoder 每一步生成时，对所有隐藏状态分配不同权重
+</code></pre>
+<p>假设 Encoder 输出：</p>
+<script type="math/tex; mode=display">h_1, h_2, \dots, h_n</script>
+<p>Decoder 第 <script type="math/tex">t</script> 步状态为：</p>
+<script type="math/tex; mode=display">s_t</script>
+<p>先计算打分：</p>
+<script type="math/tex; mode=display">e_{t,i} = \text{score}(s_t, h_i)</script>
+<p>再用 softmax 得到注意力权重：</p>
+<script type="math/tex; mode=display">\alpha_{t,i}
+=
+\frac{\exp(e_{t,i})}
+{\sum_j \exp(e_{t,j})}</script>
+<p>最后加权求和得到当前步的上下文向量：</p>
+<script type="math/tex; mode=display">c_t = \sum_i \alpha_{t,i} h_i</script>
+<p>直觉：</p>
+<blockquote>
+<p>Decoder 每生成一个词，都可以动态决定应该重点看输入句子的哪个位置。</p>
+</blockquote>
+<p>比如翻译：</p>
+<pre><code>Je suis étudiant
+↓
+I am a student
+</code></pre>
+<p>生成 <code>student</code> 时，Decoder 应该重点关注 <code>étudiant</code>。</p>
+<hr>
+<h2 id="二、Self-Attention：Transformer-的核心机制"><a href="#二、Self-Attention：Transformer-的核心机制" class="headerlink" title="二、Self-Attention：Transformer 的核心机制"></a>二、Self-Attention：Transformer 的核心机制</h2><h3 id="1-从-Attention-到-Self-Attention"><a href="#1-从-Attention-到-Self-Attention" class="headerlink" title="1. 从 Attention 到 Self-Attention"></a>1. 从 Attention 到 Self-Attention</h3><p>普通 Encoder-Decoder Attention 是：</p>
+<pre><code>Decoder 的 token 去看 Encoder 的 token
+</code></pre>
+<p>Self-Attention 是：</p>
+<pre><code>同一个序列内部，每个 token 去看这个序列里的其他 token
+</code></pre>
+<p>例如句子：</p>
+<pre><code>The animal didn&#39;t cross the street because it was tired.
+</code></pre>
+<p>当模型处理 <code>it</code> 时，需要知道它可能指代 <code>animal</code>。</p>
+<p>RNN 要靠隐藏状态一步步传递，而 Self-Attention 可以让 <code>it</code> 直接关注 <code>animal</code>。</p>
+<p>核心思想：</p>
+<blockquote>
+<p>每个 token 都可以直接和所有 token 建立联系，从上下文中吸收自己需要的信息。</p>
+</blockquote>
+<hr>
+<h3 id="2-Q、K、V-是什么"><a href="#2-Q、K、V-是什么" class="headerlink" title="2. Q、K、V 是什么"></a>2. Q、K、V 是什么</h3><p>每个 token 原本有一个表示向量：</p>
+<script type="math/tex; mode=display">x_i</script>
+<p>在 Self-Attention 中，它会被投影成三个向量：</p>
+<script type="math/tex; mode=display">q_i = x_i W^Q</script>
+<script type="math/tex; mode=display">k_i = x_i W^K</script>
+<script type="math/tex; mode=display">v_i = x_i W^V</script>
+<p>其中：</p>
+<ul>
+<li>Query：我想找什么信息？</li>
+<li>Key：我有什么特征，别人能不能找到我？</li>
+<li>Value：如果别人关注我，我真正传递什么信息？</li>
+</ul>
+<p>注意：</p>
+<blockquote>
+<p>Q、K、V 不是三个不同的词，而是同一个 token 表示通过三套矩阵投影出来的中间变量。</p>
+</blockquote>
+<p>可以类比成查资料：</p>
+<ul>
+<li>Query：你提出的问题；</li>
+<li>Key：资料的标签；</li>
+<li>Value：资料的正文内容。</li>
+</ul>
+<p>Attention 做的事情就是：</p>
+<pre><code>用 Query 匹配所有 Key
+↓
+得到相关性权重
+↓
+按权重读取所有 Value
+</code></pre>
+<hr>
+<h3 id="3-单个-token-的-Self-Attention-计算过程"><a href="#3-单个-token-的-Self-Attention-计算过程" class="headerlink" title="3. 单个 token 的 Self-Attention 计算过程"></a>3. 单个 token 的 Self-Attention 计算过程</h3><p>假设第 <script type="math/tex">i</script> 个 token 要更新自己的表示。</p>
+<p>第一步，用自己的 query 去匹配所有 token 的 key：</p>
+<script type="math/tex; mode=display">e_{ij} = q_i^T k_j</script>
+<p>这个分数表示：</p>
+<blockquote>
+<p>第 <script type="math/tex">i</script> 个 token 应该多关注第 <script type="math/tex">j</script> 个 token。</p>
+</blockquote>
+<p>第二步，对所有分数做 softmax：</p>
+<script type="math/tex; mode=display">\alpha_{ij}
+=
+\frac{\exp(e_{ij})}
+{\sum_j \exp(e_{ij})}</script>
+<p>得到注意力权重。</p>
+<p>第三步，对所有 value 加权求和：</p>
+<script type="math/tex; mode=display">o_i = \sum_j \alpha_{ij} v_j</script>
+<p>最终 <script type="math/tex">o_i</script> 就是第 <script type="math/tex">i</script> 个 token 融合上下文后的新表示。</p>
+<p>完整直觉：</p>
+<pre><code>当前 token 问：我需要谁的信息？
+↓
+所有 token 用 key 回答：我是否与你匹配？
+↓
+当前 token 根据匹配程度读取所有 value
+↓
+得到新的上下文化表示
+</code></pre>
+<hr>
+<h3 id="4-打分为什么可以用点积"><a href="#4-打分为什么可以用点积" class="headerlink" title="4. 打分为什么可以用点积"></a>4. 打分为什么可以用点积</h3><p>Transformer 中常用点积打分：</p>
+<script type="math/tex; mode=display">e_{ij} = q_i^T k_j</script>
+<p>点积有性质：</p>
+<script type="math/tex; mode=display">q_i^T k_j = \|q_i\| \|k_j\| \cos \theta</script>
+<p>所以：</p>
+<ul>
+<li>两个向量方向越接近，点积越大；</li>
+<li>点积越大，说明 query 和 key 越匹配；</li>
+<li>匹配程度越高，softmax 后注意力权重越大。</li>
+</ul>
+<p>实际 Transformer 中使用 scaled dot-product：</p>
+<script type="math/tex; mode=display">e_{ij} = \frac{q_i^T k_j}{\sqrt{d_k}}</script>
+<p>其中 <script type="math/tex">d_k</script> 是 key&#x2F;query 的维度。</p>
+<p>除以 <script type="math/tex">\sqrt{d_k}</script> 的原因：</p>
+<ul>
+<li>如果维度很大，点积数值容易变大；</li>
+<li>softmax 输入过大会变得极端；</li>
+<li>极端 softmax 会导致梯度变小，训练不稳定。</li>
+</ul>
+<hr>
+<h3 id="5-Q-K-V-更新的是自己吗"><a href="#5-Q-K-V-更新的是自己吗" class="headerlink" title="5. Q&#x2F;K&#x2F;V 更新的是自己吗"></a>5. Q&#x2F;K&#x2F;V 更新的是自己吗</h3><p>严格来说，一个 token 更新的不是自己的 Q、K、V，而是自己的 hidden representation。</p>
+<p>在某一层中：</p>
+<pre><code>当前 token 表示 x_i
+↓
+临时算出 q_i, k_i, v_i
+↓
+用 q_i 匹配所有 k_j
+↓
+对所有 v_j 加权求和
+↓
+得到新的 token 表示 o_i
+</code></pre>
+<p>Q&#x2F;K&#x2F;V 是当前层中的中间变量。</p>
+<p>到了下一层，会根据新的 token 表示重新计算新的 Q&#x2F;K&#x2F;V。</p>
+<p>所以可以记成：</p>
+<blockquote>
+<p>更新的是 token 表示；Q&#x2F;K&#x2F;V 是由当前 token 表示临时投影出来的计算工具。</p>
+</blockquote>
+<hr>
+<h3 id="6-QKV-矩阵怎么训练"><a href="#6-QKV-矩阵怎么训练" class="headerlink" title="6. QKV 矩阵怎么训练"></a>6. QKV 矩阵怎么训练</h3><p><script type="math/tex">W^Q, W^K, W^V</script> 和神经网络里的其他参数一样，都是通过反向传播和梯度下降训练出来的。</p>
+<p>训练过程：</p>
+<pre><code>输入文本
+↓
+前向传播
+↓
+计算 Q/K/V
+↓
+计算 attention
+↓
+预测下一个 token 或完成其他任务
+↓
+计算 loss
+↓
+反向传播
+↓
+更新 WQ, WK, WV 等参数
+</code></pre>
+<p>一开始 Q&#x2F;K&#x2F;V 矩阵是随机的。</p>
+<p>训练之后，模型逐渐学会：</p>
+<ul>
+<li>什么样的 query 应该匹配什么样的 key；</li>
+<li>哪些 value 信息应该被传递；</li>
+<li>不同 head 应该关注不同类型的关系。</li>
+</ul>
+<p>这就是为什么 Transformer 看起来“神奇”：<br>人没有显式写语法规则，而是设计了结构和训练目标，让模型从数据中学出隐含规律。</p>
+<hr>
+<h2 id="三、矩阵形式、多头注意力与位置编码"><a href="#三、矩阵形式、多头注意力与位置编码" class="headerlink" title="三、矩阵形式、多头注意力与位置编码"></a>三、矩阵形式、多头注意力与位置编码</h2><h3 id="1-Scaled-Dot-Product-Attention-的矩阵公式"><a href="#1-Scaled-Dot-Product-Attention-的矩阵公式" class="headerlink" title="1. Scaled Dot-Product Attention 的矩阵公式"></a>1. Scaled Dot-Product Attention 的矩阵公式</h3><p>假设输入序列有 <script type="math/tex">n</script> 个 token，每个 token 维度是 <script type="math/tex">d_{\text{model}}</script>。</p>
+<p>把所有 token 表示按行堆起来：</p>
+<script type="math/tex; mode=display">X \in \mathbb{R}^{n \times d_{\text{model}}}</script>
+<p>计算：</p>
+<script type="math/tex; mode=display">Q = XW^Q</script>
+<script type="math/tex; mode=display">K = XW^K</script>
+<script type="math/tex; mode=display">V = XW^V</script>
+<p>其中：</p>
+<script type="math/tex; mode=display">Q,K,V \in \mathbb{R}^{n \times d_k}</script>
+<p>然后计算：</p>
+<script type="math/tex; mode=display">QK^T</script>
+<p>维度为：</p>
+<script type="math/tex; mode=display">(n \times d_k)(d_k \times n)=n \times n</script>
+<p>这个矩阵的第 <script type="math/tex">i</script> 行第 <script type="math/tex">j</script> 列是：</p>
+<script type="math/tex; mode=display">q_i^T k_j</script>
+<p>即第 <script type="math/tex">i</script> 个 token 对第 <script type="math/tex">j</script> 个 token 的注意力分数。</p>
+<p>完整公式：</p>
+<script type="math/tex; mode=display">\text{Attention}(Q,K,V)
+=
+\text{softmax}
+\left(
+\frac{QK^T}{\sqrt{d_k}}
+\right)V</script>
+<p>各部分含义：</p>
+<ul>
+<li><script type="math/tex">QK^T</script>：计算所有 token 两两之间的匹配分数；</li>
+<li><script type="math/tex">\sqrt{d_k}</script>：缩放，稳定 softmax；</li>
+<li>softmax：把每一行分数变成注意力权重；</li>
+<li>乘 <script type="math/tex">V</script>：按权重读取 value 信息。</li>
+</ul>
+<p>一句话记忆：</p>
+<pre><code>QK^T 负责“看谁”
+softmax 负责“看多少”
+V 负责“拿什么”
+</code></pre>
+<hr>
+<h3 id="2-Transformer-相比-RNN-的计算代价"><a href="#2-Transformer-相比-RNN-的计算代价" class="headerlink" title="2. Transformer 相比 RNN 的计算代价"></a>2. Transformer 相比 RNN 的计算代价</h3><p>RNN 推理时可以只保留当前隐藏状态，核心状态量级约为：</p>
+<script type="math/tex; mode=display">O(d)</script>
+<p>训练时需要保留所有时间步隐藏状态：</p>
+<script type="math/tex; mode=display">O(nd)</script>
+<p>Transformer 的 hidden states 本身也是线性增长：</p>
+<script type="math/tex; mode=display">O(nd)</script>
+<p>但 Self-Attention 需要计算注意力矩阵：</p>
+<script type="math/tex; mode=display">QK^T \in \mathbb{R}^{n \times n}</script>
+<p>所以注意力部分复杂度是：</p>
+<script type="math/tex; mode=display">O(n^2)</script>
+<p>如果有 10000 个 token：</p>
+<script type="math/tex; mode=display">10000 \times 10000 = 10^8</script>
+<p>也就是一亿个注意力分数。</p>
+<p>因此：</p>
+<blockquote>
+<p>Transformer 真正爆炸的不是 hidden states 本身，而是 attention matrix。</p>
+</blockquote>
+<p>总结：</p>
+<pre><code>RNN：
+一步一步读，省显存，但难并行、长距离依赖差。
+
+Transformer：
+所有 token 直接互相看，长距离依赖强、可并行，但 attention 成本是 O(n^2)。
+</code></pre>
+<hr>
+<h3 id="3-Multi-Head-Attention-多头注意力"><a href="#3-Multi-Head-Attention-多头注意力" class="headerlink" title="3. Multi-Head Attention 多头注意力"></a>3. Multi-Head Attention 多头注意力</h3><p>单头 attention 只有一种“看上下文”的方式。</p>
+<p>但一个 token 和其他 token 的关系可能有很多种：</p>
+<ul>
+<li>指代关系；</li>
+<li>主谓关系；</li>
+<li>动宾关系；</li>
+<li>相邻短语关系；</li>
+<li>语义相关关系；</li>
+<li>标点和句子边界关系。</li>
+</ul>
+<p>所以 Transformer 使用多头注意力。</p>
+<p>第 <script type="math/tex">r</script> 个 head 有自己的一套投影矩阵：</p>
+<script type="math/tex; mode=display">Q_r = XW_r^Q</script>
+<script type="math/tex; mode=display">K_r = XW_r^K</script>
+<script type="math/tex; mode=display">V_r = XW_r^V</script>
+<p>第 <script type="math/tex">r</script> 个 head 的输出：</p>
+<script type="math/tex; mode=display">\text{head}_r
+=
+\text{Attention}(Q_r,K_r,V_r)</script>
+<p>多个 head 拼接：</p>
+<script type="math/tex; mode=display">\text{Concat}(\text{head}_1,\dots,\text{head}_h)</script>
+<p>再乘输出矩阵：</p>
+<script type="math/tex; mode=display">\text{MultiHead}(X)
+=
+\text{Concat}(\text{head}_1,\dots,\text{head}_h)W^O</script>
+<p>直觉：</p>
+<blockquote>
+<p>不同 head 从不同子空间、不同角度理解 token 之间的关系。</p>
+</blockquote>
+<p>例如：</p>
+<pre><code>Head 1：关注代词指代
+Head 2：关注相邻词
+Head 3：关注主谓宾结构
+Head 4：关注句子边界
+</code></pre>
+<p>这些功能不是人工规定的，而是训练过程中自动学出来的。</p>
+<hr>
+<h3 id="4-QKV-矩阵是不是整个-Transformer-共用一套"><a href="#4-QKV-矩阵是不是整个-Transformer-共用一套" class="headerlink" title="4. QKV 矩阵是不是整个 Transformer 共用一套"></a>4. QKV 矩阵是不是整个 Transformer 共用一套</h3><p>不是。</p>
+<p>更准确地说：</p>
+<pre><code>同一层、同一个 head 内：
+所有 token 共用同一套 WQ/WK/WV。
+
+不同 head：
+通常有不同的 WQ/WK/WV。
+
+不同层：
+通常也有不同的 WQ/WK/WV。
+
+Encoder self-attention、Decoder masked self-attention、Cross-attention：
+也各有自己的 QKV 投影矩阵。
+</code></pre>
+<p>实现中可能会把多个 head 的矩阵合并成一个大矩阵一次性计算，然后 reshape 成多个 head。</p>
+<p>数学上等价于每个 head 有自己的投影参数。</p>
+<hr>
+<h3 id="5-Positional-Encoding-位置编码"><a href="#5-Positional-Encoding-位置编码" class="headerlink" title="5. Positional Encoding 位置编码"></a>5. Positional Encoding 位置编码</h3><p>Transformer 的 self-attention 本身不天然知道 token 顺序。</p>
+<p>RNN 是按顺序读的：</p>
+<pre><code>x1 → x2 → x3 → x4
+</code></pre>
+<p>所以天然知道先后顺序。</p>
+<p>Transformer 是矩阵并行计算，如果没有位置编码，很难区分：</p>
+<pre><code>我 喜欢 你
+</code></pre>
+<p>和：</p>
+<pre><code>你 喜欢 我
+</code></pre>
+<p>因为它们包含的 token 相同，但顺序不同。</p>
+<p>所以需要加入位置编码：</p>
+<script type="math/tex; mode=display">\text{输入表示} = \text{Token Embedding} + \text{Positional Encoding}</script>
+<p>即：</p>
+<script type="math/tex; mode=display">x_i = e(w_i) + p_i</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">e(w_i)</script>：第 <script type="math/tex">i</script> 个 token 的词向量；</li>
+<li><script type="math/tex">p_i</script>：第 <script type="math/tex">i</script> 个位置的位置编码。</li>
+</ul>
+<p>原始 Transformer 使用正弦余弦位置编码：</p>
+<script type="math/tex; mode=display">PE(pos, 2i)=\sin\left(\frac{pos}{10000^{2i/d}}\right)</script>
+<script type="math/tex; mode=display">PE(pos, 2i+1)=\cos\left(\frac{pos}{10000^{2i/d}}\right)</script>
+<p>不需要死背公式，重点理解：</p>
+<blockquote>
+<p>位置编码告诉 Transformer：每个 token 在句子中的位置。</p>
+</blockquote>
+<p>可以记成：</p>
+<pre><code>Token Embedding：这个词是什么
+Positional Encoding：这个词在哪里
+Self-Attention：这个词和其他词有什么关系
+</code></pre>
+<hr>
+<h2 id="四、Transformer-Block：Attention-之外还需要什么"><a href="#四、Transformer-Block：Attention-之外还需要什么" class="headerlink" title="四、Transformer Block：Attention 之外还需要什么"></a>四、Transformer Block：Attention 之外还需要什么</h2><h3 id="1-Residual-Connection-残差连接"><a href="#1-Residual-Connection-残差连接" class="headerlink" title="1. Residual Connection 残差连接"></a>1. Residual Connection 残差连接</h3><p>Attention 会让 token 从上下文中吸收信息，但不能把原本自己的信息弄丢。</p>
+<p>所以 Transformer 使用残差连接：</p>
+<script type="math/tex; mode=display">X' = X + \text{MHA}(X)</script>
+<p>直觉：</p>
+<pre><code>新表示 = 原来的自己 + 从上下文拿到的信息
+</code></pre>
+<p>残差连接的作用：</p>
+<ul>
+<li>保留原始 token 信息；</li>
+<li>缓解深层网络训练困难；</li>
+<li>帮助梯度传播；</li>
+<li>让每一层只需要学习“在原表示基础上修改多少”。</li>
+</ul>
+<hr>
+<h3 id="2-Layer-Normalization"><a href="#2-Layer-Normalization" class="headerlink" title="2. Layer Normalization"></a>2. Layer Normalization</h3><p>残差连接后，需要稳定数值分布。</p>
+<p>LayerNorm 公式：</p>
+<script type="math/tex; mode=display">\text{LayerNorm}(x)
+=
+\gamma \cdot \frac{x-\mu}{\sigma+\epsilon}+\beta</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">\mu</script>：当前 token 向量各维度均值；</li>
+<li><script type="math/tex">\sigma</script>：当前 token 向量各维度标准差；</li>
+<li><script type="math/tex">\epsilon</script>：防止除零；</li>
+<li><script type="math/tex">\gamma,\beta</script>：可训练参数。</li>
+</ul>
+<p>Transformer 中常见结构是：</p>
+<script type="math/tex; mode=display">\text{LayerNorm}(X+\text{Sublayer}(X))</script>
+<p>即：</p>
+<pre><code>Add &amp; Norm
+</code></pre>
+<p>其中：</p>
+<ul>
+<li>Add：残差连接；</li>
+<li>Norm：LayerNorm。</li>
+</ul>
+<p>LayerNorm 与 BatchNorm 的区别可以简单记：</p>
+<pre><code>BatchNorm：
+更关注 batch 内多个样本的同一维特征。
+
+LayerNorm：
+对单个 token 向量内部的所有维度做归一化。
+</code></pre>
+<p>Transformer 中通常使用 LayerNorm。</p>
+<hr>
+<h3 id="3-Feed-Forward-Network"><a href="#3-Feed-Forward-Network" class="headerlink" title="3. Feed Forward Network"></a>3. Feed Forward Network</h3><p>Transformer 每层除了 attention，还有 FFN。</p>
+<p>FFN 对每个 token 独立作用：</p>
+<script type="math/tex; mode=display">\text{FFN}(x)=W_2\sigma(W_1x+b_1)+b_2</script>
+<p>常见维度变化：</p>
+<script type="math/tex; mode=display">d_{\text{model}}
+\rightarrow
+d_{\text{ff}}
+\rightarrow
+d_{\text{model}}</script>
+<p>例如：</p>
+<script type="math/tex; mode=display">512 \rightarrow 2048 \rightarrow 512</script>
+<p>Attention 和 FFN 的分工：</p>
+<pre><code>Attention：
+不同 token 之间交换信息。
+
+FFN：
+对每个 token 自己的表示做非线性加工。
+</code></pre>
+<p>可以记成：</p>
+<pre><code>Attention 负责横向交流；
+FFN 负责纵向加工。
+</code></pre>
+<hr>
+<h3 id="4-Encoder-Block-的完整结构"><a href="#4-Encoder-Block-的完整结构" class="headerlink" title="4. Encoder Block 的完整结构"></a>4. Encoder Block 的完整结构</h3><p>一个 Encoder Block：</p>
+<pre><code>输入 X
+↓
+Multi-Head Self-Attention
+↓
+Add &amp; Norm
+↓
+Feed Forward Network
+↓
+Add &amp; Norm
+↓
+输出
+</code></pre>
+<p>公式表示：</p>
+<script type="math/tex; mode=display">Y = \text{LayerNorm}(X+\text{MHA}(X))</script>
+<script type="math/tex; mode=display">Z = \text{LayerNorm}(Y+\text{FFN}(Y))</script>
+<p>其中 <script type="math/tex">Z</script> 是该 Encoder 层的输出。</p>
+<p>Encoder 的特点：</p>
+<ul>
+<li>self-attention 可以看完整输入序列；</li>
+<li>输出仍然是一串 token 表示；</li>
+<li>每个 token 的表示都融合了上下文信息。</li>
+</ul>
+<p>如果输入长度为 <script type="math/tex">n</script>，模型维度为 <script type="math/tex">d_{\text{model}}</script>：</p>
+<script type="math/tex; mode=display">X_{\text{enc}} \in \mathbb{R}^{n \times d_{\text{model}}}</script>
+<p>Encoder 输出：</p>
+<script type="math/tex; mode=display">H_{\text{enc}} \in \mathbb{R}^{n \times d_{\text{model}}}</script>
+<hr>
+<h2 id="五、Encoder-Decoder-与生成过程"><a href="#五、Encoder-Decoder-与生成过程" class="headerlink" title="五、Encoder-Decoder 与生成过程"></a>五、Encoder-Decoder 与生成过程</h2><h3 id="1-Decoder-Block-的完整结构"><a href="#1-Decoder-Block-的完整结构" class="headerlink" title="1. Decoder Block 的完整结构"></a>1. Decoder Block 的完整结构</h3><p>一个 Decoder Block：</p>
+<pre><code>输入目标序列
+↓
+Masked Multi-Head Self-Attention
+↓
+Add &amp; Norm
+↓
+Encoder-Decoder Attention / Cross-Attention
+↓
+Add &amp; Norm
+↓
+Feed Forward Network
+↓
+Add &amp; Norm
+↓
+输出
+</code></pre>
+<p>Decoder 比 Encoder 多两个关键点：</p>
+<ul>
+<li>Masked Self-Attention；</li>
+<li>Encoder-Decoder Attention &#x2F; Cross-Attention。</li>
+</ul>
+<hr>
+<h3 id="2-Masked-Self-Attention：不能偷看未来"><a href="#2-Masked-Self-Attention：不能偷看未来" class="headerlink" title="2. Masked Self-Attention：不能偷看未来"></a>2. Masked Self-Attention：不能偷看未来</h3><p>Decoder 是自回归生成的，不能偷看未来 token。</p>
+<p>普通 self-attention：</p>
+<pre><code>每个位置可以看所有位置
+</code></pre>
+<p>Masked self-attention：</p>
+<pre><code>第 t 个位置只能看第 1 到第 t 个位置
+不能看未来位置
+</code></pre>
+<p>例如目标序列：</p>
+<pre><code>y1 y2 y3 y4
+</code></pre>
+<p>允许关注关系：</p>
+<pre><code>y1: y1
+y2: y1, y2
+y3: y1, y2, y3
+y4: y1, y2, y3, y4
+</code></pre>
+<p>矩阵中未来位置会被 mask 掉，通常设为 <script type="math/tex">-\infty</script>，softmax 后权重接近 0。</p>
+<p>作用：</p>
+<blockquote>
+<p>保证生成第 <script type="math/tex">t</script> 个 token 时，只能依赖前面的 token，不能提前看到答案。</p>
+</blockquote>
+<hr>
+<h3 id="3-Cross-Attention：Decoder-回头看-Encoder"><a href="#3-Cross-Attention：Decoder-回头看-Encoder" class="headerlink" title="3. Cross-Attention：Decoder 回头看 Encoder"></a>3. Cross-Attention：Decoder 回头看 Encoder</h3><p>Cross-Attention 让 Decoder 在生成时关注 Encoder 的输出。</p>
+<p>在 Cross-Attention 中：</p>
+<pre><code>Q 来自 Decoder
+K 来自 Encoder
+V 来自 Encoder
+</code></pre>
+<p>公式：</p>
+<script type="math/tex; mode=display">Q = X_{\text{dec}}W^Q</script>
+<script type="math/tex; mode=display">K = H_{\text{enc}}W^K</script>
+<script type="math/tex; mode=display">V = H_{\text{enc}}W^V</script>
+<p>直觉：</p>
+<pre><code>Decoder：
+我现在要生成这个词，我想找什么？ → Query
+
+Encoder：
+输入句子中每个 token 有什么可被匹配的特征？ → Key
+
+Encoder：
+输入句子中每个 token 能提供什么信息？ → Value
+</code></pre>
+<p>如果源序列长度是 <script type="math/tex">n</script>，目标序列长度是 <script type="math/tex">m</script>：</p>
+<script type="math/tex; mode=display">X_{\text{dec}} \in \mathbb{R}^{m \times d_{\text{model}}}</script>
+<script type="math/tex; mode=display">H_{\text{enc}} \in \mathbb{R}^{n \times d_{\text{model}}}</script>
+<p>Cross-attention 的注意力矩阵形状：</p>
+<script type="math/tex; mode=display">m \times n</script>
+<p>表示：</p>
+<blockquote>
+<p>每个 Decoder token 对每个 Encoder token 的注意力权重。</p>
+</blockquote>
+<p>输出仍然是：</p>
+<script type="math/tex; mode=display">m \times d_{\text{model}}</script>
+<hr>
+<h3 id="4-Decoder-三个子模块后的输出维度"><a href="#4-Decoder-三个子模块后的输出维度" class="headerlink" title="4. Decoder 三个子模块后的输出维度"></a>4. Decoder 三个子模块后的输出维度</h3><p>设：</p>
+<ul>
+<li>源序列长度为 <script type="math/tex">n</script>；</li>
+<li>目标序列长度为 <script type="math/tex">m</script>；</li>
+<li>模型维度为 <script type="math/tex">d_{\text{model}}</script>。</li>
+</ul>
+<p>Decoder 输入：</p>
+<script type="math/tex; mode=display">X_{\text{dec}} \in \mathbb{R}^{m \times d_{\text{model}}}</script>
+<p>经过 Masked Self-Attention：</p>
+<script type="math/tex; mode=display">m \times d_{\text{model}}
+\rightarrow
+m \times d_{\text{model}}</script>
+<p>经过 Cross-Attention：</p>
+<script type="math/tex; mode=display">m \times d_{\text{model}}
+\rightarrow
+m \times d_{\text{model}}</script>
+<p>经过 Feed Forward：</p>
+<script type="math/tex; mode=display">m \times d_{\text{model}}
+\rightarrow
+m \times d_{\text{ff}}
+\rightarrow
+m \times d_{\text{model}}</script>
+<p>所以 Decoder Block 输出仍然是：</p>
+<script type="math/tex; mode=display">m \times d_{\text{model}}</script>
+<p>如果考虑 batch：</p>
+<script type="math/tex; mode=display">B \times m \times d_{\text{model}}</script>
+<hr>
+<h3 id="5-Linear-Softmax-如何预测-token"><a href="#5-Linear-Softmax-如何预测-token" class="headerlink" title="5. Linear + Softmax 如何预测 token"></a>5. Linear + Softmax 如何预测 token</h3><p>Decoder Block 输出还不是词本身，而是隐藏表示：</p>
+<script type="math/tex; mode=display">Z_{\text{dec}} \in \mathbb{R}^{m \times d_{\text{model}}}</script>
+<p>之后接 Linear 层，把每个位置投影到词表大小：</p>
+<script type="math/tex; mode=display">m \times d_{\text{model}}
+\rightarrow
+m \times |V|</script>
+<p>其中 <script type="math/tex">|V|</script> 是词表大小。</p>
+<p>对于某个位置 <script type="math/tex">t</script>：</p>
+<script type="math/tex; mode=display">z_t \in \mathbb{R}^{d_{\text{model}}}</script>
+<p>经过词表线性层：</p>
+<script type="math/tex; mode=display">\text{logits}_t = z_t W_{\text{vocab}} + b</script>
+<p>其中：</p>
+<script type="math/tex; mode=display">W_{\text{vocab}} \in \mathbb{R}^{d_{\text{model}} \times |V|}</script>
+<p>所以：</p>
+<script type="math/tex; mode=display">\text{logits}_t \in \mathbb{R}^{|V|}</script>
+<p>这个长度为 <script type="math/tex">|V|</script> 的向量表示：</p>
+<blockquote>
+<p>词表中每一个 token 作为当前位置预测结果的分数。</p>
+</blockquote>
+<p>再经过 softmax：</p>
+<script type="math/tex; mode=display">P(w_t \mid w_{<t}, \text{input})
+=
+\text{softmax}(\text{logits}_t)</script>
+<p>得到每个 token 的概率。</p>
+<p>训练时：</p>
+<pre><code>Decoder 输入： &lt;BOS&gt; 我 爱
+期望输出：     我    爱 你
+</code></pre>
+<p>所以 <script type="math/tex">m \times |V|</script> 中：</p>
+<pre><code>第 1 行预测 “我”
+第 2 行预测 “爱”
+第 3 行预测 “你”
+</code></pre>
+<p>推理时：</p>
+<pre><code>已经生成：&lt;BOS&gt; 我 爱
+</code></pre>
+<p>只看最后一行的词表概率，选择下一个 token，例如“你”。</p>
+<p>然后把“你”接到输入后面，继续生成。</p>
+<hr>
+<h3 id="6-Transformer-总体结构"><a href="#6-Transformer-总体结构" class="headerlink" title="6. Transformer 总体结构"></a>6. Transformer 总体结构</h3><p>原始 Transformer 是 Encoder-Decoder 架构：</p>
+<pre><code>输入序列
+↓
+Embedding + Positional Encoding
+↓
+多层 Encoder
+↓
+Encoder 输出
+
+目标序列
+↓
+Embedding + Positional Encoding
+↓
+多层 Decoder
+    - Masked Self-Attention
+    - Cross-Attention
+    - Feed Forward
+↓
+Linear
+↓
+Softmax
+↓
+输出 token 概率
+</code></pre>
+<p>Encoder：</p>
+<pre><code>负责理解输入序列。
+Self-Attention 可以看完整输入。
+输出输入序列每个 token 的上下文化表示。
+</code></pre>
+<p>Decoder：</p>
+<pre><code>负责逐步生成输出序列。
+Masked Self-Attention 只能看过去，不能看未来。
+Cross-Attention 可以看 Encoder 输出。
+最终通过 Linear + Softmax 预测下一个 token。
+</code></pre>
+<hr>
+<h2 id="六、Transformer-与大语言模型"><a href="#六、Transformer-与大语言模型" class="headerlink" title="六、Transformer 与大语言模型"></a>六、Transformer 与大语言模型</h2><h3 id="1-大语言模型是什么"><a href="#1-大语言模型是什么" class="headerlink" title="1. 大语言模型是什么"></a>1. 大语言模型是什么</h3><p>大语言模型可以粗略理解为：</p>
+<pre><code>基于 Transformer 架构的大规模语言模型
+</code></pre>
+<p>核心训练目标常常是：</p>
+<pre><code>给定前文，预测下一个 token
+</code></pre>
+<p>即：</p>
+<script type="math/tex; mode=display">P(w_t \mid w_1,w_2,\dots,w_{t-1})</script>
+<p>当模型足够大、数据足够多时，预测下一个 token 的过程中会学到大量语言规律、知识和任务模式。</p>
+<hr>
+<h3 id="2-常见-Transformer-变体"><a href="#2-常见-Transformer-变体" class="headerlink" title="2. 常见 Transformer 变体"></a>2. 常见 Transformer 变体</h3><p>常见结构：</p>
+<pre><code>BERT：encoder-only
+GPT：decoder-only
+T5 / 原始 Transformer：encoder-decoder
+</code></pre>
+<p>BERT：</p>
+<pre><code>主要使用 Encoder。
+可以双向看上下文。
+适合理解类任务，如文本分类、阅读理解、句子匹配等。
+</code></pre>
+<p>GPT：</p>
+<pre><code>主要使用 Decoder。
+使用 masked self-attention，只能看前文。
+适合生成类任务，如续写、对话、问答、代码生成等。
+</code></pre>
+<p>T5 &#x2F; 原始 Transformer：</p>
+<pre><code>使用 Encoder-Decoder。
+适合机器翻译、摘要、改写等 seq2seq 任务。
+</code></pre>
+<hr>
+<h3 id="3-为什么-GPT-只用-Decoder-也能对话"><a href="#3-为什么-GPT-只用-Decoder-也能对话" class="headerlink" title="3. 为什么 GPT 只用 Decoder 也能对话"></a>3. 为什么 GPT 只用 Decoder 也能对话</h3><p>对话可以被转化成续写任务。</p>
+<p>例如输入：</p>
+<pre><code>用户：Transformer 是什么？
+助手：
+</code></pre>
+<p>GPT 的任务就是继续生成：</p>
+<pre><code>Transformer 是一种基于注意力机制的神经网络架构……
+</code></pre>
+<p>所以 GPT 的核心过程是：</p>
+<pre><code>根据已有上下文预测下一个 token
+↓
+把预测出的 token 接到后面
+↓
+继续预测下一个 token
+↓
+不断重复，直到生成结束
+</code></pre>
+<p>本质仍然是自回归语言模型。</p>
+<hr>
+<h2 id="七、最终总结"><a href="#七、最终总结" class="headerlink" title="七、最终总结"></a>七、最终总结</h2><h3 id="1-整体逻辑链"><a href="#1-整体逻辑链" class="headerlink" title="1. 整体逻辑链"></a>1. 整体逻辑链</h3><pre><code>自然语言是序列
+↓
+RNN 可以处理序列
+↓
+RNN 用 hidden state 逐步传递信息
+↓
+RNN 的问题：难并行、长距离依赖差、信息瓶颈
+↓
+seq2seq 使用 Encoder-Decoder 处理输入序列到输出序列
+↓
+Attention 让 Decoder 每一步都能动态关注 Encoder 的所有 hidden states
+↓
+Self-Attention 让同一序列内部的 token 彼此关注
+↓
+Q/K/V 让 token 学会“找信息、被匹配、传信息”
+↓
+Scaled Dot-Product Attention 用矩阵并行计算所有 token 的关系
+↓
+Multi-Head Attention 从多个角度建模 token 关系
+↓
+Positional Encoding 补充顺序信息
+↓
+Residual + LayerNorm 稳定深层训练
+↓
+FFN 对每个 token 表示做非线性加工
+↓
+Encoder 负责理解输入
+↓
+Decoder 负责在不偷看未来的情况下逐步生成
+↓
+Linear + Softmax 把隐藏表示转成词表概率
+↓
+大语言模型是 Transformer 的大规模扩展
+</code></pre>
+<hr>
+<h3 id="2-最重要的公式汇总"><a href="#2-最重要的公式汇总" class="headerlink" title="2. 最重要的公式汇总"></a>2. 最重要的公式汇总</h3><p>RNN 隐藏状态：</p>
+<script type="math/tex; mode=display">h_t = f_W(h_{t-1}, x_t)</script>
+<p>Attention 权重：</p>
+<script type="math/tex; mode=display">\alpha_{t,i}
+=
+\frac{\exp(e_{t,i})}
+{\sum_j \exp(e_{t,j})}</script>
+<p>Attention 加权求和：</p>
+<script type="math/tex; mode=display">c_t = \sum_i \alpha_{t,i} h_i</script>
+<p>Q&#x2F;K&#x2F;V 投影：</p>
+<script type="math/tex; mode=display">q_i = x_i W^Q</script>
+<script type="math/tex; mode=display">k_i = x_i W^K</script>
+<script type="math/tex; mode=display">v_i = x_i W^V</script>
+<p>点积打分：</p>
+<script type="math/tex; mode=display">e_{ij} = q_i^T k_j</script>
+<p>Scaled Dot-Product Attention：</p>
+<script type="math/tex; mode=display">\text{Attention}(Q,K,V)
+=
+\text{softmax}
+\left(
+\frac{QK^T}{\sqrt{d_k}}
+\right)V</script>
+<p>Multi-Head Attention：</p>
+<script type="math/tex; mode=display">\text{MultiHead}(X)
+=
+\text{Concat}(\text{head}_1,\dots,\text{head}_h)W^O</script>
+<p>位置编码加入输入：</p>
+<script type="math/tex; mode=display">x_i = e(w_i) + p_i</script>
+<p>LayerNorm：</p>
+<script type="math/tex; mode=display">\text{LayerNorm}(x)
+=
+\gamma \cdot \frac{x-\mu}{\sigma+\epsilon}+\beta</script>
+<p>FFN：</p>
+<script type="math/tex; mode=display">\text{FFN}(x)=W_2\sigma(W_1x+b_1)+b_2</script>
+<p>词表预测：</p>
+<script type="math/tex; mode=display">\text{logits}_t = z_t W_{\text{vocab}} + b</script>
+<script type="math/tex; mode=display">P(w_t \mid w_{<t}, \text{input})
+=
+\text{softmax}(\text{logits}_t)</script>
+<hr>
+<h3 id="3-一句话总结"><a href="#3-一句话总结" class="headerlink" title="3. 一句话总结"></a>3. 一句话总结</h3><p>Transformer 的核心思想是：</p>
+<blockquote>
+<p>不再像 RNN 那样把信息一步步传下去，而是让每个 token 通过 self-attention 直接和所有 token 建立联系，再通过多头注意力、位置编码、残差连接、LayerNorm、FFN 和多层堆叠，形成强大的上下文表示；最后 Decoder 通过自回归方式不断预测下一个 token。</p>
+</blockquote>
 <hr>
 <h1 id="知识图谱"><a href="#知识图谱" class="headerlink" title="知识图谱"></a>知识图谱</h1><p>知识图谱可以先按“实体、关系、三元组”来记。它和纯文本模型不太一样，强调把事实结构化，例如“北京大学 - 位于 - 北京”。</p>
 </div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" rel="tag">人工智能</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" rel="tag">期末复习</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" rel="tag">知识图谱</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" rel="tag">自然语言处理</a></li></ul></div><div class="post-nav"><a class="pre" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a><a class="next" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>To be a better man.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" style="font-size: 15px;">人工智能</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E8%AF%86%E5%88%AB/" style="font-size: 15px;">图像识别</a> <a href="/tags/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">课程笔记</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/" style="font-size: 15px;">图像分类</a> <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">实验笔记</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">机器学习</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 15px;">自然语言处理</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">深度学习</a> <a href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" style="font-size: 15px;">期末复习</a> <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" style="font-size: 15px;">智能机器人</a> <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" style="font-size: 15px;">知识图谱</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 15px;">博客搭建</a> <a href="/tags/Hexo%E5%85%A5%E9%97%A8/" style="font-size: 15px;">Hexo入门</a> <a href="/tags/%E7%AB%99%E7%82%B9%E9%83%A8%E7%BD%B2/" style="font-size: 15px;">站点部署</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F/" style="font-size: 15px;">距离度量</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%87%A0%E4%BD%95/" style="font-size: 15px;">计算几何</a> <a href="/tags/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" style="font-size: 15px;">最小生成树</a> <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" style="font-size: 15px;">并查集</a> <a href="/tags/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" style="font-size: 15px;">算法刷题</a> <a href="/tags/%E5%8D%95%E8%B0%83%E6%A0%88/" style="font-size: 15px;">单调栈</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 15px;">数据结构</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 15px;">动态规划</a> <a href="/tags/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">算法笔记</a> <a href="/tags/%E9%99%8D%E7%BB%B4%E7%AE%97%E6%B3%95/" style="font-size: 15px;">降维算法</a> <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%8A%95%E5%BD%B1/" style="font-size: 15px;">随机投影</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E4%BF%9D%E6%8C%81/" style="font-size: 15px;">距离保持</a> <a href="/tags/%E5%9B%9B%E5%88%86%E6%A0%91/" style="font-size: 15px;">四分树</a> <a href="/tags/%E8%BF%91%E4%BC%BC%E7%AE%97%E6%B3%95/" style="font-size: 15px;">近似算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E9%99%8D%E7%BB%B4-JL%E6%96%B9%E6%B3%95/">降维:JL方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4g%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-%E4%BA%8C/">距离度量及其计算——低维欧氏距离(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/18/AI%E5%BC%95%E8%AE%BALab2%E2%80%94%E2%80%94%E4%BB%8Enumpy%E5%BC%80%E5%A7%8B%E7%9A%84u%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/">AI引论Lab2——从numpy开始的图像分类</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/AI%E5%BC%95%E8%AE%BA/">AI引论</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/04/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB/">距离度量及其计算——低维欧氏距离</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Square的小站.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
