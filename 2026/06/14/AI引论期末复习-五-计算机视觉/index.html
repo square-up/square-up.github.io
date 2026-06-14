@@ -1,0 +1,1619 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content=""><title>AI引论期末复习(五):计算机视觉 | Square的小站</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><meta name="generator" content="Hexo 8.1.1"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">AI引论期末复习(五):计算机视觉</h1><a id="logo" href="/.">Square的小站</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">AI引论期末复习(五):计算机视觉</h1><div class="post-meta">2026-06-14</div><div class="post-content"><h1 id="手工特征提取"><a href="#手工特征提取" class="headerlink" title="手工特征提取"></a>手工特征提取</h1><h2 id="一、整体框架：手工特征提取在做什么"><a href="#一、整体框架：手工特征提取在做什么" class="headerlink" title="一、整体框架：手工特征提取在做什么"></a>一、整体框架：手工特征提取在做什么</h2><p>传统图像分类流程：</p>
+<p>图像<br>↓<br>人工设计特征提取算法<br>↓<br>特征向量<br>↓<br>分类器<br>↓<br>类别预测</p>
+<p>核心思想：</p>
+<ul>
+<li>原始图像只是像素矩阵，直接用像素分类不稳定；</li>
+<li>手工特征希望从像素中提取更稳定、更有判别力的信息；</li>
+<li>常见手工特征包括 HOG、Haar、SIFT；</li>
+<li>SVM 不考时，只需要知道：特征提取后通常接分类器即可。</li>
+</ul>
+<p>手工特征和 CNN 的区别：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>特征来源</th>
+<th>代表方法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>手工特征</td>
+<td>人工设计规则</td>
+<td>HOG、Haar、SIFT</td>
+</tr>
+<tr>
+<td>CNN</td>
+<td>网络自动学习</td>
+<td>LeNet、AlexNet、VGG、ResNet</td>
+</tr>
+</tbody></table>
+<p>一句话：</p>
+<p>手工特征提取就是在人为设计规则下，把图像从像素矩阵转成特征向量，再用于分类或检测。</p>
+<hr>
+<h2 id="二、HOG-特征：梯度方向直方图"><a href="#二、HOG-特征：梯度方向直方图" class="headerlink" title="二、HOG 特征：梯度方向直方图"></a>二、HOG 特征：梯度方向直方图</h2><h3 id="1-HOG-的核心思想"><a href="#1-HOG-的核心思想" class="headerlink" title="1. HOG 的核心思想"></a>1. HOG 的核心思想</h3><p>HOG 全称：</p>
+<p>Histograms of Oriented Gradients<br>梯度方向直方图</p>
+<p>核心思想：</p>
+<p>局部目标的形状可以由局部区域内的梯度方向分布来描述。</p>
+<p>HOG 不直接记录像素颜色，而是记录：</p>
+<ul>
+<li>哪里有边缘；</li>
+<li>边缘强不强；</li>
+<li>边缘朝哪个方向；</li>
+<li>某个局部区域内不同方向的边缘分别有多少。</li>
+</ul>
+<p>适合任务：</p>
+<ul>
+<li>行人检测；</li>
+<li>轮廓明显的目标检测；</li>
+<li>需要描述局部形状的任务。</li>
+</ul>
+<p>为什么 HOG 有效：</p>
+<p>物体类别往往和轮廓、边缘、局部形状有关。</p>
+<p>例如行人具有：</p>
+<ul>
+<li>头部轮廓；</li>
+<li>肩膀边缘；</li>
+<li>躯干边缘；</li>
+<li>腿部边缘。</li>
+</ul>
+<p>这些结构比颜色更稳定，因此 HOG 适合描述形状。</p>
+<hr>
+<h3 id="2-图像梯度"><a href="#2-图像梯度" class="headerlink" title="2. 图像梯度"></a>2. 图像梯度</h3><p>图像可看作二维函数：</p>
+<script type="math/tex; mode=display">I(x,y)</script>
+<p>梯度表示图像亮度变化最快的方向和强度。</p>
+<p>水平梯度：</p>
+<script type="math/tex; mode=display">G_x = I(x+1,y)-I(x-1,y)</script>
+<p>竖直梯度：</p>
+<script type="math/tex; mode=display">G_y = I(x,y+1)-I(x,y-1)</script>
+<p>梯度幅值：</p>
+<script type="math/tex; mode=display">|G|=\sqrt{G_x^2+G_y^2}</script>
+<p>梯度方向：</p>
+<script type="math/tex; mode=display">\theta=\arctan\frac{G_y}{G_x}</script>
+<p>含义：</p>
+<ul>
+<li><script type="math/tex">|G|</script>：边缘有多强；</li>
+<li><script type="math/tex">\theta</script>：边缘方向 &#x2F; 亮度变化方向。</li>
+</ul>
+<p>直觉：</p>
+<ul>
+<li>梯度幅值大：说明这里可能有明显边缘；</li>
+<li>梯度方向：说明边缘朝哪个方向变化。</li>
+</ul>
+<hr>
+<h3 id="3-HOG-的完整流程"><a href="#3-HOG-的完整流程" class="headerlink" title="3. HOG 的完整流程"></a>3. HOG 的完整流程</h3><p>HOG 提取流程：</p>
+<p>图像预处理<br>↓<br>计算每个像素的梯度 <script type="math/tex">G_x, G_y</script><br>↓<br>计算梯度幅值 <script type="math/tex">|G|</script> 和方向 <script type="math/tex">\theta</script><br>↓<br>将图像划分为若干 cell<br>↓<br>每个 cell 内统计梯度方向直方图<br>↓<br>相邻 cell 组成 block<br>↓<br>对 block 内特征做归一化<br>↓<br>拼接所有 block 的特征<br>↓<br>得到整张图的 HOG 特征向量</p>
+<h4 id="图像预处理"><a href="#图像预处理" class="headerlink" title="图像预处理"></a>图像预处理</h4><p>目的：</p>
+<ul>
+<li>减少光照影响；</li>
+<li>减少颜色变化干扰；</li>
+<li>让后续更关注形状和边缘。</li>
+</ul>
+<p>常见做法：</p>
+<ul>
+<li>灰度化；</li>
+<li>颜色归一化；</li>
+<li>Gamma 校正。</li>
+</ul>
+<h4 id="划分-Cell"><a href="#划分-Cell" class="headerlink" title="划分 Cell"></a>划分 Cell</h4><p>HOG 不直接记录每个像素的梯度，而是把图像划分成小区域 cell。</p>
+<p>常见 cell 大小：</p>
+<script type="math/tex; mode=display">8 \times 8</script>
+<p>或：</p>
+<script type="math/tex; mode=display">16 \times 16</script>
+<p>每个 cell 负责描述一个局部区域中的边缘方向分布。</p>
+<p>这样做的原因：</p>
+<ul>
+<li>单个像素太敏感；</li>
+<li>局部统计更稳定；</li>
+<li>可以描述局部形状结构。</li>
+</ul>
+<h4 id="Cell-内统计方向直方图"><a href="#Cell-内统计方向直方图" class="headerlink" title="Cell 内统计方向直方图"></a>Cell 内统计方向直方图</h4><p>把方向划分成若干个 bin。</p>
+<p>常见设置：</p>
+<script type="math/tex; mode=display">0^\circ \sim 180^\circ</script>
+<p>分成 9 个方向 bin：</p>
+<script type="math/tex; mode=display">0^\circ,20^\circ,40^\circ,\dots,160^\circ</script>
+<p>每个像素根据自己的梯度方向投票到对应 bin。</p>
+<p>投票权重通常是梯度幅值：</p>
+<ul>
+<li>边缘越强，投票越多；</li>
+<li>边缘越弱，投票越少。</li>
+</ul>
+<p>一个 cell 最后得到一个方向直方图，例如 9 维向量：</p>
+<script type="math/tex; mode=display">[h_1,h_2,\dots,h_9]</script>
+<p>含义：</p>
+<p>这个 cell 中各个方向的边缘分别有多少。</p>
+<h4 id="Block-与归一化"><a href="#Block-与归一化" class="headerlink" title="Block 与归一化"></a>Block 与归一化</h4><p>只看单个 cell 容易受光照影响。</p>
+<p>例如同一条边缘：</p>
+<ul>
+<li>光照强时，梯度整体变大；</li>
+<li>光照弱时，梯度整体变小。</li>
+</ul>
+<p>为减少光照影响，HOG 将相邻 cell 组成 block，并对 block 内特征做归一化。</p>
+<p>例如一个 block 包含：</p>
+<script type="math/tex; mode=display">2 \times 2</script>
+<p>个 cell。</p>
+<p>如果每个 cell 是 9 维，则一个 block 特征为：</p>
+<script type="math/tex; mode=display">2 \times 2 \times 9 = 36</script>
+<p>L2 归一化：</p>
+<script type="math/tex; mode=display">v'=\frac{v}{\sqrt{\|v\|_2^2+\epsilon}}</script>
+<p>作用：</p>
+<ul>
+<li>减少整体亮度变化影响；</li>
+<li>强调局部方向分布的相对结构；</li>
+<li>提高特征鲁棒性。</li>
+</ul>
+<h4 id="拼接所有-Block-特征"><a href="#拼接所有-Block-特征" class="headerlink" title="拼接所有 Block 特征"></a>拼接所有 Block 特征</h4><p>整张图会产生很多 block。</p>
+<p>每个 block 得到一个归一化后的特征向量。</p>
+<p>最后将所有 block 的特征向量拼接：</p>
+<script type="math/tex; mode=display">\text{HOG}(I)=[v_1,v_2,\dots,v_m]</script>
+<p>这就是整张图的 HOG 特征向量。</p>
+<p>该向量可以交给分类器进行判断。</p>
+<hr>
+<h3 id="4-HOG-的优缺点"><a href="#4-HOG-的优缺点" class="headerlink" title="4. HOG 的优缺点"></a>4. HOG 的优缺点</h3><p>优点：</p>
+<ul>
+<li>能较好描述边缘和轮廓；</li>
+<li>对光照变化有一定鲁棒性；</li>
+<li>对小的几何形变有一定鲁棒性；</li>
+<li>适合行人检测等轮廓明显的任务；</li>
+<li>比直接使用像素更稳定。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>是人工设计特征，表达能力有限；</li>
+<li>对复杂语义理解能力不如 CNN；</li>
+<li>对参数设置敏感，如 cell 大小、block 大小、bin 数；</li>
+<li>通常需要配合分类器使用；</li>
+<li>对复杂背景、严重遮挡、姿态变化大的目标效果有限。</li>
+</ul>
+<p>考试版表述：</p>
+<p>HOG（梯度方向直方图）是一种手工图像特征描述子。其核心思想是：局部目标的形状可以由局部区域内梯度或边缘方向的分布来描述。HOG 首先对图像进行预处理，然后计算每个像素的梯度大小和方向；再将图像划分为若干 cell，在每个 cell 内统计梯度方向直方图；相邻 cell 组成 block，对 block 内直方图进行归一化；最后将所有 block 的归一化特征拼接成整张图像的特征向量。HOG 对局部光照变化和小形变较鲁棒，常用于行人检测等任务。</p>
+<p>一句话总结：</p>
+<p>HOG 就是把图像局部区域里的边缘方向统计成直方图，再经过 block 归一化和拼接，形成描述图像形状的特征向量。</p>
+<hr>
+<h2 id="三、其他手工特征：Haar-与-SIFT"><a href="#三、其他手工特征：Haar-与-SIFT" class="headerlink" title="三、其他手工特征：Haar 与 SIFT"></a>三、其他手工特征：Haar 与 SIFT</h2><h3 id="1-Haar-特征"><a href="#1-Haar-特征" class="headerlink" title="1. Haar 特征"></a>1. Haar 特征</h3><p>核心思想：</p>
+<p>用黑白矩形模板比较局部区域亮度差。</p>
+<p>基本形式：</p>
+<script type="math/tex; mode=display">\text{Haar Feature}
+=
+\sum \text{白色区域像素}
+-
+\sum \text{黑色区域像素}</script>
+<p>常见类型：</p>
+<ul>
+<li>边缘特征；</li>
+<li>线性特征；</li>
+<li>中心特征。</li>
+</ul>
+<p>典型应用：</p>
+<ul>
+<li>人脸检测。</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>计算简单；</li>
+<li>速度快；</li>
+<li>配合积分图可快速计算矩形区域像素和。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>表达能力有限；</li>
+<li>对旋转不鲁棒；</li>
+<li>对复杂姿态、遮挡适应性较差。</li>
+</ul>
+<p>一句话：</p>
+<p>Haar 用黑白矩形模板比较区域明暗差，典型用于人脸检测。</p>
+<hr>
+<h3 id="2-SIFT-特征"><a href="#2-SIFT-特征" class="headerlink" title="2. SIFT 特征"></a>2. SIFT 特征</h3><p>SIFT 全称：</p>
+<p>Scale-Invariant Feature Transform<br>尺度不变特征变换</p>
+<p>核心思想：</p>
+<p>在图像中找稳定的局部关键点，并为每个关键点生成描述子。</p>
+<p>基本流程：</p>
+<p>构建尺度空间<br>↓<br>检测关键点<br>↓<br>精确定位关键点<br>↓<br>分配主方向<br>↓<br>生成局部描述子<br>↓<br>进行匹配或识别</p>
+<p>SIFT 特点：</p>
+<ul>
+<li>对尺度变化较鲁棒；</li>
+<li>对旋转变化较鲁棒；</li>
+<li>对一定光照变化较鲁棒；</li>
+<li>适合图像匹配、目标识别、图像拼接等任务。</li>
+</ul>
+<p>常见描述子维度：</p>
+<script type="math/tex; mode=display">4 \times 4 \times 8 = 128</script>
+<p>缺点：</p>
+<ul>
+<li>对光滑、低纹理目标效果较差；</li>
+<li>计算比 Haar 更复杂；</li>
+<li>属于手工特征，表达能力不如 CNN。</li>
+</ul>
+<p>一句话：</p>
+<p>SIFT 在不同尺度下找稳定关键点，再用关键点附近的梯度方向分布生成局部描述子。</p>
+<hr>
+<h2 id="四、三类特征对比与核心记忆"><a href="#四、三类特征对比与核心记忆" class="headerlink" title="四、三类特征对比与核心记忆"></a>四、三类特征对比与核心记忆</h2><h3 id="1-HOG-Haar-SIFT-对比"><a href="#1-HOG-Haar-SIFT-对比" class="headerlink" title="1. HOG &#x2F; Haar &#x2F; SIFT 对比"></a>1. HOG &#x2F; Haar &#x2F; SIFT 对比</h3><table>
+<thead>
+<tr>
+<th>特征</th>
+<th>核心思想</th>
+<th>主要描述</th>
+<th>典型应用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HOG</td>
+<td>统计局部梯度方向直方图</td>
+<td>轮廓、边缘、形状</td>
+<td>行人检测</td>
+</tr>
+<tr>
+<td>Haar</td>
+<td>比较矩形区域亮度差</td>
+<td>明暗结构、边缘线条</td>
+<td>人脸检测</td>
+</tr>
+<tr>
+<td>SIFT</td>
+<td>找稳定关键点并描述局部区域</td>
+<td>局部关键点结构</td>
+<td>图像匹配、物体识别</td>
+</tr>
+</tbody></table>
+<p>核心区分：</p>
+<ul>
+<li>HOG 关注梯度方向分布；</li>
+<li>Haar 关注区域亮度差；</li>
+<li>SIFT 关注稳定关键点和局部描述子。</li>
+</ul>
+<hr>
+<h3 id="2-最重要公式"><a href="#2-最重要公式" class="headerlink" title="2. 最重要公式"></a>2. 最重要公式</h3><p>HOG 梯度幅值：</p>
+<script type="math/tex; mode=display">|G|=\sqrt{G_x^2+G_y^2}</script>
+<p>HOG 梯度方向：</p>
+<script type="math/tex; mode=display">\theta=\arctan\frac{G_y}{G_x}</script>
+<p>Block 归一化：</p>
+<script type="math/tex; mode=display">v'=\frac{v}{\sqrt{\|v\|_2^2+\epsilon}}</script>
+<p>Haar 特征：</p>
+<script type="math/tex; mode=display">\text{Haar Feature}
+=
+\sum \text{白色区域像素}
+-
+\sum \text{黑色区域像素}</script>
+<p>SIFT 描述子常见维度：</p>
+<script type="math/tex; mode=display">4 \times 4 \times 8 = 128</script>
+<hr>
+<h3 id="3-最核心记忆"><a href="#3-最核心记忆" class="headerlink" title="3. 最核心记忆"></a>3. 最核心记忆</h3><p>HOG 主线：</p>
+<p>图像预处理<br>↓<br>计算梯度<br>↓<br>划分 cell<br>↓<br>cell 内统计方向直方图<br>↓<br>组成 block<br>↓<br>block 内归一化<br>↓<br>拼接所有 block<br>↓<br>得到 HOG 特征向量</p>
+<p>Haar 主线：</p>
+<p>矩形模板<br>↓<br>计算黑白区域像素和差<br>↓<br>描述局部明暗结构</p>
+<p>SIFT 主线：</p>
+<p>尺度空间<br>↓<br>稳定关键点<br>↓<br>主方向<br>↓<br>局部描述子<br>↓<br>图像匹配</p>
+<p>最重要一句话：</p>
+<p>HOG 是重点，它通过统计局部区域的梯度方向直方图来描述物体轮廓和形状；Haar 通过矩形区域亮度差描述明暗结构；SIFT 通过稳定关键点和局部描述子进行匹配与识别。</p>
+<h1 id="CNN-（自动特征提取）"><a href="#CNN-（自动特征提取）" class="headerlink" title="CNN （自动特征提取）"></a>CNN （自动特征提取）</h1><h2 id="一、CNN-总体思想"><a href="#一、CNN-总体思想" class="headerlink" title="一、CNN 总体思想"></a>一、CNN 总体思想</h2><p>图像分类任务：</p>
+<script type="math/tex; mode=display">\text{image} \rightarrow \text{class scores} \rightarrow \text{class}</script>
+<p>传统方法：</p>
+<pre><code>图像 → 人工特征 → 分类器 → 类别
+</code></pre>
+<p>CNN 方法：</p>
+<pre><code>图像 → 卷积网络自动提取特征 → 分类层 → 类别
+</code></pre>
+<p>CNN 适合图像的原因：</p>
+<ul>
+<li>局部性：相邻像素关系强；</li>
+<li>参数共享：同一特征可出现在任意位置；</li>
+<li>多层堆叠：低级特征逐渐组合成高级语义。</li>
+</ul>
+<p>典型流程：</p>
+<pre><code>Input
+→ Conv
+→ ReLU
+→ Pooling
+→ Conv
+→ ReLU
+→ Pooling
+→ Flatten
+→ Fully Connected
+→ Softmax
+→ Class
+</code></pre>
+<hr>
+<h2 id="二、卷积层-Convolution"><a href="#二、卷积层-Convolution" class="headerlink" title="二、卷积层 Convolution"></a>二、卷积层 Convolution</h2><p>输入：</p>
+<script type="math/tex; mode=display">H \times W \times C</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">H,W</script>：图像长宽；</li>
+<li><script type="math/tex">C</script>：输入通道数。</li>
+</ul>
+<p>卷积核：</p>
+<script type="math/tex; mode=display">F \times F \times C</script>
+<p>注意：卷积核深度必须等于输入通道数。</p>
+<p>如果有 <script type="math/tex">K</script> 个卷积核，则输出通道数为：</p>
+<script type="math/tex; mode=display">K</script>
+<p>不是 <script type="math/tex">C \times K</script>。</p>
+<p>输出尺寸：</p>
+<script type="math/tex; mode=display">H_{\text{out}}=\frac{H+2P-F}{S}+1</script>
+<script type="math/tex; mode=display">W_{\text{out}}=\frac{W+2P-F}{S}+1</script>
+<p>输出整体为：</p>
+<script type="math/tex; mode=display">H_{\text{out}} \times W_{\text{out}} \times K</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">F</script>：卷积核大小；</li>
+<li><script type="math/tex">P</script>：padding；</li>
+<li><script type="math/tex">S</script>：stride；</li>
+<li><script type="math/tex">K</script>：卷积核个数。</li>
+</ul>
+<p>核心记忆：</p>
+<pre><code>输入通道数 C：每个卷积核有多厚
+卷积核个数 K：输出有多少个通道
+</code></pre>
+<p>卷积层作用：</p>
+<ul>
+<li>提取局部特征；</li>
+<li>减少参数；</li>
+<li>保留空间结构；</li>
+<li>多个卷积核检测多种特征。</li>
+</ul>
+<hr>
+<h2 id="三、长宽为什么会变小"><a href="#三、长宽为什么会变小" class="headerlink" title="三、长宽为什么会变小"></a>三、长宽为什么会变小</h2><p>CNN 中图像长宽变小主要靠：</p>
+<ol>
+<li>不加 padding 的卷积；</li>
+<li>stride &gt; 1 的卷积；</li>
+<li>pooling 池化层。</li>
+</ol>
+<p>例如：</p>
+<script type="math/tex; mode=display">32 \times 32 \xrightarrow{5 \times 5,\ P=0,\ S=1} 28 \times 28</script>
+<p>Pooling 常见形式：</p>
+<script type="math/tex; mode=display">2 \times 2,\quad S=2</script>
+<p>例如：</p>
+<script type="math/tex; mode=display">28 \times 28 \times 6
+\rightarrow
+14 \times 14 \times 6</script>
+<p>注意：Pooling 通常只改变长宽，不改变通道数。</p>
+<hr>
+<h2 id="四、ReLU-激活函数"><a href="#四、ReLU-激活函数" class="headerlink" title="四、ReLU 激活函数"></a>四、ReLU 激活函数</h2><p>公式：</p>
+<script type="math/tex; mode=display">\text{ReLU}(x)=\max(0,x)</script>
+<p>作用：</p>
+<ul>
+<li>引入非线性；</li>
+<li>负数置零，正数保留；</li>
+<li>不改变特征图尺寸；</li>
+<li>缓解梯度消失；</li>
+<li>产生稀疏激活。</li>
+</ul>
+<p>常见结构：</p>
+<pre><code>Conv → ReLU
+</code></pre>
+<p>或：</p>
+<pre><code>Conv → BN → ReLU
+</code></pre>
+<hr>
+<h2 id="五、Batch-Normalization"><a href="#五、Batch-Normalization" class="headerlink" title="五、Batch Normalization"></a>五、Batch Normalization</h2><p>BN 公式：</p>
+<script type="math/tex; mode=display">y=\gamma \frac{x-\mu}{\sqrt{\sigma^2+\epsilon}}+\beta</script>
+<p>含义：</p>
+<ul>
+<li><script type="math/tex">\mu</script>：均值；</li>
+<li><script type="math/tex">\sigma^2</script>：方差；</li>
+<li><script type="math/tex">\epsilon</script>：防止除零；</li>
+<li><script type="math/tex">\gamma,\beta</script>：可学习缩放和平移参数。</li>
+</ul>
+<p>作用：</p>
+<ul>
+<li>让特征接近 0 均值、1 方差；</li>
+<li>稳定训练；</li>
+<li>加快收敛；</li>
+<li>有轻微正则化效果。</li>
+</ul>
+<p>CNN 中常见顺序：</p>
+<pre><code>Conv → BN → ReLU
+</code></pre>
+<p>BN 不改变特征图尺寸。</p>
+<hr>
+<h2 id="六、Pooling-池化层"><a href="#六、Pooling-池化层" class="headerlink" title="六、Pooling 池化层"></a>六、Pooling 池化层</h2><p>常见：Max Pooling。</p>
+<p>例如一个区域：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+1 & 3\\
+2 & 4
+\end{bmatrix}
+\rightarrow 4</script>
+<p>作用：</p>
+<ul>
+<li>缩小特征图长宽；</li>
+<li>降低计算量；</li>
+<li>保留显著特征；</li>
+<li>增强局部平移鲁棒性。</li>
+</ul>
+<p>Pooling 无可学习参数。</p>
+<p>卷积和池化区别：</p>
+<pre><code>Conv：有参数，负责学习特征，可改变通道数
+Pooling：无参数，负责缩小长宽，通常不改变通道数
+</code></pre>
+<hr>
+<h2 id="七、全连接层与-Softmax"><a href="#七、全连接层与-Softmax" class="headerlink" title="七、全连接层与 Softmax"></a>七、全连接层与 Softmax</h2><p>卷积部分最后得到特征图：</p>
+<script type="math/tex; mode=display">H \times W \times D</script>
+<p>Flatten：</p>
+<script type="math/tex; mode=display">H \times W \times D
+\rightarrow
+HWD</script>
+<p>全连接层：</p>
+<script type="math/tex; mode=display">s = Wx+b</script>
+<p>输出：</p>
+<script type="math/tex; mode=display">s \in \mathbb{R}^{C}</script>
+<p>其中 <script type="math/tex">C</script> 是类别数。</p>
+<p>Softmax：</p>
+<script type="math/tex; mode=display">p_i=\frac{e^{s_i}}{\sum_{j=1}^{C}e^{s_j}}</script>
+<p>作用：</p>
+<ul>
+<li>全连接层输出类别分数 logits；</li>
+<li>Softmax 把 logits 转成类别概率；</li>
+<li>选择概率最大类别作为预测。</li>
+</ul>
+<p>训练常用交叉熵：</p>
+<script type="math/tex; mode=display">L=-\log p_y</script>
+<p>其中 <script type="math/tex">p_y</script> 是真实类别对应的预测概率。</p>
+<hr>
+<h2 id="八、CNN-中尺寸变化规律"><a href="#八、CNN-中尺寸变化规律" class="headerlink" title="八、CNN 中尺寸变化规律"></a>八、CNN 中尺寸变化规律</h2><p>一般越往后：</p>
+<pre><code>长宽越来越小
+通道数越来越多
+语义越来越高级
+</code></pre>
+<p>直觉：</p>
+<pre><code>前层：边缘、颜色、纹理
+中层：局部形状、物体部件
+后层：高级语义，如猫脸、车轮、人脸轮廓
+</code></pre>
+<hr>
+<h2 id="九、防止过拟合"><a href="#九、防止过拟合" class="headerlink" title="九、防止过拟合"></a>九、防止过拟合</h2><h3 id="1-Dropout"><a href="#1-Dropout" class="headerlink" title="1. Dropout"></a>1. Dropout</h3><p>训练时随机丢弃部分神经元，测试时使用全部神经元。</p>
+<p>作用：</p>
+<ul>
+<li>减少神经元共适应；</li>
+<li>提高泛化能力。</li>
+</ul>
+<h3 id="2-数据增强"><a href="#2-数据增强" class="headerlink" title="2. 数据增强"></a>2. 数据增强</h3><p>通过变换原图制造更多训练样本。</p>
+<p>常见增强：</p>
+<ul>
+<li>翻转；</li>
+<li>裁剪；</li>
+<li>旋转；</li>
+<li>缩放；</li>
+<li>颜色扰动；</li>
+<li>加噪声。</li>
+</ul>
+<p>作用：</p>
+<ul>
+<li>扩大训练集；</li>
+<li>减少过拟合；</li>
+<li>提高模型鲁棒性。</li>
+</ul>
+<hr>
+<h2 id="十、经典-CNN-网络"><a href="#十、经典-CNN-网络" class="headerlink" title="十、经典 CNN 网络"></a>十、经典 CNN 网络</h2><h3 id="1-LeNet-5"><a href="#1-LeNet-5" class="headerlink" title="1. LeNet-5"></a>1. LeNet-5</h3><p>早期经典 CNN，用于手写数字识别。</p>
+<p>结构大致：</p>
+<pre><code>Conv → Pool → Conv → Pool → FC
+</code></pre>
+<h3 id="2-AlexNet"><a href="#2-AlexNet" class="headerlink" title="2. AlexNet"></a>2. AlexNet</h3><p>2012 年 ImageNet 夺冠，开启深度学习视觉时代。</p>
+<p>特点：</p>
+<ul>
+<li>更深的 CNN；</li>
+<li>ReLU；</li>
+<li>Dropout；</li>
+<li>GPU 训练；</li>
+<li>大规模数据。</li>
+</ul>
+<h3 id="3-VGG"><a href="#3-VGG" class="headerlink" title="3. VGG"></a>3. VGG</h3><p>特点：</p>
+<ul>
+<li>结构规整；</li>
+<li>大量 <script type="math/tex">3 \times 3</script> 卷积堆叠；</li>
+<li>小卷积核堆深获得大感受野。</li>
+</ul>
+<p>例如三个 <script type="math/tex">3\times3</script> 卷积可近似获得 <script type="math/tex">7\times7</script> 感受野。</p>
+<p>优点：</p>
+<ul>
+<li>参数更少；</li>
+<li>非线性更多；</li>
+<li>表达能力更强。</li>
+</ul>
+<h3 id="4-ResNet"><a href="#4-ResNet" class="headerlink" title="4. ResNet"></a>4. ResNet</h3><p>核心：残差连接。</p>
+<p>公式：</p>
+<script type="math/tex; mode=display">y=F(x)+x</script>
+<p>普通网络学习：</p>
+<script type="math/tex; mode=display">H(x)</script>
+<p>ResNet 学习残差：</p>
+<script type="math/tex; mode=display">F(x)=H(x)-x</script>
+<p>再输出：</p>
+<script type="math/tex; mode=display">F(x)+x</script>
+<p>作用：</p>
+<ul>
+<li>缓解深层网络难训练；</li>
+<li>帮助梯度传播；</li>
+<li>允许网络堆得更深。</li>
+</ul>
+<hr>
+<h2 id="十一、最核心总结"><a href="#十一、最核心总结" class="headerlink" title="十一、最核心总结"></a>十一、最核心总结</h2><p>CNN 的核心是：</p>
+<pre><code>卷积层：局部连接 + 参数共享，自动提取图像特征
+ReLU：引入非线性
+BN：稳定训练
+Pooling：缩小长宽，保留显著特征
+FC + Softmax：根据高级特征输出类别概率
+</code></pre>
+<p>最重要公式：</p>
+<script type="math/tex; mode=display">H_{\text{out}}=\frac{H+2P-F}{S}+1</script>
+<script type="math/tex; mode=display">W_{\text{out}}=\frac{W+2P-F}{S}+1</script>
+<script type="math/tex; mode=display">\text{ReLU}(x)=\max(0,x)</script>
+<script type="math/tex; mode=display">y=\gamma \frac{x-\mu}{\sqrt{\sigma^2+\epsilon}}+\beta</script>
+<script type="math/tex; mode=display">p_i=\frac{e^{s_i}}{\sum_{j=1}^{C}e^{s_j}}</script>
+<script type="math/tex; mode=display">y=F(x)+x</script>
+<p>一句话：</p>
+<p>CNN 通过卷积层从局部图像区域自动学习特征，随着网络加深，特征从边缘纹理逐渐变成高级语义，最后通过全连接层和 Softmax 完成图像分类。</p>
+<h1 id="摄像机几何复习提纲：从三维空间到二维图像"><a href="#摄像机几何复习提纲：从三维空间到二维图像" class="headerlink" title="摄像机几何复习提纲：从三维空间到二维图像"></a>摄像机几何复习提纲：从三维空间到二维图像</h1><p>参考 PPT：:contentReference[oaicite:0]{index&#x3D;0}</p>
+<h2 id="一、这部分到底在讲什么"><a href="#一、这部分到底在讲什么" class="headerlink" title="一、这部分到底在讲什么"></a>一、这部分到底在讲什么</h2><p>摄像机几何研究的是：</p>
+<p>三维世界中的一个点，经过相机成像后，为什么会出现在二维图像上的某个像素位置。</p>
+<p>核心过程：</p>
+<p>现实三维点<br>↓<br>世界坐标系中的点<br>↓<br>通过外参变到相机坐标系<br>↓<br>通过针孔模型投影到成像平面<br>↓<br>通过内参变成图像像素坐标</p>
+<p>最核心公式：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}
+=
+K
+\begin{bmatrix}
+R & T
+\end{bmatrix}
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">(X,Y,Z)</script>：世界坐标系中的三维点；</li>
+<li><script type="math/tex">(u,v)</script>：图像中的像素坐标；</li>
+<li><script type="math/tex">R,T</script>：相机外参；</li>
+<li><script type="math/tex">K</script>：相机内参；</li>
+<li><script type="math/tex">s</script>：齐次尺度因子，和深度有关。</li>
+</ul>
+<p>一句话：</p>
+<p>摄像机几何就是用矩阵描述“世界三维点如何投影成图像二维像素”。</p>
+<hr>
+<h2 id="二、针孔模型：最基本的成像模型"><a href="#二、针孔模型：最基本的成像模型" class="headerlink" title="二、针孔模型：最基本的成像模型"></a>二、针孔模型：最基本的成像模型</h2><h3 id="1-为什么需要针孔模型"><a href="#1-为什么需要针孔模型" class="headerlink" title="1. 为什么需要针孔模型"></a>1. 为什么需要针孔模型</h3><p>如果没有小孔限制光线，成像平面上的每个点都会接收到空间中许多点发出的光，结果就是混在一起，无法形成清晰图像。</p>
+<p>针孔模型的作用：</p>
+<p>只允许来自某个方向的一束光通过小孔，使空间中的点和成像平面上的点建立对应关系。</p>
+<p>直观流程：</p>
+<p>空间点<br>↓<br>光线沿直线传播<br>↓<br>穿过小孔 &#x2F; 光心<br>↓<br>落到成像平面<br>↓<br>形成图像点</p>
+<p>所以针孔模型依赖的物理事实是：</p>
+<p>光沿直线传播。</p>
+<hr>
+<h3 id="2-针孔模型的投影关系"><a href="#2-针孔模型的投影关系" class="headerlink" title="2. 针孔模型的投影关系"></a>2. 针孔模型的投影关系</h3><p>设空间点在相机坐标系中为：</p>
+<script type="math/tex; mode=display">P=(X,Y,Z)</script>
+<p>投影到成像平面上的点为：</p>
+<script type="math/tex; mode=display">P'=(x',y')</script>
+<p>焦距为：</p>
+<script type="math/tex; mode=display">f</script>
+<p>根据相似三角形：</p>
+<script type="math/tex; mode=display">x'=f\frac{X}{Z}</script>
+<script type="math/tex; mode=display">y'=f\frac{Y}{Z}</script>
+<p>核心直觉：</p>
+<ul>
+<li><script type="math/tex">X,Y</script> 决定点在左右、上下方向的位置；</li>
+<li><script type="math/tex">Z</script> 是深度；</li>
+<li><script type="math/tex">Z</script> 越大，投影越小；</li>
+<li><script type="math/tex">Z</script> 越小，投影越大。</li>
+</ul>
+<p>例如：</p>
+<p>同样大小的物体：</p>
+<p>离相机近<br>↓<br><script type="math/tex">Z</script> 小<br>↓<br>图像中显得大</p>
+<p>离相机远<br>↓<br><script type="math/tex">Z</script> 大<br>↓<br>图像中显得小</p>
+<p>这就是“近大远小”。</p>
+<hr>
+<h3 id="3-投影为什么会丢失深度"><a href="#3-投影为什么会丢失深度" class="headerlink" title="3. 投影为什么会丢失深度"></a>3. 投影为什么会丢失深度</h3><p>从公式：</p>
+<script type="math/tex; mode=display">x'=f\frac{X}{Z}</script>
+<script type="math/tex; mode=display">y'=f\frac{Y}{Z}</script>
+<p>可以看出，二维图像只保留了：</p>
+<script type="math/tex; mode=display">\frac{X}{Z},\quad \frac{Y}{Z}</script>
+<p>也就是说，图像上一个点只知道空间点的方向，却不知道它离相机多远。</p>
+<p>图像上的一个像素点，对应三维空间中的一条射线。</p>
+<p>因此：</p>
+<p>二维图像点<br>↓<br>不能唯一确定三维点<br>↓<br>深度信息丢失</p>
+<p>这也是后面三维重建困难的根本原因。</p>
+<hr>
+<h3 id="4-真实像平面与虚拟像平面"><a href="#4-真实像平面与虚拟像平面" class="headerlink" title="4. 真实像平面与虚拟像平面"></a>4. 真实像平面与虚拟像平面</h3><p>真实针孔成像中，成像平面在小孔后方，因此图像会倒立。</p>
+<p>为了数学处理方便，计算机视觉中常使用虚拟像平面：</p>
+<p>真实像平面：</p>
+<ul>
+<li>位于小孔后方；</li>
+<li>图像倒立；</li>
+<li>符号处理不方便。</li>
+</ul>
+<p>虚拟像平面：</p>
+<ul>
+<li>放在小孔前方；</li>
+<li>图像方向和物体一致；</li>
+<li>成像大小与真实像平面一致；</li>
+<li>方便进行几何推导。</li>
+</ul>
+<p>可以简单记：</p>
+<p>虚拟像平面不是新的物理成像装置，而是为了让坐标方向更自然而引入的数学工具。</p>
+<hr>
+<h3 id="5-相机为什么不用真正的小孔"><a href="#5-相机为什么不用真正的小孔" class="headerlink" title="5. 相机为什么不用真正的小孔"></a>5. 相机为什么不用真正的小孔</h3><p>针孔太小，通光量不足，图像会很暗，细节差。</p>
+<p>真实相机使用透镜：</p>
+<ul>
+<li>透镜面积比小孔大；</li>
+<li>能接收更多光；</li>
+<li>成像质量更好。</li>
+</ul>
+<p>但在几何分析中，透镜成像仍然可以近似为针孔模型。</p>
+<p>因为透镜系统中，从空间点发出的光线会被汇聚到成像平面上一点，其几何位置可以近似由穿过光心的主光线决定。</p>
+<p>所以考试中通常直接用针孔模型分析相机成像。</p>
+<hr>
+<h2 id="三、四个坐标系：从世界到像素"><a href="#三、四个坐标系：从世界到像素" class="headerlink" title="三、四个坐标系：从世界到像素"></a>三、四个坐标系：从世界到像素</h2><p>摄像机成像涉及四个坐标系：</p>
+<p>世界坐标系<br>↓<br>相机坐标系<br>↓<br>成像平面坐标系<br>↓<br>图像坐标系</p>
+<h3 id="1-世界坐标系"><a href="#1-世界坐标系" class="headerlink" title="1. 世界坐标系"></a>1. 世界坐标系</h3><p>世界坐标系用于描述真实世界中物体的位置。</p>
+<p>点写作：</p>
+<script type="math/tex; mode=display">P_w=
+\begin{bmatrix}
+X\\
+Y\\
+Z
+\end{bmatrix}</script>
+<p>它是一个全局坐标系，可以人为选定。</p>
+<p>例如：</p>
+<ul>
+<li>房间角落作为原点；</li>
+<li>地面方向作为某个坐标轴；</li>
+<li>某个物体中心作为原点。</li>
+</ul>
+<p>世界坐标系本身不依赖相机。</p>
+<hr>
+<h3 id="2-相机坐标系"><a href="#2-相机坐标系" class="headerlink" title="2. 相机坐标系"></a>2. 相机坐标系</h3><p>相机坐标系以相机为中心建立。</p>
+<p>通常：</p>
+<ul>
+<li>原点在相机光心；</li>
+<li><script type="math/tex">z</script> 轴沿相机光轴方向；</li>
+<li><script type="math/tex">x,y</script> 轴分别表示相机视野中的水平和竖直方向。</li>
+</ul>
+<p>点写作：</p>
+<script type="math/tex; mode=display">P_c=
+\begin{bmatrix}
+x\\
+y\\
+z
+\end{bmatrix}</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">x,y</script>：点相对于相机的横向和纵向位置；</li>
+<li><script type="math/tex">z</script>：点到相机的深度。</li>
+</ul>
+<p>相机坐标系的意义是：</p>
+<p>从相机自己的视角看这个点在哪里。</p>
+<hr>
+<h3 id="3-成像平面坐标系"><a href="#3-成像平面坐标系" class="headerlink" title="3. 成像平面坐标系"></a>3. 成像平面坐标系</h3><p>成像平面坐标系描述点投影到相机成像平面上的位置。</p>
+<p>点写作：</p>
+<script type="math/tex; mode=display">P_i=
+\begin{bmatrix}
+x'\\
+y'
+\end{bmatrix}</script>
+<p>由针孔模型得到：</p>
+<script type="math/tex; mode=display">x'=f\frac{x}{z}</script>
+<script type="math/tex; mode=display">y'=f\frac{y}{z}</script>
+<p>注意：</p>
+<p>这里的 <script type="math/tex">x',y'</script> 仍然是连续的几何坐标，不是像素坐标。</p>
+<hr>
+<h3 id="4-图像坐标系"><a href="#4-图像坐标系" class="headerlink" title="4. 图像坐标系"></a>4. 图像坐标系</h3><p>图像坐标系描述的是图像中的像素位置。</p>
+<p>点写作：</p>
+<script type="math/tex; mode=display">p=
+\begin{bmatrix}
+u\\
+v
+\end{bmatrix}</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">u</script>：像素横坐标；</li>
+<li><script type="math/tex">v</script>：像素纵坐标。</li>
+</ul>
+<p>图像坐标系和成像平面坐标系的区别：</p>
+<p>成像平面坐标系：</p>
+<ul>
+<li>单位通常是物理长度；</li>
+<li>原点通常在光轴与成像平面的交点；</li>
+<li>坐标连续。</li>
+</ul>
+<p>图像坐标系：</p>
+<ul>
+<li>单位是像素；</li>
+<li>原点通常在图像左上角；</li>
+<li>坐标离散。</li>
+</ul>
+<p>所以从成像平面坐标到图像坐标，还需要进行缩放和平移。</p>
+<hr>
+<h3 id="5-四个坐标系的总流程"><a href="#5-四个坐标系的总流程" class="headerlink" title="5. 四个坐标系的总流程"></a>5. 四个坐标系的总流程</h3><p>完整成像过程：</p>
+<p>世界坐标系中的点：</p>
+<script type="math/tex; mode=display">(X,Y,Z)</script>
+<p>先通过外参变成相机坐标系：</p>
+<script type="math/tex; mode=display">(x,y,z)</script>
+<p>再通过针孔投影变成成像平面坐标：</p>
+<script type="math/tex; mode=display">(x',y')</script>
+<p>最后通过内参变成图像像素坐标：</p>
+<script type="math/tex; mode=display">(u,v)</script>
+<p>可以记为：</p>
+<script type="math/tex; mode=display">(X,Y,Z)
+\rightarrow
+(x,y,z)
+\rightarrow
+(x',y')
+\rightarrow
+(u,v)</script>
+<hr>
+<h2 id="四、外参、内参和齐次坐标"><a href="#四、外参、内参和齐次坐标" class="headerlink" title="四、外参、内参和齐次坐标"></a>四、外参、内参和齐次坐标</h2><h3 id="1-外参：世界坐标系到相机坐标系"><a href="#1-外参：世界坐标系到相机坐标系" class="headerlink" title="1. 外参：世界坐标系到相机坐标系"></a>1. 外参：世界坐标系到相机坐标系</h3><p>外参描述的是相机相对于世界坐标系的位置和姿态。</p>
+<p>从世界坐标到相机坐标：</p>
+<script type="math/tex; mode=display">P_c=RP_w+T</script>
+<p>展开写：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+x\\
+y\\
+z
+\end{bmatrix}
+=
+R
+\begin{bmatrix}
+X\\
+Y\\
+Z
+\end{bmatrix}
++
+T</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">R</script> 是 <script type="math/tex">3\times3</script> 旋转矩阵；</li>
+<li><script type="math/tex">T</script> 是 <script type="math/tex">3\times1</script> 平移向量。</li>
+</ul>
+<p><script type="math/tex">R</script> 表示：</p>
+<p>相机朝哪个方向看。</p>
+<p><script type="math/tex">T</script> 表示：</p>
+<p>相机相对于世界坐标系的位置偏移。</p>
+<p>一句话：</p>
+<p>外参负责把“世界里的点”转换成“相机眼里的点”。</p>
+<hr>
+<h3 id="2-为什么要用齐次坐标"><a href="#2-为什么要用齐次坐标" class="headerlink" title="2. 为什么要用齐次坐标"></a>2. 为什么要用齐次坐标</h3><p>普通坐标下：</p>
+<p>旋转可以写成矩阵乘法：</p>
+<script type="math/tex; mode=display">RP_w</script>
+<p>但平移要额外加：</p>
+<script type="math/tex; mode=display">RP_w+T</script>
+<p>这不方便统一表示。</p>
+<p>齐次坐标把三维点：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+X\\
+Y\\
+Z
+\end{bmatrix}</script>
+<p>扩展成：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>这样旋转和平移可以统一写成一次矩阵乘法：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+x\\
+y\\
+z
+\end{bmatrix}
+=
+\begin{bmatrix}
+R & T
+\end{bmatrix}
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>也可以写成完整 <script type="math/tex">4\times4</script> 形式：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+x\\
+y\\
+z\\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+R & T\\
+0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>齐次坐标的作用：</p>
+<ul>
+<li>统一旋转和平移；</li>
+<li>方便用矩阵表示几何变换；</li>
+<li>方便表示投影关系。</li>
+</ul>
+<hr>
+<h3 id="3-齐次坐标如何转回普通坐标"><a href="#3-齐次坐标如何转回普通坐标" class="headerlink" title="3. 齐次坐标如何转回普通坐标"></a>3. 齐次坐标如何转回普通坐标</h3><p>二维齐次坐标：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+u'\\
+v'\\
+w'
+\end{bmatrix}</script>
+<p>对应普通坐标：</p>
+<script type="math/tex; mode=display">u=\frac{u'}{w'}</script>
+<script type="math/tex; mode=display">v=\frac{v'}{w'}</script>
+<p>三维齐次坐标类似：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+X'\\
+Y'\\
+Z'\\
+W'
+\end{bmatrix}
+\rightarrow
+\begin{bmatrix}
+X'/W'\\
+Y'/W'\\
+Z'/W'
+\end{bmatrix}</script>
+<p>关键理解：</p>
+<p>齐次坐标中，整体乘以一个非零常数表示同一个点。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+2\\
+4\\
+2
+\end{bmatrix}</script>
+<p>和</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+1\\
+2\\
+1
+\end{bmatrix}</script>
+<p>表示同一个二维点：</p>
+<script type="math/tex; mode=display">(1,2)</script>
+<p>所以投影公式左侧要写成：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}</script>
+<p>其中 <script type="math/tex">s</script> 就是齐次尺度因子。</p>
+<hr>
+<h3 id="4-内参：相机坐标到图像坐标"><a href="#4-内参：相机坐标到图像坐标" class="headerlink" title="4. 内参：相机坐标到图像坐标"></a>4. 内参：相机坐标到图像坐标</h3><p>从相机坐标到成像平面坐标：</p>
+<script type="math/tex; mode=display">x'=f\frac{x}{z}</script>
+<script type="math/tex; mode=display">y'=f\frac{y}{z}</script>
+<p>从成像平面坐标到图像像素坐标，还要考虑：</p>
+<ul>
+<li>像素大小；</li>
+<li>横纵方向缩放；</li>
+<li>图像中心偏移。</li>
+</ul>
+<p>通常写成：</p>
+<script type="math/tex; mode=display">u=f_x\frac{x}{z}+u_0</script>
+<script type="math/tex; mode=display">v=f_y\frac{y}{z}+v_0</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">f_x</script>：横向等效焦距；</li>
+<li><script type="math/tex">f_y</script>：纵向等效焦距；</li>
+<li><script type="math/tex">(u_0,v_0)</script>：主点坐标，也就是光轴与成像平面的交点在图像上的位置。</li>
+</ul>
+<p>写成矩阵：</p>
+<script type="math/tex; mode=display">K=
+\begin{bmatrix}
+f_x & 0 & u_0\\
+0 & f_y & v_0\\
+0 & 0 & 1
+\end{bmatrix}</script>
+<p>于是：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}
+=
+K
+\begin{bmatrix}
+x\\
+y\\
+z
+\end{bmatrix}</script>
+<p>更准确地说：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+f_x & 0 & u_0\\
+0 & f_y & v_0\\
+0 & 0 & 1
+\end{bmatrix}
+\begin{bmatrix}
+x\\
+y\\
+z
+\end{bmatrix}</script>
+<p>展开：</p>
+<script type="math/tex; mode=display">su=f_xx+u_0z</script>
+<script type="math/tex; mode=display">sv=f_yy+v_0z</script>
+<script type="math/tex; mode=display">s=z</script>
+<p>所以：</p>
+<script type="math/tex; mode=display">u=f_x\frac{x}{z}+u_0</script>
+<script type="math/tex; mode=display">v=f_y\frac{y}{z}+v_0</script>
+<p>这说明：</p>
+<p>齐次尺度因子 <script type="math/tex">s</script> 本质上和深度 <script type="math/tex">z</script> 有关。</p>
+<hr>
+<h3 id="5-内参和外参的区别"><a href="#5-内参和外参的区别" class="headerlink" title="5. 内参和外参的区别"></a>5. 内参和外参的区别</h3><p>外参：</p>
+<script type="math/tex; mode=display">[R\ T]</script>
+<p>描述相机和世界之间的关系。</p>
+<p>包括：</p>
+<ul>
+<li>相机在哪里；</li>
+<li>相机朝哪个方向。</li>
+</ul>
+<p>内参：</p>
+<script type="math/tex; mode=display">K</script>
+<p>描述相机自身的成像属性。</p>
+<p>包括：</p>
+<ul>
+<li>焦距；</li>
+<li>像素缩放；</li>
+<li>图像中心偏移。</li>
+</ul>
+<p>对比记忆：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>符号</th>
+<th>作用</th>
+<th>描述对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>外参</td>
+<td><script type="math/tex">R,T</script></td>
+<td>世界坐标到相机坐标</td>
+<td>相机的位置和姿态</td>
+</tr>
+<tr>
+<td>内参</td>
+<td><script type="math/tex">K</script></td>
+<td>相机坐标到像素坐标</td>
+<td>相机自身成像属性</td>
+</tr>
+</tbody></table>
+<p>一句话：</p>
+<p>外参管“相机在哪里、朝哪看”；内参管“相机怎么把光投到像素上”。</p>
+<hr>
+<h3 id="6-总投影公式"><a href="#6-总投影公式" class="headerlink" title="6. 总投影公式"></a>6. 总投影公式</h3><p>世界坐标点：</p>
+<script type="math/tex; mode=display">P_w=
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>图像像素点：</p>
+<script type="math/tex; mode=display">p=
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}</script>
+<p>完整投影：</p>
+<script type="math/tex; mode=display">s p =
+K
+\begin{bmatrix}
+R & T
+\end{bmatrix}
+P_w</script>
+<p>即：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}
+=
+K
+\begin{bmatrix}
+R & T
+\end{bmatrix}
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>这就是摄像机几何最重要的公式。</p>
+<p>也可以记成：</p>
+<script type="math/tex; mode=display">s p = MP_w</script>
+<p>其中：</p>
+<script type="math/tex; mode=display">M=K[R\ T]</script>
+<p>称为相机投影矩阵。</p>
+<hr>
+<h2 id="五、考试重点与易错点"><a href="#五、考试重点与易错点" class="headerlink" title="五、考试重点与易错点"></a>五、考试重点与易错点</h2><h3 id="1-必须会写的流程"><a href="#1-必须会写的流程" class="headerlink" title="1. 必须会写的流程"></a>1. 必须会写的流程</h3><p>摄像机成像过程可以分为三步：</p>
+<p>第一步：世界坐标系到相机坐标系</p>
+<script type="math/tex; mode=display">P_c=RP_w+T</script>
+<p>第二步：针孔投影</p>
+<script type="math/tex; mode=display">x'=f\frac{x}{z}</script>
+<script type="math/tex; mode=display">y'=f\frac{y}{z}</script>
+<p>第三步：成像平面坐标到像素坐标</p>
+<script type="math/tex; mode=display">u=f_x\frac{x}{z}+u_0</script>
+<script type="math/tex; mode=display">v=f_y\frac{y}{z}+v_0</script>
+<p>最终矩阵形式：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}
+=
+K
+\begin{bmatrix}
+R & T
+\end{bmatrix}
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<hr>
+<h3 id="2-必须理解的核心概念"><a href="#2-必须理解的核心概念" class="headerlink" title="2. 必须理解的核心概念"></a>2. 必须理解的核心概念</h3><p>针孔模型：</p>
+<p>利用光沿直线传播，通过小孔把三维点投影到二维成像平面。</p>
+<p>虚拟像平面：</p>
+<p>为了避免真实像平面倒立带来的符号麻烦，把像平面放到相机前方，方便推导。</p>
+<p>相机坐标系：</p>
+<p>以相机光心为原点，以光轴为 <script type="math/tex">z</script> 轴。</p>
+<p>内参：</p>
+<p>相机自身参数，描述从相机坐标到像素坐标的变换。</p>
+<p>外参：</p>
+<p>相机位姿参数，描述世界坐标到相机坐标的变换。</p>
+<p>齐次坐标：</p>
+<p>通过增加一维，把旋转、平移、投影统一为矩阵乘法。</p>
+<p>齐次尺度因子：</p>
+<p>投影公式中的比例因子，通常与深度有关。</p>
+<hr>
+<h3 id="3-常见易错点"><a href="#3-常见易错点" class="headerlink" title="3. 常见易错点"></a>3. 常见易错点</h3><p>易错点一：把内参和外参混淆。</p>
+<p>正确理解：</p>
+<ul>
+<li>外参 <script type="math/tex">R,T</script>：世界坐标到相机坐标；</li>
+<li>内参 <script type="math/tex">K</script>：相机坐标到像素坐标。</li>
+</ul>
+<p>易错点二：以为二维点能唯一恢复三维点。</p>
+<p>正确理解：</p>
+<ul>
+<li>3D 到 2D 投影会丢失深度；</li>
+<li>图像上的一个点对应空间中的一条射线；</li>
+<li>单张图像通常不能唯一恢复三维点。</li>
+</ul>
+<p>易错点三：忘记除以齐次项。</p>
+<p>如果有：</p>
+<script type="math/tex; mode=display">\begin{bmatrix}
+u'\\
+v'\\
+w'
+\end{bmatrix}</script>
+<p>则真实像素坐标是：</p>
+<script type="math/tex; mode=display">u=\frac{u'}{w'}</script>
+<script type="math/tex; mode=display">v=\frac{v'}{w'}</script>
+<p>易错点四：把成像平面坐标和像素坐标混在一起。</p>
+<p>成像平面坐标：</p>
+<ul>
+<li>连续；</li>
+<li>单位类似物理长度；</li>
+<li>原点在光轴中心附近。</li>
+</ul>
+<p>图像坐标：</p>
+<ul>
+<li>离散；</li>
+<li>单位是像素；</li>
+<li>原点通常在图像左上角。</li>
+</ul>
+<p>易错点五：以为 <script type="math/tex">f</script>、<script type="math/tex">f_x</script>、<script type="math/tex">f_y</script> 完全一样。</p>
+<p>正确理解：</p>
+<ul>
+<li><script type="math/tex">f</script> 是几何意义上的焦距 &#x2F; 像距；</li>
+<li><script type="math/tex">f_x,f_y</script> 是换算到像素单位后的等效焦距；</li>
+<li>如果横纵像素尺度不同，<script type="math/tex">f_x</script> 和 <script type="math/tex">f_y</script> 可以不同。</li>
+</ul>
+<hr>
+<h3 id="4-考试版简答模板"><a href="#4-考试版简答模板" class="headerlink" title="4. 考试版简答模板"></a>4. 考试版简答模板</h3><p>如果题目问“简述摄像机成像过程”，可以写：</p>
+<p>摄像机成像过程可看作三维空间点到二维图像点的投影过程。首先，世界坐标系中的三维点通过相机外参，即旋转矩阵 <script type="math/tex">R</script> 和平移向量 <script type="math/tex">T</script>，变换到相机坐标系；然后根据针孔成像模型，利用相似三角形关系将相机坐标系中的点投影到成像平面，其关系为 <script type="math/tex">x'=f x/z,\ y'=f y/z</script>；最后通过相机内参矩阵 <script type="math/tex">K</script>，将成像平面坐标转换为图像像素坐标。整体过程可用齐次坐标表示为：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}
+=
+K
+\begin{bmatrix}
+R & T
+\end{bmatrix}
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>其中 <script type="math/tex">K</script> 为内参矩阵，<script type="math/tex">R,T</script> 为外参，<script type="math/tex">s</script> 为齐次尺度因子。</p>
+<hr>
+<h3 id="5-最核心记忆"><a href="#5-最核心记忆" class="headerlink" title="5. 最核心记忆"></a>5. 最核心记忆</h3><p>最核心流程：</p>
+<p>世界坐标系<br>↓<br>外参 <script type="math/tex">R,T</script><br>↓<br>相机坐标系<br>↓<br>针孔投影<br>↓<br>成像平面坐标系<br>↓<br>内参 <script type="math/tex">K</script><br>↓<br>图像像素坐标系</p>
+<p>最核心公式：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}
+=
+K
+\begin{bmatrix}
+R & T
+\end{bmatrix}
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>最核心直觉：</p>
+<p>摄像机成像就是把三维点沿光线投影到二维平面上；这个过程会丢失深度，因此三维重建需要额外视角、对应点或先验信息。</p>
+<p>最重要区分：</p>
+<p>外参：</p>
+<p>相机在世界中的位置和朝向。</p>
+<p>内参：</p>
+<p>相机自身如何把相机坐标转换成像素坐标。</p>
+<p>齐次坐标：</p>
+<p>为了把旋转、平移、投影统一写成矩阵形式。</p>
+<p>一句话总结：</p>
+<p>摄像机几何的本质，是用针孔模型和矩阵变换描述三维世界点如何经过外参、投影和内参，最终变成二维图像中的像素点。</p>
+<h1 id="三维重建复习提纲：从二维图像恢复三维结构"><a href="#三维重建复习提纲：从二维图像恢复三维结构" class="headerlink" title="三维重建复习提纲：从二维图像恢复三维结构"></a>三维重建复习提纲：从二维图像恢复三维结构</h1><h2 id="一、三维重建在做什么"><a href="#一、三维重建在做什么" class="headerlink" title="一、三维重建在做什么"></a>一、三维重建在做什么</h2><p>三维重建研究的是：</p>
+<p>如何根据一张或多张二维图像，恢复物体或场景在三维空间中的结构、形状和位置。</p>
+<p>前面摄像机几何讲的是：</p>
+<p>三维空间<br>↓<br>相机投影<br>↓<br>二维图像</p>
+<p>三维重建反过来：</p>
+<p>二维图像<br>↓<br>推断深度和空间结构<br>↓<br>三维模型 &#x2F; 三维点云 &#x2F; 深度图 &#x2F; 网格模型</p>
+<p>核心问题：</p>
+<p>二维图像在成像时丢失了深度信息，因此从二维恢复三维不是简单的逆运算。</p>
+<p>最核心直觉：</p>
+<p>图像上的一个点，对应三维空间中的一条射线；如果只有单张图像，无法确定这个点到底在射线上的哪个深度位置。</p>
+<p>所以三维重建通常需要：</p>
+<ul>
+<li>多张不同视角的图像；</li>
+<li>不同图像之间的对应点；</li>
+<li>相机参数；</li>
+<li>或者神经网络学到的先验知识。</li>
+</ul>
+<hr>
+<h2 id="二、从摄像机投影到三维重建"><a href="#二、从摄像机投影到三维重建" class="headerlink" title="二、从摄像机投影到三维重建"></a>二、从摄像机投影到三维重建</h2><p>摄像机投影公式：</p>
+<script type="math/tex; mode=display">s
+\begin{bmatrix}
+u\\
+v\\
+1
+\end{bmatrix}
+=
+K
+\begin{bmatrix}
+R & T
+\end{bmatrix}
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">(X,Y,Z)</script>：世界坐标系中的三维点；</li>
+<li><script type="math/tex">(u,v)</script>：图像中的二维像素点；</li>
+<li><script type="math/tex">K</script>：相机内参；</li>
+<li><script type="math/tex">R,T</script>：相机外参；</li>
+<li><script type="math/tex">s</script>：齐次尺度因子，和深度有关。</li>
+</ul>
+<p>摄像机成像是：</p>
+<script type="math/tex; mode=display">(X,Y,Z) \rightarrow (u,v)</script>
+<p>三维重建希望反过来：</p>
+<script type="math/tex; mode=display">(u,v) \rightarrow (X,Y,Z)</script>
+<p>但是这个反推不唯一。</p>
+<p>原因是：</p>
+<p>一个二维点 <script type="math/tex">(u,v)</script> 只能确定一条从相机光心出发的空间射线，不能确定具体深度。</p>
+<p>因此：</p>
+<p>单个二维点<br>↓<br>对应空间中无数个可能的三维点<br>↓<br>必须引入额外约束</p>
+<p>常见额外约束：</p>
+<ul>
+<li>另一张图像中的对应点；</li>
+<li>相机之间的相对位置；</li>
+<li>已知相机内参；</li>
+<li>物体形状先验；</li>
+<li>深度学习模型学到的经验。</li>
+</ul>
+<hr>
+<h2 id="三、基于对应点的传统三维重建"><a href="#三、基于对应点的传统三维重建" class="headerlink" title="三、基于对应点的传统三维重建"></a>三、基于对应点的传统三维重建</h2><p>传统三维重建的核心思想：</p>
+<p>如果同一个三维点在两张图像中都能找到对应的二维投影点，那么可以利用两台相机的几何关系恢复该三维点的位置。</p>
+<p>流程：</p>
+<p>两张或多张图像<br>↓<br>提取特征点<br>↓<br>匹配对应点<br>↓<br>估计相机之间的相对位置<br>↓<br>根据对应点进行三角测量<br>↓<br>恢复三维点<br>↓<br>得到三维结构</p>
+<p>关键概念：</p>
+<p>对应点是指：</p>
+<p>不同图像中表示同一个真实三维空间点的图像点。</p>
+<p>例如：</p>
+<p>图像 1 中的某个窗户角点<br>和<br>图像 2 中的同一个窗户角点</p>
+<p>这两个点就是一组对应点。</p>
+<hr>
+<h3 id="1-两个视角为什么能恢复深度"><a href="#1-两个视角为什么能恢复深度" class="headerlink" title="1. 两个视角为什么能恢复深度"></a>1. 两个视角为什么能恢复深度</h3><p>单个相机看到一个像素点时，只能确定一条射线。</p>
+<p>如果有两个相机，并且知道同一个三维点在两张图中的投影，那么：</p>
+<p>相机 1 中的点<br>↓<br>确定一条空间射线</p>
+<p>相机 2 中的点<br>↓<br>确定另一条空间射线</p>
+<p>两条射线的交点<br>↓<br>就是三维点的位置</p>
+<p>这就是三角测量的直觉。</p>
+<p>可以简单记：</p>
+<p>单目图像：一条射线，深度不确定。</p>
+<p>双目 &#x2F; 多目图像：多条射线求交，深度可以确定。</p>
+<hr>
+<h3 id="2-公式化理解"><a href="#2-公式化理解" class="headerlink" title="2. 公式化理解"></a>2. 公式化理解</h3><p>设某个三维点为：</p>
+<script type="math/tex; mode=display">X=
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1
+\end{bmatrix}</script>
+<p>它在两个相机中的投影分别是：</p>
+<script type="math/tex; mode=display">x_1=
+\begin{bmatrix}
+u_1\\
+v_1\\
+1
+\end{bmatrix}</script>
+<script type="math/tex; mode=display">x_2=
+\begin{bmatrix}
+u_2\\
+v_2\\
+1
+\end{bmatrix}</script>
+<p>两个相机的投影矩阵分别为：</p>
+<script type="math/tex; mode=display">P_1=K_1[R_1\ T_1]</script>
+<script type="math/tex; mode=display">P_2=K_2[R_2\ T_2]</script>
+<p>则有：</p>
+<script type="math/tex; mode=display">s_1x_1=P_1X</script>
+<script type="math/tex; mode=display">s_2x_2=P_2X</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">x_1,x_2</script> 是两张图像上的对应点；</li>
+<li><script type="math/tex">P_1,P_2</script> 是两个相机的投影矩阵；</li>
+<li><script type="math/tex">X</script> 是未知的三维点；</li>
+<li><script type="math/tex">s_1,s_2</script> 是齐次尺度因子。</li>
+</ul>
+<p>如果 <script type="math/tex">P_1,P_2,x_1,x_2</script> 已知，就可以求解三维点 <script type="math/tex">X</script>。</p>
+<p>考试不用深入推导求解过程，重点理解：</p>
+<p>对应点 + 相机参数<br>↓<br>建立投影方程<br>↓<br>求解三维点坐标</p>
+<hr>
+<h3 id="3-世界坐标系可以怎么选"><a href="#3-世界坐标系可以怎么选" class="headerlink" title="3. 世界坐标系可以怎么选"></a>3. 世界坐标系可以怎么选</h3><p>实际三维重建时，世界坐标系可以人为选取。</p>
+<p>常见做法：</p>
+<p>把第一个相机坐标系当作世界坐标系。</p>
+<p>这时相机 1 的外参可以设为：</p>
+<script type="math/tex; mode=display">R_1=I</script>
+<script type="math/tex; mode=display">T_1=0</script>
+<p>含义：</p>
+<p>第一个相机就是世界坐标系的原点和参考方向。</p>
+<p>这样做可以简化计算。</p>
+<p>因为三维重建只关心物体和相机之间的相对几何关系，而不一定需要知道它在某个绝对世界坐标中的位置。</p>
+<hr>
+<h3 id="4-传统重建的基本步骤"><a href="#4-传统重建的基本步骤" class="headerlink" title="4. 传统重建的基本步骤"></a>4. 传统重建的基本步骤</h3><p>传统基于对应点的三维重建可以整理成：</p>
+<p>第一步：输入多张图像。</p>
+<p>第二步：提取每张图像中的特征点。</p>
+<p>第三步：为特征点生成描述子。</p>
+<p>第四步：在不同图像之间进行特征匹配，找到对应点。</p>
+<p>第五步：根据对应点估计相机之间的相对位置和姿态。</p>
+<p>第六步：利用投影几何关系进行三角测量，恢复空间点坐标。</p>
+<p>第七步：把大量三维点组合起来，得到点云或进一步生成三维模型。</p>
+<p>简写：</p>
+<p>图像<br>↓<br>特征点检测<br>↓<br>特征描述子<br>↓<br>特征匹配<br>↓<br>相机参数估计<br>↓<br>三角测量<br>↓<br>三维点云 &#x2F; 三维结构</p>
+<hr>
+<h2 id="四、对应点如何获得：特征点检测与匹配"><a href="#四、对应点如何获得：特征点检测与匹配" class="headerlink" title="四、对应点如何获得：特征点检测与匹配"></a>四、对应点如何获得：特征点检测与匹配</h2><p>三维重建的关键是找到不同图像之间的对应点。</p>
+<p>传统方法通常依赖特征点检测与匹配。</p>
+<p>常见特征点方法：</p>
+<ul>
+<li>Harris 角点检测；</li>
+<li>LoG，高斯-拉普拉斯特征检测子；</li>
+<li>SIFT，尺度不变特征变换；</li>
+<li>SURF，加速稳健特征；</li>
+<li>FAST，加速分割测试特征；</li>
+<li>ORB，Oriented FAST and Rotated BRIEF。</li>
+</ul>
+<p>其中 SIFT 是最典型、最容易考的。</p>
+<hr>
+<h3 id="1-特征点是什么"><a href="#1-特征点是什么" class="headerlink" title="1. 特征点是什么"></a>1. 特征点是什么</h3><p>特征点是图像中比较稳定、容易识别、容易匹配的局部点。</p>
+<p>例如：</p>
+<ul>
+<li>角点；</li>
+<li>边缘交汇处；</li>
+<li>纹理突变点；</li>
+<li>局部亮度变化明显的点。</li>
+</ul>
+<p>好的特征点应该满足：</p>
+<ul>
+<li>在不同视角下仍然容易被检测到；</li>
+<li>在尺度变化下仍然稳定；</li>
+<li>在旋转后仍然可识别；</li>
+<li>局部区域有足够独特的信息；</li>
+<li>不容易和其他点混淆。</li>
+</ul>
+<hr>
+<h3 id="2-SIFT-在三维重建中的作用"><a href="#2-SIFT-在三维重建中的作用" class="headerlink" title="2. SIFT 在三维重建中的作用"></a>2. SIFT 在三维重建中的作用</h3><p>SIFT 不是直接恢复三维结构。</p>
+<p>SIFT 的作用是：</p>
+<p>在不同图像中找到可靠的对应点。</p>
+<p>SIFT 流程：</p>
+<p>检测关键点<br>↓<br>为关键点生成描述子<br>↓<br>比较两张图中的描述子<br>↓<br>找到匹配点对<br>↓<br>作为三维重建的对应点</p>
+<p>SIFT 的优点：</p>
+<ul>
+<li>对旋转具有不变性；</li>
+<li>对尺度变化具有不变性；</li>
+<li>对亮度变化有一定鲁棒性；</li>
+<li>描述子信息量丰富；</li>
+<li>适合在不同图像之间做匹配。</li>
+</ul>
+<p>一句话：</p>
+<p>SIFT 提供“哪些二维点对应同一个三维点”的线索。</p>
+<hr>
+<h3 id="3-特征匹配的基本思想"><a href="#3-特征匹配的基本思想" class="headerlink" title="3. 特征匹配的基本思想"></a>3. 特征匹配的基本思想</h3><p>每个特征点都有一个描述子向量。</p>
+<p>假设图像 A 中某个点的描述子是：</p>
+<script type="math/tex; mode=display">d_A</script>
+<p>图像 B 中某个点的描述子是：</p>
+<script type="math/tex; mode=display">d_B</script>
+<p>如果两个描述子很相似，则认为它们可能对应同一个三维点。</p>
+<p>常用相似性度量：</p>
+<script type="math/tex; mode=display">\|d_A-d_B\|</script>
+<p>距离越小，说明两个局部区域越相似。</p>
+<p>匹配结果：</p>
+<p>图像 A 的特征点<br>↔<br>图像 B 的特征点</p>
+<p>这些匹配点对就可以用于后续相机参数估计和三维点恢复。</p>
+<hr>
+<h2 id="五、三角测量：由二维对应点求三维点"><a href="#五、三角测量：由二维对应点求三维点" class="headerlink" title="五、三角测量：由二维对应点求三维点"></a>五、三角测量：由二维对应点求三维点</h2><p>三角测量的目标：</p>
+<p>已知同一个三维点在两张图像中的投影位置，以及两个相机的位置和姿态，求这个三维点在空间中的坐标。</p>
+<p>直观解释：</p>
+<p>相机 1 看到的二维点<br>↓<br>反投影成空间中的一条射线</p>
+<p>相机 2 看到的二维点<br>↓<br>反投影成另一条空间射线</p>
+<p>两条射线交会的位置<br>↓<br>三维点</p>
+<p>理想情况下，两条射线会相交。</p>
+<p>实际情况下，由于噪声、标定误差、匹配误差，两条射线可能不完全相交。</p>
+<p>这时通常求一个最接近两条射线的点，作为估计的三维点。</p>
+<p>考试重点不在数值求解，而在理解：</p>
+<p>对应点提供两条视线，三角测量利用视线交会恢复深度。</p>
+<hr>
+<h2 id="六、传统三维重建的难点"><a href="#六、传统三维重建的难点" class="headerlink" title="六、传统三维重建的难点"></a>六、传统三维重建的难点</h2><p>传统三维重建依赖稳定的对应点和准确的相机参数，但现实图像中这些条件很难完全满足。</p>
+<p>主要难点有三个：</p>
+<p>遮挡<br>纹理缺乏<br>光照变化</p>
+<hr>
+<h3 id="1-遮挡"><a href="#1-遮挡" class="headerlink" title="1. 遮挡"></a>1. 遮挡</h3><p>遮挡是指某些物体表面在某个视角下看不到。</p>
+<p>例如：</p>
+<ul>
+<li>物体背面被自身挡住；</li>
+<li>前景物体挡住后方物体；</li>
+<li>侧面结构只在某些视角可见。</li>
+</ul>
+<p>影响：</p>
+<ul>
+<li>被遮挡区域没有图像信息；</li>
+<li>对应点无法检测；</li>
+<li>三维表面信息缺失；</li>
+<li>相机参数估计可能变差；</li>
+<li>重建结果不完整。</li>
+</ul>
+<p>直觉：</p>
+<p>如果一个表面在任何输入图像中都没被看到，传统几何方法很难凭空恢复它。</p>
+<hr>
+<h3 id="2-纹理缺乏"><a href="#2-纹理缺乏" class="headerlink" title="2. 纹理缺乏"></a>2. 纹理缺乏</h3><p>特征点检测依赖明显纹理和局部变化。</p>
+<p>如果物体表面很光滑，图像中就缺少可稳定匹配的关键点。</p>
+<p>例如：</p>
+<ul>
+<li>白墙；</li>
+<li>玻璃杯；</li>
+<li>光滑苹果；</li>
+<li>纯色塑料物体；</li>
+<li>无纹理桌面。</li>
+</ul>
+<p>影响：</p>
+<ul>
+<li>可检测的特征点少；</li>
+<li>匹配点少；</li>
+<li>匹配不稳定；</li>
+<li>难以估计相机位姿；</li>
+<li>难以恢复稠密三维结构。</li>
+</ul>
+<p>直觉：</p>
+<p>特征点方法喜欢“有角、有纹理、有变化”的区域，不喜欢大面积平滑区域。</p>
+<hr>
+<h3 id="3-光照变化"><a href="#3-光照变化" class="headerlink" title="3. 光照变化"></a>3. 光照变化</h3><p>同一个真实点在不同光照下，图像外观可能发生明显变化。</p>
+<p>例如：</p>
+<ul>
+<li>白天和夜晚；</li>
+<li>阴影和强光；</li>
+<li>反光；</li>
+<li>曝光变化；</li>
+<li>颜色变化。</li>
+</ul>
+<p>影响：</p>
+<ul>
+<li>特征点检测结果发生变化；</li>
+<li>描述子相似度降低；</li>
+<li>正确匹配点减少；</li>
+<li>错误匹配点增加；</li>
+<li>重建结果不稳定。</li>
+</ul>
+<p>直觉：</p>
+<p>传统特征虽然对光照有一定鲁棒性，但不是完全不受影响。</p>
+<hr>
+<h3 id="4-传统方法困难的本质"><a href="#4-传统方法困难的本质" class="headerlink" title="4. 传统方法困难的本质"></a>4. 传统方法困难的本质</h3><p>传统方法的瓶颈可以概括为：</p>
+<p>三维重建需要对应点<br>↓<br>对应点依赖特征检测和匹配<br>↓<br>现实图像中遮挡、低纹理、光照变化会破坏匹配<br>↓<br>匹配不准会导致相机参数和三维点估计错误</p>
+<p>所以传统方法在简单、纹理丰富、视角清楚的场景中效果较好；</p>
+<p>在复杂真实场景中性能容易下降。</p>
+<hr>
+<h2 id="七、基于神经网络的三维重建"><a href="#七、基于神经网络的三维重建" class="headerlink" title="七、基于神经网络的三维重建"></a>七、基于神经网络的三维重建</h2><p>传统方法依赖人工设计的关键点检测、特征匹配、相机参数求解等步骤。</p>
+<p>神经网络方法的目标是：</p>
+<p>让模型从数据中自动学习三维重建所需的能力。</p>
+<p>传统方法：</p>
+<p>输入图像<br>↓<br>关键点检测与匹配<br>↓<br>相机参数求解<br>↓<br>三维点坐标计算<br>↓<br>重建结果</p>
+<p>神经网络方法：</p>
+<p>输入图像<br>↓<br>神经网络<br>↓<br>深度 &#x2F; 位姿 &#x2F; 三维点 &#x2F; 网格 &#x2F; 神经场<br>↓<br>重建结果</p>
+<p>注意：</p>
+<p>神经网络不是完全抛弃几何，而是用学习方法替代或增强传统流程中的某些环节。</p>
+<hr>
+<h3 id="1-学习对应点匹配"><a href="#1-学习对应点匹配" class="headerlink" title="1. 学习对应点匹配"></a>1. 学习对应点匹配</h3><p>传统方法用 SIFT 等算法找稀疏匹配点。</p>
+<p>神经网络可以学习两幅图像之间的稠密匹配关系或视差。</p>
+<p>典型思想：</p>
+<p>输入左右图像<br>↓<br>神经网络估计视差 &#x2F; 匹配关系<br>↓<br>得到稠密深度信息<br>↓<br>生成更精细的重建结果</p>
+<p>优点：</p>
+<ul>
+<li>匹配点更稠密；</li>
+<li>可以得到更完整的深度图；</li>
+<li>对复杂纹理和一定光照变化可能更鲁棒。</li>
+</ul>
+<p>对应 PPT 中的例子：</p>
+<p>End-To-End Learning of Geometry and Context for Deep Stereo Regression</p>
+<p>它关注用神经网络预测两幅图像的视差，从而代替传统的 SIFT 匹配过程。</p>
+<hr>
+<h3 id="2-学习相机参数"><a href="#2-学习相机参数" class="headerlink" title="2. 学习相机参数"></a>2. 学习相机参数</h3><p>传统方法需要先找对应点，再根据几何关系求相机位姿。</p>
+<p>神经网络可以直接从图像序列中预测相机运动。</p>
+<p>典型思想：</p>
+<p>连续图像序列<br>↓<br>卷积网络提取图像特征<br>↓<br>循环网络融合历史信息<br>↓<br>预测相机 pose<br>↓<br>估计相机运动轨迹</p>
+<p>对应 PPT 中的例子：</p>
+<p>DeepVO</p>
+<p>它尝试用深度网络直接预测相机参数，代替传统流程中的关键点匹配和相机参数求解部分。</p>
+<hr>
+<h3 id="3-学习深度或三维坐标"><a href="#3-学习深度或三维坐标" class="headerlink" title="3. 学习深度或三维坐标"></a>3. 学习深度或三维坐标</h3><p>神经网络也可以直接预测每个像素的深度。</p>
+<p>典型思想：</p>
+<p>参考图像 + 多幅辅助图像<br>↓<br>神经网络融合多视角信息<br>↓<br>预测参考图像中每个像素的深度<br>↓<br>得到稠密三维结构</p>
+<p>对应 PPT 中的例子：</p>
+<p>MVSNet</p>
+<p>它关注多视角立体重建，输入一张参考图像和多张辅助图像，预测参考图像每个像素在相机坐标系中的深度。</p>
+<p>这类方法的输出通常比传统稀疏关键点重建更稠密。</p>
+<hr>
+<h3 id="4-从单张图像重建三维结构"><a href="#4-从单张图像重建三维结构" class="headerlink" title="4. 从单张图像重建三维结构"></a>4. 从单张图像重建三维结构</h3><p>单图三维重建更难。</p>
+<p>原因：</p>
+<p>单张图像只提供一个视角；<br>物体背面、侧面、被遮挡区域没有直接图像信息；<br>深度存在严重歧义。</p>
+<p>但人类看到单张图片时，可以凭经验脑补三维结构。</p>
+<p>神经网络方法也试图利用大规模数据学到形状先验。</p>
+<p>典型思想：</p>
+<p>单张 RGB 图像<br>↓<br>神经网络提取视觉特征<br>↓<br>利用学到的形状先验补全不可见部分<br>↓<br>输出三维网格 &#x2F; 三维模型 &#x2F; 多视角结果</p>
+<p>对应 PPT 中的例子：</p>
+<p>Pixel2Mesh</p>
+<p>它从单幅图像逐步重建物体的三维网格结构。</p>
+<p>RealFusion</p>
+<p>它利用图像生成模型补充目标不同侧面的信息，从单张图像生成目标的 360° 三维重建结果。</p>
+<p>Diffusion-based 3D Reconstruction</p>
+<p>它利用扩散模型的生成能力，把三维重建过程转化成逐步去噪或生成过程。</p>
+<hr>
+<h3 id="5-NeRF-与生成式三维重建"><a href="#5-NeRF-与生成式三维重建" class="headerlink" title="5. NeRF 与生成式三维重建"></a>5. NeRF 与生成式三维重建</h3><p>NeRF，即神经辐射场，是一种用神经网络表示三维场景的方法。</p>
+<p>它的核心思想可以简单理解为：</p>
+<p>用一个神经网络表示空间中每个点的颜色和密度，从而可以从任意视角渲染出图像。</p>
+<p>输入：</p>
+<p>多视角图像</p>
+<p>学习：</p>
+<p>空间位置和观察方向<br>↓<br>颜色和密度</p>
+<p>输出：</p>
+<p>可从新视角渲染的三维场景</p>
+<p>直觉：</p>
+<p>NeRF 不是只恢复离散点云，而是学习一个连续的三维场景表示。</p>
+<p>PPT 后面提到的 DUSt3R、Structured 3D Latents 等前沿工作，也都体现了一个趋势：</p>
+<p>三维重建正在从传统几何流程，走向大规模神经网络和生成模型驱动的三维理解与生成。</p>
+<hr>
+<h2 id="八、传统方法与神经网络方法对比"><a href="#八、传统方法与神经网络方法对比" class="headerlink" title="八、传统方法与神经网络方法对比"></a>八、传统方法与神经网络方法对比</h2><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>核心思想</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>传统几何方法</td>
+<td>特征点匹配 + 相机几何 + 三角测量</td>
+<td>几何解释清楚，理论严谨</td>
+<td>依赖纹理和匹配，受遮挡、光照影响大</td>
+</tr>
+<tr>
+<td>神经网络方法</td>
+<td>从数据中学习匹配、深度、位姿或三维形状</td>
+<td>可处理复杂场景，可生成稠密结果</td>
+<td>需要大量数据，计算开销大，可解释性较弱</td>
+</tr>
+</tbody></table>
+<p>传统方法像是：</p>
+<p>人设计规则，让算法按几何公式推。</p>
+<p>神经网络方法像是：</p>
+<p>让模型从大量图像和三维结构中学习如何重建。</p>
+<p>二者不是完全对立的。</p>
+<p>很多现代方法仍然会把几何约束和神经网络结合起来。</p>
+<hr>
+<h2 id="九、考试重点与易错点"><a href="#九、考试重点与易错点" class="headerlink" title="九、考试重点与易错点"></a>九、考试重点与易错点</h2><h3 id="1-必须掌握的主线"><a href="#1-必须掌握的主线" class="headerlink" title="1. 必须掌握的主线"></a>1. 必须掌握的主线</h3><p>三维重建主线：</p>
+<p>二维图像<br>↓<br>找到不同图像之间的对应点<br>↓<br>利用相机参数和投影关系<br>↓<br>通过三角测量恢复三维点<br>↓<br>得到三维结构</p>
+<p>最重要的一句话：</p>
+<p>三维重建是摄像机投影的逆问题，但由于投影会丢失深度信息，必须借助多视角、对应点或先验知识。</p>
+<hr>
+<h3 id="2-必须会解释的概念"><a href="#2-必须会解释的概念" class="headerlink" title="2. 必须会解释的概念"></a>2. 必须会解释的概念</h3><p>对应点：</p>
+<p>不同图像中对应同一个三维空间点的图像点。</p>
+<p>特征点：</p>
+<p>图像中稳定、独特、容易匹配的局部点。</p>
+<p>描述子：</p>
+<p>用于描述特征点邻域信息的向量。</p>
+<p>特征匹配：</p>
+<p>比较不同图像中特征点描述子的相似度，寻找对应点。</p>
+<p>三角测量：</p>
+<p>利用两个或多个视角中的对应点，求解三维空间点的位置。</p>
+<p>深度：</p>
+<p>空间点到相机方向上的距离，是二维图像中丢失的重要信息。</p>
+<hr>
+<h3 id="3-传统三维重建流程模板"><a href="#3-传统三维重建流程模板" class="headerlink" title="3. 传统三维重建流程模板"></a>3. 传统三维重建流程模板</h3><p>如果题目问“基于对应点的三维重建流程”，可以写：</p>
+<p>基于对应点的三维重建首先在多张图像中检测特征点，并为每个特征点生成描述子；然后通过比较描述子相似度，在不同图像之间建立匹配点对；在已知或估计相机内外参的基础上，将对应点代入投影几何关系，通过三角测量求解其三维坐标；最后将大量三维点组合起来，得到场景或物体的三维结构。</p>
+<hr>
+<h3 id="4-传统方法难点模板"><a href="#4-传统方法难点模板" class="headerlink" title="4. 传统方法难点模板"></a>4. 传统方法难点模板</h3><p>如果题目问“传统三维重建有什么困难”，可以写：</p>
+<p>传统基于对应点的三维重建依赖可靠的特征点检测和匹配，但实际场景中常存在遮挡、纹理缺乏和光照变化等问题。遮挡会造成目标表面信息和关键点缺失；纹理缺乏会导致难以检测到稳定特征点；光照变化会干扰特征描述子，使匹配点减少或产生错误匹配。这些问题会进一步影响相机参数估计和三维点坐标计算，导致重建结果不完整或不准确。</p>
+<hr>
+<h3 id="5-神经网络方法模板"><a href="#5-神经网络方法模板" class="headerlink" title="5. 神经网络方法模板"></a>5. 神经网络方法模板</h3><p>如果题目问“神经网络如何用于三维重建”，可以写：</p>
+<p>由于传统方法依赖人工设计的特征点检测、匹配和相机参数求解，在复杂场景中容易失效，近年来的三维重建方法常使用神经网络自动学习重建能力。神经网络可以用于学习两幅图像之间的对应点或视差，预测相机位姿，估计像素深度，或者直接从单张图像生成三维网格模型。相比传统稀疏特征匹配方法，神经网络方法能够利用数据中学到的先验，生成更稠密、更完整的重建结果，但通常需要大量训练数据和较高计算开销。</p>
+<hr>
+<h3 id="6-常见易错点"><a href="#6-常见易错点" class="headerlink" title="6. 常见易错点"></a>6. 常见易错点</h3><p>易错点一：认为单张图像可以直接唯一恢复三维坐标。</p>
+<p>正确理解：</p>
+<p>单张图像中的一个点对应空间中一条射线，深度未知，不能唯一恢复三维点。</p>
+<p>易错点二：把 SIFT 当作三维重建结果。</p>
+<p>正确理解：</p>
+<p>SIFT 只是用来找关键点和对应点，不直接输出三维结构。</p>
+<p>易错点三：以为多视角重建只需要两张图。</p>
+<p>正确理解：</p>
+<p>两张图可以进行基本三角测量，但实际复杂重建通常需要多张图像来提高覆盖率和稳定性。</p>
+<p>易错点四：忽略相机参数。</p>
+<p>正确理解：</p>
+<p>对应点本身不够，还需要相机内参和外参，才能把二维点和三维射线联系起来。</p>
+<p>易错点五：认为神经网络完全不需要几何。</p>
+<p>正确理解：</p>
+<p>很多神经网络三维重建方法仍然利用几何约束，只是用学习方法替代或增强传统流程中的部分环节。</p>
+<hr>
+<h2 id="十、最核心记忆"><a href="#十、最核心记忆" class="headerlink" title="十、最核心记忆"></a>十、最核心记忆</h2><p>三维重建一句话：</p>
+<p>从二维图像恢复三维结构，本质上是摄像机投影的逆问题。</p>
+<p>传统方法主线：</p>
+<p>多视角图像<br>↓<br>特征点检测<br>↓<br>特征描述子<br>↓<br>对应点匹配<br>↓<br>相机参数估计<br>↓<br>三角测量<br>↓<br>三维点云 &#x2F; 三维模型</p>
+<p>对应点作用：</p>
+<p>告诉我们不同图像中的哪些二维点来自同一个三维点。</p>
+<p>SIFT 作用：</p>
+<p>提供稳定的关键点和描述子，用来建立不同图像之间的对应关系。</p>
+<p>三角测量作用：</p>
+<p>利用多个视角的对应点反推出三维点深度和空间坐标。</p>
+<p>传统方法难点：</p>
+<p>遮挡、纹理缺乏、光照变化。</p>
+<p>神经网络方法趋势：</p>
+<p>从人工设计特征和几何求解，转向自动学习匹配、深度、位姿和三维形状。</p>
+<p>最重要理解：</p>
+<p>三维重建不是简单地把二维图像“拉回三维”，而是要利用多视角几何、对应点匹配和额外先验，把投影过程中丢失的深度信息重新估计出来。</p>
+</div><div class="tags"></div><div class="post-nav"><a class="next" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>To be a better man.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" style="font-size: 15px;">人工智能</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E8%AF%86%E5%88%AB/" style="font-size: 15px;">图像识别</a> <a href="/tags/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">课程笔记</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/" style="font-size: 15px;">图像分类</a> <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">实验笔记</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">机器学习</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 15px;">自然语言处理</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">深度学习</a> <a href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" style="font-size: 15px;">期末复习</a> <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" style="font-size: 15px;">智能机器人</a> <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" style="font-size: 15px;">知识图谱</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 15px;">博客搭建</a> <a href="/tags/Hexo%E5%85%A5%E9%97%A8/" style="font-size: 15px;">Hexo入门</a> <a href="/tags/%E7%AB%99%E7%82%B9%E9%83%A8%E7%BD%B2/" style="font-size: 15px;">站点部署</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F/" style="font-size: 15px;">距离度量</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%87%A0%E4%BD%95/" style="font-size: 15px;">计算几何</a> <a href="/tags/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" style="font-size: 15px;">最小生成树</a> <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" style="font-size: 15px;">并查集</a> <a href="/tags/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" style="font-size: 15px;">算法刷题</a> <a href="/tags/%E5%8D%95%E8%B0%83%E6%A0%88/" style="font-size: 15px;">单调栈</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 15px;">数据结构</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 15px;">动态规划</a> <a href="/tags/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">算法笔记</a> <a href="/tags/%E9%99%8D%E7%BB%B4%E7%AE%97%E6%B3%95/" style="font-size: 15px;">降维算法</a> <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%8A%95%E5%BD%B1/" style="font-size: 15px;">随机投影</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E4%BF%9D%E6%8C%81/" style="font-size: 15px;">距离保持</a> <a href="/tags/%E5%9B%9B%E5%88%86%E6%A0%91/" style="font-size: 15px;">四分树</a> <a href="/tags/%E8%BF%91%E4%BC%BC%E7%AE%97%E6%B3%95/" style="font-size: 15px;">近似算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%94-%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">AI引论期末复习(五):计算机视觉</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E9%99%8D%E7%BB%B4-JL%E6%96%B9%E6%B3%95/">降维:JL方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4g%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-%E4%BA%8C/">距离度量及其计算——低维欧氏距离(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/18/AI%E5%BC%95%E8%AE%BALab2%E2%80%94%E2%80%94%E4%BB%8Enumpy%E5%BC%80%E5%A7%8B%E7%9A%84u%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/">AI引论Lab2——从numpy开始的图像分类</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/AI%E5%BC%95%E8%AE%BA/">AI引论</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Square的小站.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+  });
+</script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>

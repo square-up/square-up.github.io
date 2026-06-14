@@ -30,7 +30,354 @@
 <li>若存在 A → B C，且 B ∈ X(i,k), C ∈ X(k+1,j)，则 A ∈ X(i,j)。</li>
 <li>最后检查 S 是否属于 X(1,n)。</li>
 </ol>
-<h1 id="统计语言模型与词表示"><a href="#统计语言模型与词表示" class="headerlink" title="统计语言模型与词表示"></a>统计语言模型与词表示</h1><p>统计语言模型关心的是“一个句子出现的概率有多大”。从 n-gram 到词向量，思路大致是从离散计数走向连续表示：前者好算但表达能力有限，后者能把词语放进向量空间里，让相似词在几何上也更接近。</p>
+<h1 id="CBOW-复习提纲：用上下文预测中心词"><a href="#CBOW-复习提纲：用上下文预测中心词" class="headerlink" title="CBOW 复习提纲：用上下文预测中心词"></a>CBOW 复习提纲：用上下文预测中心词</h1><h2 id="一、CBOW-是什么"><a href="#一、CBOW-是什么" class="headerlink" title="一、CBOW 是什么"></a>一、CBOW 是什么</h2><p>CBOW 全称：</p>
+<p>Continuous Bag of Words</p>
+<p>它是 word2vec 的一种模型，用来学习词向量。</p>
+<p>核心任务：</p>
+<p>用一个词周围的上下文词，预测中间的中心词。</p>
+<p>也就是：</p>
+<p>上下文词<br>↓<br>预测中心词</p>
+<p>例如句子：</p>
+<script type="math/tex; mode=display">\text{for breakfast he ate}</script>
+<p>如果中心词是：</p>
+<script type="math/tex; mode=display">\text{breakfast}</script>
+<p>上下文词可以是：</p>
+<script type="math/tex; mode=display">\text{for},\ \text{he},\ \text{ate}</script>
+<p>那么 CBOW 的训练任务就是：</p>
+<p>输入：</p>
+<script type="math/tex; mode=display">\text{for},\ \text{he},\ \text{ate}</script>
+<p>输出：</p>
+<script type="math/tex; mode=display">\text{breakfast}</script>
+<p>一句话：</p>
+<p>CBOW 通过“根据上下文预测中心词”这个任务，学习每个词的向量表示。</p>
+<hr>
+<h2 id="二、CBOW-为什么能学到语义"><a href="#二、CBOW-为什么能学到语义" class="headerlink" title="二、CBOW 为什么能学到语义"></a>二、CBOW 为什么能学到语义</h2><p>CBOW 的理论基础是：</p>
+<p>上下文相似的词，语义也相似。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">\text{for breakfast he ate}</script>
+<script type="math/tex; mode=display">\text{for lunch he ate}</script>
+<script type="math/tex; mode=display">\text{for dinner he ate}</script>
+<p>这里：</p>
+<script type="math/tex; mode=display">\text{breakfast},\ \text{lunch},\ \text{dinner}</script>
+<p>出现在相似上下文：</p>
+<script type="math/tex; mode=display">\text{for } \_\_ \text{ he ate}</script>
+<p>所以模型会倾向于把它们的词向量学得比较接近。</p>
+<p>直觉：</p>
+<p>如果两个词经常出现在相似位置、相似语境中，那么它们应该有相似的语义。</p>
+<p>所以 CBOW 表面上是在做分类：</p>
+<p>根据上下文预测中心词。</p>
+<p>但真正目的不是分类本身，而是学到词向量。</p>
+<hr>
+<h2 id="三、CBOW-的输入与输出"><a href="#三、CBOW-的输入与输出" class="headerlink" title="三、CBOW 的输入与输出"></a>三、CBOW 的输入与输出</h2><p>设词表大小为：</p>
+<script type="math/tex; mode=display">V</script>
+<p>词向量维度为：</p>
+<script type="math/tex; mode=display">N</script>
+<p>上下文窗口大小为：</p>
+<script type="math/tex; mode=display">m</script>
+<p>例如上下文有 <script type="math/tex">m</script> 个词：</p>
+<script type="math/tex; mode=display">w_1,w_2,\dots,w_m</script>
+<p>中心词为：</p>
+<script type="math/tex; mode=display">w_c</script>
+<p>CBOW 的输入：</p>
+<script type="math/tex; mode=display">w_1,w_2,\dots,w_m</script>
+<p>CBOW 的输出：</p>
+<script type="math/tex; mode=display">w_c</script>
+<p>训练样本可以写成：</p>
+<script type="math/tex; mode=display">(w_1,w_2,\dots,w_m) \rightarrow w_c</script>
+<p>例如：</p>
+<script type="math/tex; mode=display">(\text{for},\text{he},\text{ate}) \rightarrow \text{breakfast}</script>
+<hr>
+<h2 id="四、CBOW-的完整流程"><a href="#四、CBOW-的完整流程" class="headerlink" title="四、CBOW 的完整流程"></a>四、CBOW 的完整流程</h2><h3 id="1-上下文词先变成-one-hot"><a href="#1-上下文词先变成-one-hot" class="headerlink" title="1. 上下文词先变成 one-hot"></a>1. 上下文词先变成 one-hot</h3><p>每个上下文词先表示成 one-hot 向量。</p>
+<p>如果词表大小是 <script type="math/tex">V</script>，那么每个 one-hot 向量维度是：</p>
+<script type="math/tex; mode=display">1 \times V</script>
+<p>例如：</p>
+<script type="math/tex; mode=display">x_i \in \mathbb{R}^{1\times V}</script>
+<p>one-hot 的特点：</p>
+<ul>
+<li>只有一个位置是 1；</li>
+<li>其他位置都是 0；</li>
+<li>这个 1 的位置表示该词在词表中的编号。</li>
+</ul>
+<hr>
+<h3 id="2-one-hot-乘以词向量矩阵-MATH-INLINE-162"><a href="#2-one-hot-乘以词向量矩阵-MATH-INLINE-162" class="headerlink" title="2. one-hot 乘以词向量矩阵 <script type="math/tex">W</script>"></a>2. one-hot 乘以词向量矩阵 <script type="math/tex">W</script></h3><p>CBOW 有一个可学习矩阵：</p>
+<script type="math/tex; mode=display">W \in \mathbb{R}^{V\times N}</script>
+<p>其中：</p>
+<ul>
+<li><script type="math/tex">V</script>：词表大小；</li>
+<li><script type="math/tex">N</script>：词向量维度；</li>
+<li><script type="math/tex">W</script> 的每一行可以看成一个词的向量。</li>
+</ul>
+<p>一个 one-hot 向量乘以 <script type="math/tex">W</script>：</p>
+<script type="math/tex; mode=display">x_i W</script>
+<p>得到：</p>
+<script type="math/tex; mode=display">1 \times N</script>
+<p>的词向量。</p>
+<p>也就是：</p>
+<script type="math/tex; mode=display">e_i = x_i W</script>
+<p>其中：</p>
+<script type="math/tex; mode=display">e_i \in \mathbb{R}^{1\times N}</script>
+<p>关键理解：</p>
+<p>one-hot 向量乘以矩阵 <script type="math/tex">W</script>，本质上就是从 <script type="math/tex">W</script> 中取出对应词的那一行。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">x_{\text{book}} W = e(\text{book})</script>
+<p>所以 <script type="math/tex">W</script> 就是模型要学习的词向量表。</p>
+<hr>
+<h3 id="3-多个上下文词向量取平均"><a href="#3-多个上下文词向量取平均" class="headerlink" title="3. 多个上下文词向量取平均"></a>3. 多个上下文词向量取平均</h3><p>假设上下文词有 <script type="math/tex">m</script> 个，它们分别得到词向量：</p>
+<script type="math/tex; mode=display">e_1,e_2,\dots,e_m</script>
+<p>CBOW 把它们求平均：</p>
+<script type="math/tex; mode=display">h=\frac{1}{m}\sum_{i=1}^{m}e_i</script>
+<p>其中：</p>
+<script type="math/tex; mode=display">h \in \mathbb{R}^{1\times N}</script>
+<p><script type="math/tex">h</script> 表示整个上下文的语义。</p>
+<p>直觉：</p>
+<p>上下文中每个词都提供一点线索，把它们平均后，就得到一个综合上下文表示。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">\text{for},\ \text{he},\ \text{ate}</script>
+<p>合起来暗示中心词可能是：</p>
+<script type="math/tex; mode=display">\text{breakfast},\ \text{lunch},\ \text{dinner}</script>
+<hr>
+<h3 id="4-上下文表示乘以输出矩阵-MATH-INLINE-172"><a href="#4-上下文表示乘以输出矩阵-MATH-INLINE-172" class="headerlink" title="4. 上下文表示乘以输出矩阵 <script type="math/tex">W'</script>"></a>4. 上下文表示乘以输出矩阵 <script type="math/tex">W'</script></h3><p>CBOW 还有另一个可学习矩阵：</p>
+<script type="math/tex; mode=display">W' \in \mathbb{R}^{N\times V}</script>
+<p>将上下文表示 <script type="math/tex">h</script> 乘以 <script type="math/tex">W'</script>：</p>
+<script type="math/tex; mode=display">z = hW'</script>
+<p>得到：</p>
+<script type="math/tex; mode=display">z \in \mathbb{R}^{1\times V}</script>
+<p>这个 <script type="math/tex">z</script> 是对词表中每个词的打分，也叫 logits。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">z =
+[\text{score}_{w_1},\text{score}_{w_2},\dots,\text{score}_{w_V}]</script>
+<p>每一维表示某个词作为中心词的分数。</p>
+<hr>
+<h3 id="5-Softmax-得到中心词概率"><a href="#5-Softmax-得到中心词概率" class="headerlink" title="5. Softmax 得到中心词概率"></a>5. Softmax 得到中心词概率</h3><p>对 logits 做 Softmax：</p>
+<script type="math/tex; mode=display">P(w_j|\text{context})=
+\frac{e^{z_j}}{\sum_{k=1}^{V}e^{z_k}}</script>
+<p>得到词表中每个词作为中心词的概率。</p>
+<p>例如：</p>
+<script type="math/tex; mode=display">P(\text{breakfast}|\text{for, he, ate})</script>
+<p>如果这个概率很大，说明模型认为 breakfast 很可能是中心词。</p>
+<hr>
+<h3 id="6-用交叉熵损失训练"><a href="#6-用交叉熵损失训练" class="headerlink" title="6. 用交叉熵损失训练"></a>6. 用交叉熵损失训练</h3><p>真实中心词是 <script type="math/tex">w_c</script>。</p>
+<p>模型希望：</p>
+<script type="math/tex; mode=display">P(w_c|\text{context})</script>
+<p>越大越好。</p>
+<p>损失函数常用交叉熵：</p>
+<script type="math/tex; mode=display">L=-\log P(w_c|\text{context})</script>
+<p>如果模型给真实中心词的概率高：</p>
+<script type="math/tex; mode=display">L</script>
+<p>就小。</p>
+<p>如果模型给真实中心词的概率低：</p>
+<script type="math/tex; mode=display">L</script>
+<p>就大。</p>
+<p>然后通过反向传播更新：</p>
+<script type="math/tex; mode=display">W,\quad W'</script>
+<p>最终学到词向量矩阵。</p>
+<hr>
+<h2 id="五、CBOW-的维度总结"><a href="#五、CBOW-的维度总结" class="headerlink" title="五、CBOW 的维度总结"></a>五、CBOW 的维度总结</h2><p>设：</p>
+<ul>
+<li>词表大小：<script type="math/tex">V</script></li>
+<li>词向量维度：<script type="math/tex">N</script></li>
+<li>上下文词数量：<script type="math/tex">m</script></li>
+</ul>
+<p>每个上下文词 one-hot：</p>
+<script type="math/tex; mode=display">x_i \in \mathbb{R}^{1\times V}</script>
+<p>输入词向量矩阵：</p>
+<script type="math/tex; mode=display">W \in \mathbb{R}^{V\times N}</script>
+<p>上下文词向量：</p>
+<script type="math/tex; mode=display">e_i=x_iW \in \mathbb{R}^{1\times N}</script>
+<p>上下文平均向量：</p>
+<script type="math/tex; mode=display">h=\frac{1}{m}\sum_{i=1}^{m}e_i \in \mathbb{R}^{1\times N}</script>
+<p>输出矩阵：</p>
+<script type="math/tex; mode=display">W' \in \mathbb{R}^{N\times V}</script>
+<p>输出 logits：</p>
+<script type="math/tex; mode=display">z=hW' \in \mathbb{R}^{1\times V}</script>
+<p>Softmax 输出：</p>
+<script type="math/tex; mode=display">P(w|\text{context}) \in \mathbb{R}^{1\times V}</script>
+<p>预测结果：</p>
+<script type="math/tex; mode=display">\hat{w}=\arg\max_j P(w_j|\text{context})</script>
+<hr>
+<h2 id="六、CBOW-中两个矩阵的含义"><a href="#六、CBOW-中两个矩阵的含义" class="headerlink" title="六、CBOW 中两个矩阵的含义"></a>六、CBOW 中两个矩阵的含义</h2><p>CBOW 中通常有两个矩阵：</p>
+<script type="math/tex; mode=display">W</script>
+<p>和：</p>
+<script type="math/tex; mode=display">W'</script>
+<h3 id="MATH-INLINE-180-：输入词向量矩阵"><a href="#MATH-INLINE-180-：输入词向量矩阵" class="headerlink" title="<script type="math/tex">W</script>：输入词向量矩阵"></a><script type="math/tex">W</script>：输入词向量矩阵</h3><script type="math/tex; mode=display">W \in \mathbb{R}^{V\times N}</script>
+<p>它负责把 one-hot 词向量映射成低维稠密词向量。</p>
+<p>每一行对应一个词的词向量。</p>
+<p>训练结束后，我们通常主要使用 <script type="math/tex">W</script> 作为词向量表。</p>
+<h3 id="MATH-INLINE-182-：输出词向量矩阵"><a href="#MATH-INLINE-182-：输出词向量矩阵" class="headerlink" title="<script type="math/tex">W'</script>：输出词向量矩阵"></a><script type="math/tex">W'</script>：输出词向量矩阵</h3><script type="math/tex; mode=display">W' \in \mathbb{R}^{N\times V}</script>
+<p>它负责把上下文向量映射回词表空间，用来预测中心词。</p>
+<p>可以理解为分类器参数。</p>
+<p>考试里可以简单记：</p>
+<ul>
+<li><script type="math/tex">W</script>：把词编号变成词向量；</li>
+<li><script type="math/tex">W'</script>：把上下文表示变成词表中每个词的预测分数。</li>
+</ul>
+<hr>
+<h2 id="七、CBOW-的训练数据如何构造"><a href="#七、CBOW-的训练数据如何构造" class="headerlink" title="七、CBOW 的训练数据如何构造"></a>七、CBOW 的训练数据如何构造</h2><p>CBOW 不需要人工标注。</p>
+<p>它可以直接从普通文本中自动构造训练样本。</p>
+<p>给定句子：</p>
+<script type="math/tex; mode=display">w_1,w_2,w_3,w_4,w_5</script>
+<p>设窗口大小为 2。</p>
+<p>如果中心词是：</p>
+<script type="math/tex; mode=display">w_3</script>
+<p>那么上下文是：</p>
+<script type="math/tex; mode=display">w_1,w_2,w_4,w_5</script>
+<p>训练样本就是：</p>
+<script type="math/tex; mode=display">(w_1,w_2,w_4,w_5) \rightarrow w_3</script>
+<p>移动窗口，就可以从一大段文本中构造大量样本。</p>
+<p>所以 word2vec 可以看作一种自监督学习：</p>
+<p>文本自身提供输入和标签，不需要人工额外标注。</p>
+<hr>
+<h2 id="八、CBOW-与-BoW-的关系"><a href="#八、CBOW-与-BoW-的关系" class="headerlink" title="八、CBOW 与 BoW 的关系"></a>八、CBOW 与 BoW 的关系</h2><p>CBOW 名字里有 Bag of Words，但它和普通 BoW 不完全一样。</p>
+<p>相同点：</p>
+<ul>
+<li>都不太关注词序；</li>
+<li>都把若干词当作一个集合来看。</li>
+</ul>
+<p>不同点：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>目标</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BoW</td>
+<td>表示整篇文档或句子</td>
+<td>文档词频向量</td>
+</tr>
+<tr>
+<td>CBOW</td>
+<td>用上下文预测中心词</td>
+<td>学到词向量</td>
+</tr>
+</tbody></table>
+<p>BoW 是一种文本特征表示方法。</p>
+<p>CBOW 是一种训练词向量的神经网络模型。</p>
+<p>一句话：</p>
+<p>BoW 把文本变成词频向量；CBOW 通过上下文预测任务学习词向量。</p>
+<hr>
+<h2 id="九、CBOW-与-Skip-gram-的区别"><a href="#九、CBOW-与-Skip-gram-的区别" class="headerlink" title="九、CBOW 与 Skip-gram 的区别"></a>九、CBOW 与 Skip-gram 的区别</h2><p>word2vec 主要有两种模型：</p>
+<ul>
+<li>CBOW</li>
+<li>Skip-gram</li>
+</ul>
+<p>CBOW：</p>
+<p>上下文词<br>↓<br>预测中心词</p>
+<p>Skip-gram：</p>
+<p>中心词<br>↓<br>预测上下文词</p>
+<p>对比：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>输入</th>
+<th>输出</th>
+<th>直觉</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CBOW</td>
+<td>上下文</td>
+<td>中心词</td>
+<td>根据周围词猜中间词</td>
+</tr>
+<tr>
+<td>Skip-gram</td>
+<td>中心词</td>
+<td>上下文</td>
+<td>根据一个词猜周围词</td>
+</tr>
+</tbody></table>
+<p>例如句子：</p>
+<script type="math/tex; mode=display">\text{for breakfast he ate}</script>
+<p>CBOW：</p>
+<script type="math/tex; mode=display">(\text{for},\text{he},\text{ate}) \rightarrow \text{breakfast}</script>
+<p>Skip-gram：</p>
+<script type="math/tex; mode=display">\text{breakfast} \rightarrow (\text{for},\text{he},\text{ate})</script>
+<p>考试中常见表述：</p>
+<p>CBOW 用上下文预测中心词，Skip-gram 用中心词预测上下文。</p>
+<hr>
+<h2 id="十、CBOW-的优缺点"><a href="#十、CBOW-的优缺点" class="headerlink" title="十、CBOW 的优缺点"></a>十、CBOW 的优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>能从大规模文本中自动学习词向量；</li>
+<li>不需要人工标注词义；</li>
+<li>得到的是低维稠密向量；</li>
+<li>语义相似的词向量往往更接近；</li>
+<li>比 one-hot 更能表达词之间的关系；</li>
+<li>训练任务相对简单。</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>CBOW 会把上下文词向量平均，容易丢失词序信息；</li>
+<li>得到的是静态词向量，同一个词通常只有一个固定向量；</li>
+<li>对一词多义处理不好；</li>
+<li>只能利用局部窗口上下文；</li>
+<li>不能像 Transformer 那样根据整句话动态调整词表示。</li>
+</ul>
+<p>例如：</p>
+<script type="math/tex; mode=display">\text{bank}</script>
+<p>在：</p>
+<script type="math/tex; mode=display">\text{river bank}</script>
+<p>和：</p>
+<script type="math/tex; mode=display">\text{bank account}</script>
+<p>中含义不同。</p>
+<p>但传统 word2vec 通常给 bank 一个统一向量，难以区分不同语境下的意义。</p>
+<hr>
+<h2 id="十一、CBOW-和-Transformer-的关系"><a href="#十一、CBOW-和-Transformer-的关系" class="headerlink" title="十一、CBOW 和 Transformer 的关系"></a>十一、CBOW 和 Transformer 的关系</h2><p>CBOW 是早期词向量学习方法。</p>
+<p>Transformer 也需要词向量，但它更进一步。</p>
+<p>CBOW &#x2F; word2vec：</p>
+<ul>
+<li>学到的是静态词向量；</li>
+<li>一个词通常对应一个固定向量；</li>
+<li>主要依赖局部上下文窗口训练。</li>
+</ul>
+<p>Transformer：</p>
+<ul>
+<li>输入 token embedding；</li>
+<li>通过 self-attention 根据上下文动态更新表示；</li>
+<li>同一个词在不同语境中可以有不同表示。</li>
+</ul>
+<p>对比：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>词向量特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CBOW &#x2F; word2vec</td>
+<td>静态词向量</td>
+</tr>
+<tr>
+<td>Transformer</td>
+<td>上下文相关的动态表示</td>
+</tr>
+</tbody></table>
+<p>可以理解为：</p>
+<p>CBOW 解决了 one-hot 没有语义的问题；<br>Transformer 进一步解决了静态词向量难以处理上下文和一词多义的问题。</p>
+<hr>
+<h2 id="十二、考试答题模板"><a href="#十二、考试答题模板" class="headerlink" title="十二、考试答题模板"></a>十二、考试答题模板</h2><p>如果题目问“简述 CBOW 模型”，可以写：</p>
+<p>CBOW 是 word2vec 中的一种词向量学习模型，其核心思想是利用一个词周围的上下文词来预测中心词。模型首先将上下文词表示为 one-hot 向量，再通过共享的词向量矩阵 <script type="math/tex">W</script> 映射为低维词向量；然后将多个上下文词向量求平均，得到上下文表示；接着乘以输出矩阵 <script type="math/tex">W'</script>，经过 Softmax 得到词表中每个词作为中心词的概率；最后使用真实中心词作为标签，计算交叉熵损失，并通过反向传播更新 <script type="math/tex">W</script> 和 <script type="math/tex">W'</script>。训练完成后，矩阵 <script type="math/tex">W</script> 中的行向量即可作为词的分布式表示。CBOW 利用“上下文相似的词语义也相似”的思想，使语义相近的词在向量空间中距离更近。</p>
+<hr>
+<h2 id="十三、最核心记忆"><a href="#十三、最核心记忆" class="headerlink" title="十三、最核心记忆"></a>十三、最核心记忆</h2><p>CBOW 一句话：</p>
+<p>用上下文词预测中心词，从而学习词向量。</p>
+<p>核心流程：</p>
+<p>上下文词<br>↓<br>one-hot 表示<br>↓<br>乘以矩阵 <script type="math/tex">W</script><br>↓<br>得到上下文词向量<br>↓<br>取平均<br>↓<br>乘以矩阵 <script type="math/tex">W'</script><br>↓<br>Softmax 预测中心词<br>↓<br>交叉熵损失<br>↓<br>反向传播更新参数<br>↓<br>得到词向量</p>
+<p>核心公式：</p>
+<script type="math/tex; mode=display">e_i=x_iW</script>
+<script type="math/tex; mode=display">h=\frac{1}{m}\sum_{i=1}^{m}e_i</script>
+<script type="math/tex; mode=display">z=hW'</script>
+<script type="math/tex; mode=display">P(w_j|\text{context})=
+\frac{e^{z_j}}{\sum_{k=1}^{V}e^{z_k}}</script>
+<script type="math/tex; mode=display">L=-\log P(w_c|\text{context})</script>
+<p>最重要区分：</p>
+<p>CBOW：</p>
+<p>上下文预测中心词。</p>
+<p>Skip-gram：</p>
+<p>中心词预测上下文。</p>
+<p>最终目的：</p>
+<p>不是预测中心词本身，而是通过这个训练任务学到能表达语义关系的词向量。</p>
 <h1 id="Transformer-复习提纲：从-RNN-到大语言模型"><a href="#Transformer-复习提纲：从-RNN-到大语言模型" class="headerlink" title="Transformer 复习提纲：从 RNN 到大语言模型"></a>Transformer 复习提纲：从 RNN 到大语言模型</h1><blockquote>
 <p>整体主线：<br>自然语言是序列 → RNN 处理序列 → RNN 有长距离依赖和并行问题 → Attention 缓解信息瓶颈 → Self-Attention 让 token 直接互相看 → Transformer 用多头注意力、位置编码、残差连接、LayerNorm、FFN 组成完整结构 → Decoder 通过 Linear + Softmax 预测下一个 token → 大语言模型是 Transformer 的大规模扩展。</p>
 </blockquote>
@@ -862,7 +1209,7 @@ Linear + Softmax 把隐藏表示转成词表概率
 </blockquote>
 <hr>
 <h1 id="知识图谱"><a href="#知识图谱" class="headerlink" title="知识图谱"></a>知识图谱</h1><p>知识图谱可以先按“实体、关系、三元组”来记。它和纯文本模型不太一样，强调把事实结构化，例如“北京大学 - 位于 - 北京”。</p>
-</div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" rel="tag">人工智能</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" rel="tag">期末复习</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" rel="tag">知识图谱</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" rel="tag">自然语言处理</a></li></ul></div><div class="post-nav"><a class="pre" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a><a class="next" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>To be a better man.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" style="font-size: 15px;">人工智能</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E8%AF%86%E5%88%AB/" style="font-size: 15px;">图像识别</a> <a href="/tags/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">课程笔记</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/" style="font-size: 15px;">图像分类</a> <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">实验笔记</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">机器学习</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 15px;">自然语言处理</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">深度学习</a> <a href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" style="font-size: 15px;">期末复习</a> <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" style="font-size: 15px;">智能机器人</a> <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" style="font-size: 15px;">知识图谱</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 15px;">博客搭建</a> <a href="/tags/Hexo%E5%85%A5%E9%97%A8/" style="font-size: 15px;">Hexo入门</a> <a href="/tags/%E7%AB%99%E7%82%B9%E9%83%A8%E7%BD%B2/" style="font-size: 15px;">站点部署</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F/" style="font-size: 15px;">距离度量</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%87%A0%E4%BD%95/" style="font-size: 15px;">计算几何</a> <a href="/tags/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" style="font-size: 15px;">最小生成树</a> <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" style="font-size: 15px;">并查集</a> <a href="/tags/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" style="font-size: 15px;">算法刷题</a> <a href="/tags/%E5%8D%95%E8%B0%83%E6%A0%88/" style="font-size: 15px;">单调栈</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 15px;">数据结构</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 15px;">动态规划</a> <a href="/tags/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">算法笔记</a> <a href="/tags/%E9%99%8D%E7%BB%B4%E7%AE%97%E6%B3%95/" style="font-size: 15px;">降维算法</a> <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%8A%95%E5%BD%B1/" style="font-size: 15px;">随机投影</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E4%BF%9D%E6%8C%81/" style="font-size: 15px;">距离保持</a> <a href="/tags/%E5%9B%9B%E5%88%86%E6%A0%91/" style="font-size: 15px;">四分树</a> <a href="/tags/%E8%BF%91%E4%BC%BC%E7%AE%97%E6%B3%95/" style="font-size: 15px;">近似算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E9%99%8D%E7%BB%B4-JL%E6%96%B9%E6%B3%95/">降维:JL方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4g%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-%E4%BA%8C/">距离度量及其计算——低维欧氏距离(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/18/AI%E5%BC%95%E8%AE%BALab2%E2%80%94%E2%80%94%E4%BB%8Enumpy%E5%BC%80%E5%A7%8B%E7%9A%84u%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/">AI引论Lab2——从numpy开始的图像分类</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/AI%E5%BC%95%E8%AE%BA/">AI引论</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/04/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB/">距离度量及其计算——低维欧氏距离</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Square的小站.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/x-mathjax-config">MathJax.Hub.Config({
+</div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" rel="tag">人工智能</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" rel="tag">期末复习</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" rel="tag">知识图谱</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" rel="tag">自然语言处理</a></li></ul></div><div class="post-nav"><a class="pre" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a><a class="next" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://example.com"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="About"><img class="nofancybox" src="/img/avatar.png"/></a><p>To be a better man.</p><a class="info-icon" href="https://twitter.com/username" title="Twitter" target="_blank" style="margin-inline:5px"> <i class="fa fa-twitter-square" style="margin-inline:5px"></i></a><a class="info-icon" href="mailto:admin@domain.com" title="Email" target="_blank" style="margin-inline:5px"> <i class="fa fa-envelope-square" style="margin-inline:5px"></i></a><a class="info-icon" href="https://github.com/username" title="Github" target="_blank" style="margin-inline:5px"> <i class="fa fa-github-square" style="margin-inline:5px"></i></a><a class="info-icon" href="/atom.xml" title="RSS" target="_blank" style="margin-inline:5px"> <i class="fa fa-rss-square" style="margin-inline:5px"></i></a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/" style="font-size: 15px;">人工智能</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E8%AF%86%E5%88%AB/" style="font-size: 15px;">图像识别</a> <a href="/tags/%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">课程笔记</a> <a href="/tags/%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/" style="font-size: 15px;">图像分类</a> <a href="/tags/%E5%AE%9E%E9%AA%8C%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">实验笔记</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">机器学习</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 15px;">自然语言处理</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">深度学习</a> <a href="/tags/%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0/" style="font-size: 15px;">期末复习</a> <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">强化学习</a> <a href="/tags/%E6%99%BA%E8%83%BD%E6%9C%BA%E5%99%A8%E4%BA%BA/" style="font-size: 15px;">智能机器人</a> <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" style="font-size: 15px;">知识图谱</a> <a href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" style="font-size: 15px;">博客搭建</a> <a href="/tags/Hexo%E5%85%A5%E9%97%A8/" style="font-size: 15px;">Hexo入门</a> <a href="/tags/%E7%AB%99%E7%82%B9%E9%83%A8%E7%BD%B2/" style="font-size: 15px;">站点部署</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F/" style="font-size: 15px;">距离度量</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E5%87%A0%E4%BD%95/" style="font-size: 15px;">计算几何</a> <a href="/tags/%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91/" style="font-size: 15px;">最小生成树</a> <a href="/tags/%E5%B9%B6%E6%9F%A5%E9%9B%86/" style="font-size: 15px;">并查集</a> <a href="/tags/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98/" style="font-size: 15px;">算法刷题</a> <a href="/tags/%E5%8D%95%E8%B0%83%E6%A0%88/" style="font-size: 15px;">单调栈</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 15px;">数据结构</a> <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" style="font-size: 15px;">动态规划</a> <a href="/tags/%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0/" style="font-size: 15px;">算法笔记</a> <a href="/tags/%E9%99%8D%E7%BB%B4%E7%AE%97%E6%B3%95/" style="font-size: 15px;">降维算法</a> <a href="/tags/%E9%9A%8F%E6%9C%BA%E6%8A%95%E5%BD%B1/" style="font-size: 15px;">随机投影</a> <a href="/tags/%E8%B7%9D%E7%A6%BB%E4%BF%9D%E6%8C%81/" style="font-size: 15px;">距离保持</a> <a href="/tags/%E5%9B%9B%E5%88%86%E6%A0%91/" style="font-size: 15px;">四分树</a> <a href="/tags/%E8%BF%91%E4%BC%BC%E7%AE%97%E6%B3%95/" style="font-size: 15px;">近似算法</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%94-%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/">AI引论期末复习(五):计算机视觉</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/14/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E5%9B%9B-%E5%85%B6%E5%AE%83/">AI引论期末复习(四):其它</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/13/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%89-%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93/">AI引论期末复习(三):多智能体</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%BA%8C/">AI引论期末复习(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/12/AI%E5%BC%95%E8%AE%BA%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0-%E4%B8%80/">AI引论期末复习(一)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/06/03/AI%E5%BC%95%E8%AE%BA%E2%80%94%E2%80%94numpy%E5%AE%9E%E7%8E%B0%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E4%B8%AD%E7%9A%84%E6%83%85%E6%84%9F%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98/">AI引论——numpy实现自然语言处理中的简单问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E9%99%8D%E7%BB%B4-JL%E6%96%B9%E6%B3%95/">降维:JL方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/25/%E8%B7%9D%E7%A6%BB%E5%BA%A6%E9%87%8F%E5%8F%8A%E5%85%B6%E8%AE%A1%E7%AE%97%E2%80%94%E2%80%94%E4%BD%8E%E7%BB%B4g%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB-%E4%BA%8C/">距离度量及其计算——低维欧氏距离(二)</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/18/AI%E5%BC%95%E8%AE%BALab2%E2%80%94%E2%80%94%E4%BB%8Enumpy%E5%BC%80%E5%A7%8B%E7%9A%84u%E5%9B%BE%E5%83%8F%E5%88%86%E7%B1%BB/">AI引论Lab2——从numpy开始的图像分类</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/AI%E5%BC%95%E8%AE%BA/">AI引论</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Links</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">Square的小站.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="Copy Successed!"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/x-mathjax-config">MathJax.Hub.Config({
   tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
   });
 </script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
